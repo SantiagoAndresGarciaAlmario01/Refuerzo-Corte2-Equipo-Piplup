@@ -1,81 +1,58 @@
-# 04 Principios SOLID: SRP y DIP en el núcleo de AquaPort MVP
+# 04 Principios SOLID: Auditoría del diseño de AquaPort v2
 
-**Nivel:** Piplup · **Principios:** S (Responsabilidad Única) · D (Inversión de Dependencias)
+**Nivel:** Prinplup · **Principios:** SRP · OCP · LSP · ISP · DIP · **Prueba de extensión:** `DroneSumergibleProfundo`
 
-## 1. Diagnóstico del código original
+## Diagrama de clases
 
-```java
-class GestorMision {
-    public void registrarMision(Mision m) { /* guarda en lista */ }
-    public void enviarNotificacionEmail(Mision m) { /* envía email */ }
-    public void calcularRutaOptima(Mision m) { /* lógica de ruta */ }
-    public void imprimirReporte() { /* formatea e imprime */ }
-}
-```
+![Diagrama de clases v2](docs/diagrama-clases-v2.png)
 
-`GestorMision` viola **SRP** porque tiene **4 razones para cambiar**:
+Fuente: [`docs/diagrama-clases-v2.dot`](docs/diagrama-clases-v2.dot) (Graphviz: `dot -Tpng docs/diagrama-clases-v2.dot -o docs/diagrama-clases-v2.png`). En verde está el cuarto tipo agregado para demostrar OCP.
 
-| Si cambia… | …hay que tocar `GestorMision` |
+## Auditoría por clase
+
+| Clase | Principio que aplica | Cómo se ve en el código | Qué pasaría si no se cumpliera |
+|---|---|---|---|
+| `AsignadorAutomatico` | **DIP** + **SRP** | Recibe por constructor `EstrategiaSeleccion`, `ProveedorCondicionesHidricas`, `ValidadorAsignacion` y `PublicadorEventosMision`. Solo coordina: consulta condiciones, filtra aptos, delega la elección y confirma. | Si creara `new MayorBateriaStrategy()` o llamara a la API real, no se podría probar sin red ni cambiar la política sin editarlo. |
+| `ValidadorAsignacion` | **SRP** | Única responsabilidad: decidir si un drone es apto (disponible, batería ≥ 35 %, capacidad, condiciones hídricas). | Las reglas de aptitud estarían repartidas entre asignador, estrategias y UI. |
+| `EstrategiaSeleccion` y sus 3 implementaciones | **OCP** + **ISP** | Una interfaz de un método; una política nueva es una clase nueva. | Cada criterio nuevo sería otro `if` dentro del asignador. |
+| `PublicadorEventosMision` | **SRP** | Solo mantiene la lista de observadores y reparte los eventos. | El asignador cargaría con la lista de suscriptores además de su lógica. |
+| `ObservadorMision` | **ISP** + **OCP** | Un solo método `notificar(EventoMision)`. Un nuevo interesado (por ejemplo un registro de auditoría) se agrega sin tocar a nadie. | Una interfaz con `onAsignada`, `onFallo`, `onSinDrone`, ... obligaría al técnico a implementar métodos que no usa. |
+| `ProveedorCondicionesHidricas` | **DIP** + **ISP** | Abstracción de la API externa de condiciones hídricas (sistema externo del C4). | El dominio quedaría acoplado a HTTP y a un proveedor concreto. |
+| `FabricaDrones` + `CreadorDrone` | **OCP** | Registro `Map<String, CreadorDrone>`; un tipo nuevo se registra con `Tipo::new`. | Un `switch (tipo)` que habría que modificar por cada drone nuevo. |
+| `DroneAcuatico` y subclases | **LSP** + **OCP** | Cada subtipo responde `getCapacidadCargaGramos()` y `puedeOperarEn(condiciones)` con sus propias reglas, sin lanzar excepciones ni cambiar el contrato. | `if (drone instanceof DroneBuceador)` repartidos por el código. |
+| `Mision` (inmutable + Builder) | **SRP** | Solo representa la misión y valida sus invariantes en `build()`. `asignarA(drone)` devuelve una misión nueva. | Misiones en estado inválido circulando por el sistema. |
+| `ConsultorFlota` | **SRP** | Solo consultas de lectura con Streams; no modifica la flota. | Consultas mezcladas con la lógica de asignación. |
+
+## OCP demostrado: un cuarto tipo sin modificar el asignador
+
+Se agregó `DroneSumergibleProfundo` (800 g, de 5 a 60 m, solo agitación baja). Los cambios fueron:
+
+| Archivo | Cambio |
 |---|---|
-| la forma de guardar (lista → archivo → BD) | `registrarMision` |
-| el canal de aviso (email → pantalla → SMS) | `enviarNotificacionEmail` |
-| el algoritmo de rutas | `calcularRutaOptima` |
-| el formato del reporte | `imprimirReporte` |
+| `modelo/DroneSumergibleProfundo.java` | **Nuevo** (extiende `DroneAcuatico`) |
+| `AsignadorAutomatico`, `ValidadorAsignacion`, estrategias, observadores | **Ninguno** |
+| `FabricaDrones` | **Ninguno**: el tipo se registra desde afuera con `fabrica.registrar(DroneSumergibleProfundo.TIPO, DroneSumergibleProfundo::new)` |
 
-Consecuencia real: un cambio en el formato del reporte obliga a recompilar y volver a probar el registro de misiones, y dos personas que trabajan en temas distintos editan el mismo archivo (conflictos de merge).
+La prueba `ocp_nuevoTipoDeDrone_seAsignaSinCambiarElAsignador` pide una misión de 600 g a 20 m de profundidad: el buceador (300 g) no puede llevarla y el asignador, sin cambios, elige el `AR-16` sumergible profundo.
 
-Y `AsignadorMision` con `private BaseDatosLocal bd = new BaseDatosLocal();` viola **DIP**: la lógica de negocio queda amarrada a un almacenamiento concreto y no se puede probar sin él.
+## LSP
 
-## 2. Diseño propuesto
+`lsp_cualquierSubtipo_cumpleElContratoDelPadre` es una prueba parametrizada que corre sobre los **4** subtipos. Todos responden `puedeOperarEn` y `puedeTransportar` sin excepciones y con capacidad positiva. Las precondiciones del padre (id obligatorio, batería 0–100) están en el constructor de `DroneAcuatico` y ningún hijo las endurece.
 
-![Diagrama de clases](docs/diagrama-clases-solid.png)
+## DIP
 
-| Clase | Única responsabilidad (una razón para cambiar) |
-|---|---|
-| `RegistradorMisiones` | Registrar y consultar misiones (rechaza ids duplicados). |
-| `ValidadorMision` | Reglas de negocio: zonas fijas, partida ≠ llegada, batería ≥ 35 %. |
-| `NotificadorOperador` *(interfaz)* + `NotificadorOperadorConsola` | Comunicar resultados al operador. |
-| `RepositorioMisiones` *(interfaz)* + `RepositorioMisionesEnMemoria` | Almacenar misiones. |
-| `GestorSolicitudesMision` | Orquestar el flujo *validar → registrar → notificar*; no contiene reglas, ni almacenamiento, ni formato. |
-| `AquaPortSolidApp` | Raíz de composición: el **único** lugar donde se hace `new` de clases concretas. |
+`dip_asignadorDependeDeAbstracciones` construye el asignador solo con **mocks** de `EstrategiaSeleccion`, `ProveedorCondicionesHidricas` y `ObservadorMision`. Si el asignador dependiera de clases concretas esta prueba no se podría escribir.
 
-### Interfaz `RepositorioMisiones`
+## Decisiones discutidas
 
-```java
-public interface RepositorioMisiones {
-    void guardar(Mision mision);
-    Optional<Mision> buscarPorId(String id);   // nunca null
-    List<Mision> listarTodas();
-}
+- **`asignarPorPrioridad` usa un `for`**: cada asignación cambia el estado del drone a `EN_MISION` y afecta la siguiente. Hacerlo con `stream().map(...)` sería un stream con efectos secundarios, que es justamente lo que el revisor prohíbe. Las consultas puras sí están en Streams.
+- **Estado del drone mutable**: un drone físico cambia de estado durante el día; el cambio está encapsulado en `cambiarEstado` y validado (no acepta `null`).
+- Ninguna clase supera 150 líneas y ningún método supera 20 líneas.
+
+## Pruebas (27)
+
+`PrincipiosSolidTest` (OCP, LSP x4, DIP) y `DroneAcuaticoTest` (reglas de cada tipo, incluido el sumergible profundo).
+
+```bash
+mvn test
 ```
-
-### Constructor injection en `RegistradorMisiones`
-
-```java
-public RegistradorMisiones(RepositorioMisiones repositorio) {
-    this.repositorio = Objects.requireNonNull(repositorio, "El repositorio de misiones es obligatorio");
-}
-```
-
-## 3. Justificación
-
-- **SRP:** cada clase cambia por un solo motivo. Si mañana el operador recibe avisos en pantalla en vez de consola, se crea `NotificadorOperadorPantalla` y no se toca ni el validador ni el registrador.
-- **DIP:** `RegistradorMisiones` depende de `RepositorioMisiones` (abstracción) y `GestorSolicitudesMision` depende de `NotificadorOperador` (abstracción). Las dependencias llegan **por constructor**, son `final` y se validan contra `null`, así el objeto nunca queda a medio construir.
-- **Testabilidad (beneficio directo de DIP):** en `GestorSolicitudesMisionTest` se usa un `NotificadorEspia` (doble de prueba) en lugar de la consola; el gestor no nota la diferencia.
-- **OCP como efecto secundario:** agregar un canal o un almacenamiento nuevo es *agregar una clase*, no modificar las existentes.
-- **Sin `null`:** las búsquedas devuelven `Optional`.
-
-## 4. Ejecución de ejemplo
-
-```
-[OK] Misión M-001 registrada: drone AR-01 | Embalse Norte -> Laboratorio Hídrico
-[RECHAZADA] Misión M-002: El drone AR-02 tiene batería insuficiente (30%). Mínimo requerido: 35%.
-[RECHAZADA] Misión M-003: La zona 'Zona Desconocida' no pertenece a las zonas fijas del campus
-Misiones registradas: 1
-```
-
-## 5. Archivos
-
-- `src/main/java/...`: código (modelo reutilizado del punto 03).
-- `src/test/java/...`: 6 pruebas (misión válida, batería insuficiente, zona inválida, ruta circular, id duplicado, búsqueda inexistente → `Optional.empty()`).
-- `docs/diagrama-clases-solid.png` y su fuente editable `docs/diagrama-clases-solid.dot` (Graphviz: `dot -Tpng diagrama-clases-solid.dot -o diagrama-clases-solid.png`).
