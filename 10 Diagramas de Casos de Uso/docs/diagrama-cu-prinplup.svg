@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1720" height="1180" viewBox="0 0 1720 1180" font-family="Inter, Arial, sans-serif">
+<defs><marker id="o" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1 1 11 6 1 11" fill="none" stroke="#0A1F3C" stroke-width="1.6"/></marker><marker id="g" viewBox="0 0 16 16" refX="15" refY="8" markerWidth="16" markerHeight="16" orient="auto"><path d="M1 1 15 8 1 15z" fill="#fff" stroke="#0A1F3C" stroke-width="1.6"/></marker></defs>
+<rect width="1720" height="1180" fill="#fff"/>
+<text x="40" y="50" font-size="28" font-weight="700" fill="#0A1F3C">Diagrama de Casos de Uso – AquaPort v2 (Prinplup): asignación automática</text>
+<rect x="390" y="90" width="1010" height="1010" rx="14" fill="#F7FAFC" stroke="#0A1F3C" stroke-width="2"/>
+<text x="410" y="122" font-size="18" font-weight="700" fill="#0A1F3C">«sistema» AquaPort v2</text>
+<g stroke="#0A1F3C" stroke-width="2.6" fill="none" stroke-linecap="round"><circle cx="170" cy="172" r="18" fill="#E6F7FB"/><line x1="170" y1="190" x2="170" y2="240"/><line x1="140" y1="208" x2="200" y2="208"/><line x1="170" y1="240" x2="146" y2="278"/><line x1="170" y1="240" x2="194" y2="278"/></g>
+<text x="170" y="306" font-size="16.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Personal ECI</text>
+<text x="170" y="325" font-size="12.5" fill="#5A6B7F" text-anchor="middle">(actor base)</text>
+<g stroke="#0A1F3C" stroke-width="2.6" fill="none" stroke-linecap="round"><circle cx="95" cy="502" r="18" fill="#E6F7FB"/><line x1="95" y1="520" x2="95" y2="570"/><line x1="65" y1="538" x2="125" y2="538"/><line x1="95" y1="570" x2="71" y2="608"/><line x1="95" y1="570" x2="119" y2="608"/></g>
+<text x="95" y="636" font-size="16.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Operador Hídrico</text>
+<g stroke="#0A1F3C" stroke-width="2.6" fill="none" stroke-linecap="round"><circle cx="270" cy="502" r="18" fill="#E6F7FB"/><line x1="270" y1="520" x2="270" y2="570"/><line x1="240" y1="538" x2="300" y2="538"/><line x1="270" y1="570" x2="246" y2="608"/><line x1="270" y1="570" x2="294" y2="608"/></g>
+<text x="270" y="636" font-size="16.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Administrador ECI</text>
+<g stroke="#0A1F3C" stroke-width="2.6" fill="none" stroke-linecap="round"><circle cx="170" cy="902" r="18" fill="#E6F7FB"/><line x1="170" y1="920" x2="170" y2="970"/><line x1="140" y1="938" x2="200" y2="938"/><line x1="170" y1="970" x2="146" y2="1008"/><line x1="170" y1="970" x2="194" y2="1008"/></g>
+<text x="170" y="1036" font-size="16.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Solicitante</text>
+<rect x="1490" y="190" width="160" height="90" rx="10" fill="#EEF2F6" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1570" y="216" font-size="12.5" fill="#5A6B7F" text-anchor="middle">«actor sistema»</text>
+<text x="1570" y="240" font-size="15.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">API Condiciones</text>
+<text x="1570" y="259" font-size="15.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Hídricas</text>
+<rect x="1490" y="500" width="160" height="90" rx="10" fill="#EEF2F6" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1570" y="526" font-size="12.5" fill="#5A6B7F" text-anchor="middle">«actor sistema»</text>
+<text x="1570" y="550" font-size="15.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Centro de Control</text>
+<text x="1570" y="569" font-size="15.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">ECI</text>
+<g stroke="#0A1F3C" stroke-width="2.6" fill="none" stroke-linecap="round"><circle cx="1570" cy="762" r="18" fill="#E6F7FB"/><line x1="1570" y1="780" x2="1570" y2="830"/><line x1="1540" y1="798" x2="1600" y2="798"/><line x1="1570" y1="830" x2="1546" y2="868"/><line x1="1570" y1="830" x2="1594" y2="868"/></g>
+<text x="1570" y="896" font-size="16.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Técnico de Mantenimiento</text>
+<line x1="95" y1="490" x2="155" y2="330" stroke="#0A1F3C" stroke-width="2" marker-end="url(#g)"/>
+<line x1="270" y1="490" x2="188" y2="330" stroke="#0A1F3C" stroke-width="2" marker-end="url(#g)"/>
+<text x="182" y="430" font-size="12.5" fill="#5A6B7F" text-anchor="middle">generalización</text>
+<ellipse cx="600" cy="200" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="600" y="195.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Consultar estado</text>
+<text x="600" y="214.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">de la flota</text>
+<ellipse cx="600" cy="350" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="600" y="345.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Cambiar estrategia</text>
+<text x="600" y="364.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">de selección</text>
+<ellipse cx="600" cy="490" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="600" y="485.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Gestionar flota</text>
+<text x="600" y="504.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">por tipo (Factory)</text>
+<ellipse cx="600" cy="960" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="600" y="955.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Solicitar transporte</text>
+<text x="600" y="974.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">de carga</text>
+<ellipse cx="830" cy="690" rx="175" ry="56" fill="#D7F3FA" stroke="#0E8FB8" stroke-width="3"/>
+<text x="830" y="676.0" font-size="15" font-weight="700" fill="#0A1F3C" text-anchor="middle">Asignar misión</text>
+<text x="830" y="695.0" font-size="15" font-weight="700" fill="#0A1F3C" text-anchor="middle">automáticamente</text>
+<text x="830" y="714.0" font-size="12" font-weight="400" fill="#5A6B7F" text-anchor="middle">ext.: drone en FALLO · CRÍTICA sin drone</text>
+<ellipse cx="1010" cy="240" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1010" y="235.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Validar condiciones</text>
+<text x="1010" y="254.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">hídricas</text>
+<ellipse cx="1180" cy="400" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1180" y="395.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Aplicar estrategia</text>
+<text x="1180" y="414.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">de selección</text>
+<ellipse cx="1180" cy="800" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1180" y="795.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Notificar fallo</text>
+<text x="1180" y="814.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">al técnico</text>
+<ellipse cx="1180" cy="980" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1180" y="975.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Abrir orden</text>
+<text x="1180" y="994.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">de mantenimiento</text>
+<ellipse cx="1180" cy="560" rx="150" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1180" y="555.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Escalar misión CRÍTICA</text>
+<text x="1180" y="574.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">al Centro de Control</text>
+<line x1="200" y1="215" x2="461.1" y2="205.2" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="125" y1="540" x2="516.0" y2="383.6" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="300" y1="540" x2="477.6" y2="510.4" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="125" y1="560" x2="678.4" y2="662.0" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="200" y1="950" x2="460.5" y2="956.5" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="1490" y1="250" x2="1149.7" y2="242.9" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="1490" y1="600" x2="991.0" y2="668.0" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="1530" y1="800" x2="1320.0" y2="800.0" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="1490" y1="560" x2="1330.0" y2="560.0" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="634.7" y1="919.3" x2="784.0" y2="744.0" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="631.3196884288404" y="816.6681918444046" width="96" height="22" rx="5" fill="#fff" opacity=".95"/>
+<text x="679.3196884288404" y="833.6681918444046" font-size="13.5" font-weight="700" fill="#0E6E8F" text-anchor="middle">«include»</text>
+<line x1="852.2" y1="634.5" x2="993.3" y2="281.7" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="854.7691964099328" y="437.07700897516804" width="96" height="22" rx="5" fill="#fff" opacity=".95"/>
+<text x="902.7691964099328" y="454.07700897516804" font-size="13.5" font-weight="700" fill="#0E6E8F" text-anchor="middle">«include»</text>
+<line x1="893.0" y1="637.8" x2="1132.3" y2="439.5" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="964.6929287829095" y="519.6258590084465" width="96" height="22" rx="5" fill="#fff" opacity=".95"/>
+<text x="1012.6929287829095" y="536.6258590084465" font-size="13.5" font-weight="700" fill="#0E6E8F" text-anchor="middle">«include»</text>
+<line x1="1083.3" y1="769.6" x2="954.9" y2="729.2" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="938.2934117855496" y="752.4293579897442" width="181.6" height="40" rx="5" fill="#fff" opacity=".95"/>
+<text x="1029.0934117855495" y="769.4293579897442" font-size="13.5" font-weight="700" fill="#B4541A" text-anchor="middle">«extend»</text>
+<text x="1029.0934117855495" y="787.4293579897442" font-size="12.5" fill="#5A6B7F" text-anchor="middle">[un drone pasa a FALLO]</text>
+<line x1="1180.0" y1="842.0" x2="1180.0" y2="938.0" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="1180.0" y="875.0" width="96" height="22" rx="5" fill="#fff" opacity=".95"/>
+<text x="1228.0" y="892.0" font-size="13.5" font-weight="700" fill="#0E6E8F" text-anchor="middle">«include»</text>
+<line x1="1089.7" y1="593.5" x2="944.2" y2="647.6" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="894.5647558688104" y="597.5559478201561" width="224.8" height="40" rx="5" fill="#fff" opacity=".95"/>
+<text x="1006.9647558688104" y="614.5559478201561" font-size="13.5" font-weight="700" fill="#B4541A" text-anchor="middle">«extend»</text>
+<text x="1006.9647558688104" y="632.5559478201561" font-size="12.5" fill="#5A6B7F" text-anchor="middle">[CRÍTICA y ningún drone apto]</text>
+<g transform="translate(40,1150)" font-size="13" fill="#0A1F3C"><text x="0" y="-12"><tspan font-weight="700" fill="#0E6E8F">«include»</tspan> siempre ocurre · <tspan font-weight="700" fill="#B4541A">«extend»</tspan> solo si se cumple la condición entre corchetes (la flecha apunta al CU base) · triángulo vacío = generalización</text><text x="0" y="8">Operador y Administrador heredan lo que puede hacer el Personal ECI · «include» encadenado: Solicitar → Asignar → Validar / Aplicar, y Notificar fallo → Abrir orden</text></g>
+</svg>

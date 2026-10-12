@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaPort v2 · Flujo de asignación automática</title>
+<link rel="stylesheet" href="aquaport-v2.css">
+<style>
+.layout{display:grid;grid-template-columns:1fr 380px;gap:20px}
+.sec-h{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.sec-h .tabs{margin-left:auto}
+.grupo{border-radius:20px;padding:16px;background:rgba(15,42,77,.45);border:1px solid var(--linea);margin-bottom:16px}
+.grupo-h{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.grupo-h .badge{width:42px;height:42px}
+.grupo-h h3{font-family:var(--display);font-size:21px;letter-spacing:.05em;text-transform:uppercase}
+.grupo-h small{display:block;color:var(--niebla);font-size:12px}
+.grupo-h .cuenta{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--niebla)}
+.grupo-h .cuenta b{color:var(--ribera)}
+.fila{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.dcard{border-radius:14px;padding:12px;background:linear-gradient(180deg,rgba(15,42,77,.95),rgba(10,31,60,.95));border:1px solid var(--linea);box-shadow:0 10px 24px rgba(0,0,0,.3)}
+.dcard.fallo{border-color:rgba(242,84,91,.7);box-shadow:0 0 0 3px rgba(242,84,91,.10)}
+.dcard.elegido{border:1px solid transparent;background:linear-gradient(180deg,#0F2A4D,#0A1F3C) padding-box,linear-gradient(135deg,var(--cian),var(--ribera)) border-box;box-shadow:0 0 0 1px rgba(25,195,230,.2),0 14px 34px rgba(25,195,230,.2)}
+.dcard.apagado{opacity:.55}
+.dc-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dc-badge{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--bg);color:var(--c);box-shadow:0 6px 14px var(--bg)}
+.dc-id{font-weight:600;font-size:14px}
+.dc-zona{font-size:11px;color:var(--niebla);display:flex;align-items:center;gap:3px}
+.dc-top .pill{font-size:9.5px;padding:4px 8px;margin-top:2px}
+.dc-bat{display:flex;align-items:baseline;gap:8px;margin:10px 0 6px}
+.dc-bat b{font-family:var(--display);font-size:26px;line-height:1}
+.warn{font-size:11px;color:var(--bat-baja);display:flex;align-items:center;gap:3px}
+.cola .item{display:flex;gap:12px;align-items:center;padding:12px;border-radius:14px;background:rgba(6,20,40,.5);border:1px solid var(--linea);margin-top:10px}
+.cola .item.critica{border-color:rgba(242,84,91,.5);background:rgba(242,84,91,.08)}
+.cola .item small{display:block;color:var(--niebla);font-size:11.5px}
+.prio{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:6px;font-weight:600;letter-spacing:.08em}
+.detalle{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.cond{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.cond div{padding:14px;border-radius:14px;background:rgba(6,20,40,.55);border:1px solid var(--linea)}
+.cond b{font-family:var(--display);font-size:26px;display:block}
+.cond span{font-size:11px;color:var(--niebla);text-transform:uppercase;letter-spacing:.08em;display:flex;gap:6px;align-items:center}
+.dato{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--linea);font-size:13.5px}
+.dato span{color:var(--niebla)}
+.razon{display:flex;gap:10px;align-items:flex-start;padding:8px 0;font-size:13.5px}
+.razon .ok{color:var(--ribera)}
+.desc{display:grid;grid-template-columns:70px 1fr;gap:6px 12px;font-size:12.5px;margin-top:10px}
+.desc .mono{color:var(--espuma)}
+.desc span:nth-child(even){color:var(--niebla)}
+.timeline{display:flex;gap:0;margin-top:14px}
+.paso{flex:1;position:relative;text-align:center;padding-top:44px;font-size:12.5px}
+.paso::before{content:'';position:absolute;top:17px;left:50%;right:-50%;height:2px;background:linear-gradient(90deg,var(--ribera),var(--cian))}
+.paso:last-child::before{display:none}
+.paso .circ{position:absolute;top:0;left:50%;transform:translateX(-50%);width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--ribera);color:#032033;box-shadow:0 6px 16px rgba(46,211,160,.4);z-index:1}
+.paso small{display:block;color:var(--niebla);font-family:var(--mono);font-size:11px}
+.mini{display:grid;grid-template-columns:repeat(15,1fr);gap:6px;margin-top:12px}
+.mini div{height:46px;border-radius:10px;display:grid;place-items:center;font-family:var(--mono);font-size:10px;font-weight:600}
+.leyenda{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--niebla)}
+.leyenda span{display:flex;align-items:center;gap:6px}
+.pantalla-tag{font-family:var(--mono);font-size:11px;color:var(--niebla);letter-spacing:.12em;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<footer><span>AquaPort v2.0 · DOSW 2026-2</span><span>Estrategia activa: PrioridadCrítica (zona cercana / mayor batería)</span><span>Equipo Prinplup</span></footer>
+<script src="aquaport-v2.js"></script>
+<script>
+const pantalla = new URLSearchParams(location.search).get('pantalla') || 'flota';
+const app = document.getElementById('app');
+const flota = FLOTA_BASE.map(d => ({...d}));
+if (pantalla === 'confirmacion') flota.find(d => d.id === 'AR-11').estado = 'EN_MISION';
+if (pantalla === 'alerta') {
+  flota.find(d => d.id === 'AR-06').estado = 'EN_MISION';
+  flota.find(d => d.id === 'AR-09').estado = 'EN_MISION';
+}
+
+function hero(titulo, sub, kpis, accion = '') {
+  return `<section class="hero">
+    <div class="aura" style="width:420px;height:420px;background:#19C3E6;opacity:.32;top:-230px;left:-80px"></div>
+    <div class="aura" style="width:340px;height:340px;background:#2ED3A0;opacity:.22;bottom:-230px;right:14%"></div>
+    <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+    <div class="hero-row"><div><div class="eyebrow">${sub}</div><h1>${titulo}</h1></div>
+    <div class="kpis">${kpis.map(([v,t,c='']) => `<div class="kpi ${c}"><b>${v}</b><span>${t}</span></div>`).join('')}</div>${accion}</div>
+  </section>`;
+}
+
+function kpisFlota() {
+  const disp = flota.filter(d => d.estado === 'DISPONIBLE' && d.bat >= 35).length;
+  const mision = flota.filter(d => d.estado === 'EN_MISION').length;
+  const fallo = flota.filter(d => d.estado === 'FALLO').length;
+  return [[`${disp}<small style="font-size:16px;color:var(--niebla)">/15</small>`,'Operables'],[mision,'En misión'],[fallo,'En fallo',fallo?'alerta':''],[pantalla==='alerta'?2:3,'En cola']];
+}
+
+function grupos(elegido) {
+  return Object.entries(TIPOS).map(([tipo, t]) => {
+    const drones = flota.filter(d => d.tipo === tipo);
+    const disp = drones.filter(d => d.estado === 'DISPONIBLE' && d.bat >= 35).length;
+    return `<div class="grupo">
+      <div class="grupo-h"><span class="badge" style="background:rgba(25,195,230,.14);color:var(--cian);box-shadow:0 8px 20px rgba(25,195,230,.2)">${ic(t.icono,24)}</span>
+        <div><h3>${t.nombre}</h3><small>${t.modelo} · ${t.detalle}</small></div>
+        <span class="cuenta"><b>${disp}</b> operables de ${drones.length}</span></div>
+      <div class="fila">${drones.map(d => tarjetaCompacta(d, [d.estado==='FALLO'?'fallo':'', d.id===elegido?'elegido':'', (d.estado!=='DISPONIBLE'||d.bat<35)&&d.estado!=='FALLO'?'apagado':''].join(' '))).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+function cola(conAlerta) {
+  const items = conAlerta
+    ? [['M-1043','CRITICA','Canal Central → Lab. Hídrico','Equipo de medición · 1.200 g · agitación ALTA',true],['M-1045','NORMAL','Ribera Este → Laguna Sur','Sensor · 180 g',false]]
+    : [['M-1042','CRITICA','Laguna Sur → Lab. Hídrico','Muestra de agua · 250 g',true],['M-1044','ALTA','Embalse Norte → Canal Central','Paquete ligero · 400 g',false],['M-1045','NORMAL','Ribera Este → Laguna Sur','Sensor · 180 g',false]];
+  return `<aside><div class="box cola">
+    <h3>${ic('i-clock',18)} Cola de misiones</h3>
+    <p style="color:var(--niebla);font-size:12.5px;margin-top:4px">Ordenadas por prioridad: las CRÍTICAS se asignan primero.</p>
+    ${items.map(([id,p,ruta,carga,crit]) => `<div class="item ${crit?'critica':''}">
+      <span class="badge" style="width:40px;height:40px;background:${crit?'rgba(242,84,91,.16)':'rgba(25,195,230,.12)'};color:${crit?'var(--st-fallo)':'var(--cian)'}">${ic('i-box',20)}</span>
+      <div><b class="mono">${id}</b> <span class="prio" style="background:${crit?'var(--st-fallo)':p==='ALTA'?'rgba(245,184,65,.2)':'rgba(255,255,255,.08)'};color:${crit?'#fff':p==='ALTA'?'var(--st-recargando)':'var(--niebla)'}">${p}</span><small>${ruta}</small><small>${carga}</small></div></div>`).join('')}
+    <button class="btn btn-primary" style="width:100%;margin-top:14px;padding:16px">${ic('i-spark',18)} Asignar automáticamente</button>
+  </div>
+  <div class="box" style="margin-top:16px"><h3>${ic('i-wave',18)} Leyenda de estados</h3>
+    <div class="leyenda">${Object.values(ESTADOS).map(e => `<span><span class="dot" style="color:${e.c}"></span>${e.txt}</span>`).join('')}</div>
+    <div class="leyenda"><span><span class="dot" style="color:var(--bat-alta)"></span>batería ≥ 60 %</span><span><span class="dot" style="color:var(--bat-media)"></span>35-59 %</span><span><span class="dot" style="color:var(--bat-baja)"></span>&lt; 35 %</span></div>
+  </div></aside>`;
+}
+
+function pantallaFlota(conAlerta) {
+  const banner = conAlerta ? `<div class="banner">
+      <span class="badge" style="background:rgba(242,84,91,.2);color:var(--st-fallo)">${ic('i-alert',24)}</span>
+      <div><h3>Misión CRÍTICA M-1043 sin drone apto</h3>
+      <p>Canal Central reporta agitación ALTA: solo el tipo Semisumergido puede operar y los 3 operables están ocupados (AR-06 y AR-09 en misión, AR-08 en mantenimiento). Se notificó al Centro de Control.</p></div>
+      <div class="acts"><button class="btn btn-ghost">Ver detalle</button><button class="btn btn-danger">Liberar AR-09 de M-1041 (NORMAL)</button></div></div>` : '';
+  return navHTML('Flota') + `<main>
+    <div class="pantalla-tag">${conAlerta ? 'ESTADO DE ALERTA · MISIÓN CRÍTICA SIN DRONE' : 'PANTALLA 1 DE 3 · PANEL DE FLOTA'}</div>
+    ${hero('Flota acuática v2','15 DRONES · 3 TIPOS · ASIGNACIÓN AUTOMÁTICA', kpisFlota())}
+    ${banner}
+    <div class="layout"><section>
+      <div class="sec-h"><h2>Flota por tipo</h2><div class="tabs"><button class="on">Por tipo</button><button>Por zona</button><button>Todos</button></div></div>
+      ${grupos(null)}
+    </section>${cola(conAlerta)}</div></main>`;
+}
+
+function pantallaDetalle() {
+  const descartados = [['AR-06','88 %, pero está en Canal Central (más lejos)'],['AR-15','77 %, en Ribera Este'],['AR-01','Superficial: no opera con agitación MEDIA'],['AR-07','Batería 34 %, bajo el mínimo de 35 %'],['AR-14','En FALLO, excluido']];
+  return navHTML('Misiones') + `<main>
+    <div class="pantalla-tag">PANTALLA 2 DE 3 · DETALLE DE MISIÓN</div>
+    ${hero('Misión M-1042','PRIORIDAD CRÍTICA · LAGUNA SUR → LABORATORIO HÍDRICO', [['250 g','Carga'],['CRÍTICA','Prioridad','alerta'],['9','Disponibles'],['5','Aptos']])}
+    <div class="detalle">
+      <div>
+        <div class="box"><h3>${ic('i-flask',18)} Solicitud</h3>
+          <div class="dato"><span>Tipo de carga</span><b>Muestra de agua</b></div>
+          <div class="dato"><span>Peso</span><b class="mono">250 g</b></div>
+          <div class="dato"><span>Partida</span><b>Laguna Sur</b></div>
+          <div class="dato"><span>Destino</span><b>Laboratorio Hídrico</b></div>
+          <div class="dato" style="border:0"><span>Solicitante</span><b>Lab. de Calidad del Agua</b></div>
+        </div>
+        <div class="box" style="margin-top:16px"><h3>${ic('i-wave',18)} Condiciones hídricas</h3>
+          <p style="color:var(--niebla);font-size:12.5px">API Condiciones Hídricas · consultado hace 4 s</p>
+          <div class="cond"><div><span>${ic('i-wave',14)} Agitación</span><b style="color:var(--bat-media)">MEDIA</b></div>
+            <div><span>${ic('i-depth',14)} Profundidad</span><b>0 m</b></div><div><span>${ic('i-temp',14)} Temperatura</span><b>17 °C</b></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="box grad-card" style="padding:20px">
+          <span class="tag">RECOMENDADO POR EL SISTEMA</span>
+          <div style="display:flex;align-items:center;gap:14px;margin-top:14px">
+            <span class="badge" style="width:60px;height:60px;background:rgba(46,211,160,.14);color:var(--ribera);box-shadow:0 10px 24px rgba(46,211,160,.25)">${ic('i-diver',32)}</span>
+            <div><div class="mono" style="font-size:24px;font-weight:600">AR-11</div><div style="color:var(--niebla)">Buceador · Aqua-Diver 400 · Laguna Sur</div></div>
+            <div style="margin-left:auto;text-align:right"><b style="font-family:var(--display);font-size:40px;color:var(--bat-alta)">81%</b><div style="color:var(--niebla);font-size:12px">batería</div></div>
+          </div>
+          <h3 style="margin-top:18px;font-size:19px">Por qué este drone</h3>
+          ${[['Ya está en Laguna Sur','la estrategia para misiones CRÍTICAS prioriza el drone más cercano (menor tiempo de respuesta)'],['Puede operar con agitación MEDIA','el buceador soporta agitación baja y media'],['Capacidad 300 g ≥ 250 g','la carga cabe en el tipo Buceador'],['Batería 81 %','por encima del mínimo de 35 %']].map(([t,d]) => `<div class="razon"><span class="ok">${ic('i-check',18)}</span><div><b>${t}</b><div style="color:var(--niebla);font-size:12.5px">${d}</div></div></div>`).join('')}
+          <div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn-primary" style="flex:2;padding:18px;font-size:15px">${ic('i-check',18)} Confirmar asignación</button><button class="btn btn-ghost" style="flex:1">Elegir otro</button></div>
+        </div>
+        <div class="box" style="margin-top:16px"><h3>${ic('i-x',16)} Otros candidatos y descartados</h3>
+          <div class="desc">${descartados.map(([id,r]) => `<span class="mono">${id}</span><span>${r}</span>`).join('')}</div></div>
+      </div>
+    </div></main>`;
+}
+
+function pantallaConfirmacion() {
+  const pasos = [['i-box','Solicitud','10:41:58'],['i-wave','Condiciones','10:41:59'],['i-spark','Estrategia','10:42:00'],['i-check','Asignada','10:42:03'],['i-shield','Ruta autorizada','10:42:05']];
+  return navHTML('Misiones') + `<main>
+    <div class="pantalla-tag">PANTALLA 3 DE 3 · CONFIRMACIÓN</div>
+    <div class="ok-banner"><span class="badge" style="width:56px;height:56px;background:var(--ribera);color:#032033;box-shadow:0 10px 26px rgba(46,211,160,.4)">${ic('i-check',28)}</span>
+      <div><div class="eyebrow" style="color:var(--ribera)">ASIGNACIÓN CONFIRMADA</div><h2 style="font-family:var(--display);font-size:34px;text-transform:uppercase">M-1042 en tránsito con AR-11</h2>
+      <p style="color:var(--niebla)">Centro de Control ECI autorizó la ruta Laguna Sur → Laboratorio Hídrico. Llegada estimada: 10:58.</p></div>
+      <div style="margin-left:auto;display:flex;gap:10px"><button class="btn btn-ghost">Ver en mapa</button><button class="btn btn-primary">Siguiente misión (M-1044)</button></div></div>
+    <div class="box"><h3>${ic('i-route',18)} Recorrido de la asignación</h3>
+      <div class="timeline">${pasos.map(([i,t,h]) => `<div class="paso"><span class="circ">${ic(i,18)}</span><b>${t}</b><small>${h}</small></div>`).join('')}</div></div>
+    <div class="box" style="margin-top:16px"><h3>${ic('i-drone',18)} Estado actualizado de la flota</h3>
+      <div class="mini">${flota.map(d => { const e = ESTADOS[d.estado]; return `<div style="background:${e.bg};color:${e.c};${d.id==='AR-11'?'box-shadow:0 0 0 2px var(--cian)':''}">${d.id}</div>`; }).join('')}</div>
+      <div class="leyenda">${Object.values(ESTADOS).map(e => `<span><span class="dot" style="color:${e.c}"></span>${e.txt}</span>`).join('')}<span style="margin-left:auto">AR-11 pasó de DISPONIBLE a EN MISIÓN</span></div></div>
+    <div class="layout" style="margin-top:16px;grid-template-columns:1fr 1fr">
+      <div class="box"><h3>${ic('i-shield',18)} Notificaciones enviadas</h3>
+        <div class="dato"><span>Centro de Control ECI</span><b>Registro de misión + ruta</b></div>
+        <div class="dato"><span>Solicitante</span><b>Código M-1042 y drone AR-11</b></div>
+        <div class="dato" style="border:0"><span>Técnico de Mantenimiento</span><b style="color:var(--niebla)">Sin novedades</b></div></div>
+      <div class="box"><h3>${ic('i-clock',18)} Cola restante</h3>
+        <div class="dato"><span class="mono">M-1044</span><b>ALTA · Embalse Norte → Canal Central</b></div>
+        <div class="dato" style="border:0"><span class="mono">M-1045</span><b>NORMAL · Ribera Este → Laguna Sur</b></div></div>
+    </div></main>`;
+}
+
+app.innerHTML = pantalla === 'detalle' ? pantallaDetalle()
+  : pantalla === 'confirmacion' ? pantallaConfirmacion()
+  : pantallaFlota(pantalla === 'alerta');
+</script>
+</body>
+</html>

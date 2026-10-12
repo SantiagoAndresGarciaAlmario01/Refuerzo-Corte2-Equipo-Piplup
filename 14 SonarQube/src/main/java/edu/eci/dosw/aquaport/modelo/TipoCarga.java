@@ -1,8 +1,9 @@
 package edu.eci.dosw.aquaport.modelo;
 
-/** Tipos de carga que transporta la flota MVP de AquaPort. */
+/** Tipos de carga que transporta la flota. */
 public enum TipoCarga {
     MUESTRA_AGUA,
     SENSOR,
-    PAQUETE_LIGERO
+    PAQUETE_LIGERO,
+    EQUIPO_MEDICION
 }

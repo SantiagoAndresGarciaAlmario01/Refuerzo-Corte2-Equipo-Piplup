@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaPort v2 · Sistema de diseño</title>
+<link rel="stylesheet" href="aquaport-v2.css">
+<style>
+main{max-width:1400px}
+h2.sec{font-family:var(--display);font-size:28px;letter-spacing:.05em;text-transform:uppercase;margin:26px 0 6px}
+p.sub{color:var(--niebla);margin-bottom:14px;max-width:900px}
+.estados{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.card{border-radius:18px;padding:16px;background:linear-gradient(180deg,rgba(15,42,77,.95),rgba(10,31,60,.95));border:1px solid var(--linea);box-shadow:0 14px 30px rgba(0,0,0,.35)}
+.card.fallo{border-color:rgba(242,84,91,.75);box-shadow:0 0 0 4px rgba(242,84,91,.10),0 14px 30px rgba(242,84,91,.2)}
+.card.sumergido{border-color:rgba(109,124,255,.5)}
+.c-top{display:flex;align-items:center;gap:10px}
+.c-id{font-family:var(--mono);font-weight:600;font-size:17px}
+.c-tipo{font-size:11.5px;color:var(--niebla)}
+.c-bat{display:flex;align-items:baseline;justify-content:space-between;margin:14px 0 6px}
+.c-bat b{font-family:var(--display);font-size:32px;line-height:1}
+.c-bat span{font-size:11px;color:var(--niebla)}
+.c-meta{font-size:11.5px;color:var(--niebla);margin-top:10px;display:flex;gap:6px;align-items:center}
+.etq{margin-top:10px;font-family:var(--mono);font-size:10.5px;color:var(--niebla);letter-spacing:.1em}
+.botones{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;align-items:end}
+.botones .btn{width:100%;padding:16px}
+.btn.hover{transform:scale(1.035);box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 16px 34px rgba(25,195,230,.5),0 2px 6px rgba(0,0,0,.35)}
+.btn.exito{color:#032033;background:linear-gradient(135deg,#5BE3B8,var(--ribera));box-shadow:0 10px 24px rgba(46,211,160,.35)}
+.spin{width:18px;height:18px;border-radius:50%;border:3px solid rgba(3,32,51,.25);border-top-color:#032033;animation:g 1s linear infinite}
+@keyframes g{to{transform:rotate(360deg)}}
+.baterias{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.leyes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.ley b{font-family:var(--display);font-size:22px;letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:6px}
+.ley p{color:var(--niebla);font-size:13px}
+.ley .ej{margin-top:10px;font-size:12.5px;color:var(--espuma)}
+</style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">SISTEMA DE DISEÑO · AQUAPORT V2 · PRINPLUP</div>
+  <h1 style="font-family:var(--display);font-size:52px;text-transform:uppercase;letter-spacing:.02em">Componentes con estados</h1>
+
+  <h2 class="sec">Tarjeta de drone acuático · 6 estados</h2>
+  <p class="sub">El estado se comunica con color, texto en mayúsculas y punto indicador al mismo tiempo (nunca solo color). FALLO agrega borde y halo rojo; SUMERGIDO usa azul oscuro (índigo) para distinguirse de EN MISIÓN.</p>
+  <div class="estados" id="estados"></div>
+
+  <h2 class="sec">Botón "Asignar misión" · 5 estados</h2>
+  <p class="sub">Mismo tamaño en todos los estados para que la pantalla no salte. El estado procesando bloquea el doble clic.</p>
+  <div class="botones">
+    <div><button class="btn btn-primary">Asignar misión</button><div class="etq">DEFAULT</div></div>
+    <div><button class="btn btn-primary hover">Asignar misión</button><div class="etq">HOVER · ESCALA 1.035 + SOMBRA</div></div>
+    <div><button class="btn btn-primary" style="cursor:progress"><span class="spin"></span>Asignando…</button><div class="etq">PROCESANDO</div></div>
+    <div><button class="btn exito" id="b-ok"></button><div class="etq">ÉXITO</div></div>
+    <div><button class="btn btn-primary" disabled id="b-dis"></button><div class="etq">DESHABILITADO · CON MOTIVO</div></div>
+  </div>
+
+  <h2 class="sec">Indicador de batería · 3 rangos</h2>
+  <p class="sub">La línea vertical marca el umbral de asignación (35 %). Por debajo, el indicador agrega una advertencia escrita.</p>
+  <div class="baterias" id="baterias"></div>
+
+  <h2 class="sec">Leyes UX aplicadas</h2>
+  <div class="leyes">
+    <div class="box ley"><b>Ley de Fitts</b><p>El tiempo para alcanzar un objetivo depende de su tamaño y distancia.</p>
+      <div class="ej">El botón EMERGENCIA es grande (≈ 200 × 52 px), rojo y está fijo en la esquina superior derecha de la barra de navegación, visible en todas las pantallas. Confirmar asignación ocupa 2/3 del ancho del panel.</div></div>
+    <div class="box ley"><b>Ley de Hick</b><p>El tiempo de decisión crece con el número de opciones.</p>
+      <div class="ej">Los 15 drones no se muestran como una lista plana: se agrupan en 3 bloques por tipo con su conteo de operables. El operador primero elige el tipo (3 opciones) y luego el drone (5 opciones).</div></div>
+    <div class="box ley"><b>Ley de Miller</b><p>La memoria de trabajo maneja alrededor de 7 ± 2 elementos.</p>
+      <div class="ej">Cada grupo tiene 5 tarjetas, cada tarjeta solo 4 datos (ID, zona, estado y batería) y la cola muestra como máximo 3 misiones a la vez.</div></div>
+  </div>
+</main>
+<script src="aquaport-v2.js"></script>
+<script>
+document.getElementById('b-ok').innerHTML = ic('i-check',18) + 'Asignada a AR-11';
+document.getElementById('b-dis').innerHTML = ic('i-x',16) + 'Sin drones aptos';
+const muestras = [['AR-06','SEMISUMERGIDO',88,'DISPONIBLE'],['AR-10','SEMISUMERGIDO',97,'EN_MISION'],['AR-03','SUPERFICIAL',18,'RECARGANDO'],
+  ['AR-08','SEMISUMERGIDO',70,'MANTENIMIENTO'],['AR-14','BUCEADOR',50,'FALLO'],['AR-13','BUCEADOR',64,'SUMERGIDO']];
+document.getElementById('estados').innerHTML = muestras.map(([id,tipo,bat,estado]) => {
+  const e = ESTADOS[estado];
+  return `<div><div class="card ${estado==='FALLO'?'fallo':''} ${estado==='SUMERGIDO'?'sumergido':''}">
+    <div class="c-top"><span class="badge" style="background:${e.bg};color:${e.c};box-shadow:0 8px 20px ${e.bg}">${ic(TIPOS[tipo].icono,24)}</span>
+      <div><div class="c-id">${id}</div><div class="c-tipo">${TIPOS[tipo].nombre}</div></div></div>
+    <div style="margin-top:12px"><span class="pill" style="background:${e.bg};color:${e.c}"><span class="dot ${estado==='FALLO'||estado==='EN_MISION'?'pulse':''}"></span>${e.txt}</span></div>
+    <div class="c-bat"><b style="color:${colorBat(bat)}">${bat}%</b><span>batería</span></div>
+    <div class="bar"><i style="width:${bat}%;background:${colorBat(bat)}"></i><span class="umbral"></span></div>
+    <div class="c-meta">${ic('i-pin',12)} Canal Central</div></div><div class="etq">${e.txt}</div></div>`;
+}).join('');
+document.getElementById('baterias').innerHTML = [[82,'≥ 60 % · ALTA','Operación normal'],[47,'35-59 % · MEDIA','Asignable, conviene priorizar recarga'],[22,'< 35 % · BAJA','No asignable: advertencia visible']].map(([b,t,d]) =>
+  `<div class="box"><div style="display:flex;align-items:baseline;gap:10px"><b style="font-family:var(--display);font-size:40px;color:${colorBat(b)}">${b}%</b>
+   ${b<35?`<span style="color:var(--bat-baja);font-size:12px;display:flex;gap:4px;align-items:center">${ic('i-alert',14)} bajo el mínimo de 35 %</span>`:''}</div>
+   <div class="bar" style="height:10px;margin:8px 0"><i style="width:${b}%;background:${colorBat(b)}"></i><span class="umbral"></span></div>
+   <div class="etq">${t}</div><p style="color:var(--niebla);font-size:13px;margin-top:4px">${d}</p></div>`).join('');
+</script>
+</body>
+</html>

@@ -1,101 +1,133 @@
-# 11 Mocks con IA: Panel del operador con el proceso de 4 pasos
+# 11 Mocks con IA: Flujo de asignación automática en 3 pantallas + alerta
 
-**Nivel:** Piplup
+**Nivel:** Prinplup · Mismo proceso de 4 pasos de Piplup, ahora con **un prompt por pantalla** y un flujo completo (no una sola vista).
 
 ## Paso 1 · Referencias
 
-Se tomaron como referencia (solo para estudiar la pantalla de monitoreo, no para copiarla) dos tipos de sistema real:
+Se reutilizan las referencias del punto 11 de Piplup (Airdata, panel de flota de drones, y Hydroviewer, monitoreo hídrico) y se agrega lo que la v2 necesitaba de ellas:
 
-1. **Paneles de control de flotas de vehículos autónomos/drones** (vista de flota con tarjeta por unidad, batería, estado y ubicación).
-2. **Tableros de monitoreo hídrico de centros de control ambiental** (indicadores en vivo por cuerpo de agua, alertas destacadas en rojo y registro cronológico de eventos).
+| Referencia | Qué se tomó para la v2 |
+|---|---|
+| Panel de flota de drones (Airdata) | Agrupar unidades por modelo/tipo con conteo de operables; tarjeta compacta por unidad. |
+| Monitoreo hídrico (Hydroviewer) | Indicadores de condiciones del agua por punto (agitación, profundidad, temperatura) junto a la decisión. |
+| Sistemas de despacho (patrón general) | Recomendación con **razones visibles** y lista de candidatos descartados, para que la decisión automática sea auditable. |
 
-<img width="1505" height="958" alt="image" src="https://github.com/user-attachments/assets/3178b799-24f3-4472-800a-adf938a4b9b6" />
-<img width="1000" height="625" alt="image" src="https://github.com/user-attachments/assets/8fd18b8a-d13e-4871-9445-3feb3f8b622c" />
-
-
-Patrones tomados de las referencias: tarjeta por unidad con estado + batería, banner de alerta arriba de todo, KPIs resumidos en la cabecera y registro de actividad lateral.
+<img width="1505" height="958" alt="Referencia Airdata" src="https://github.com/user-attachments/assets/3178b799-24f3-4472-800a-adf938a4b9b6" />
+<img width="1000" height="625" alt="Referencia Hydroviewer" src="https://github.com/user-attachments/assets/8fd18b8a-d13e-4871-9445-3feb3f8b622c" />
 
 ## Paso 2 · Estilo
 
-Se usó exactamente la identidad del **punto 08**: paleta Abismo/Profundo/Cian hídrico/Verde ribera, colores de estado (verde, azul, ámbar, gris, rojo) y tipografías Barlow Condensed + Inter + JetBrains Mono.
+El sistema de diseño del **punto 08**: tokens de `aquaport-v2.css`, colores de estado (incluido SUMERGIDO índigo), rangos de batería y botón EMERGENCIA.
 
-## Paso 3 · Datos del RF AP-01
+## Paso 3 · Datos del RF AP-07
 
-| Qué necesita el operador | Qué muestra la pantalla |
+| Qué necesita el operador | Pantalla |
 |---|---|
-| Ver la flota antes de asignar | Tarjeta por drone: **ID** (`AR-XX`), **batería %**, **estado**, **zona actual** |
-| Saber cuál conviene | Etiqueta *Recomendado · mayor batería* y ranking de batería |
-| No asignar un drone inválido | Umbral 35 % visible y botón deshabilitado con el motivo |
-| Registrar la misión | Modal con `puntoPartida`, `puntoLlegada`, `tipoCarga` y drone |
+| Ver la flota de 15 drones sin perderse | 1. Flota agrupada por tipo |
+| Entender por qué el sistema eligió un drone | 2. Detalle de misión con “por qué este drone” |
+| Confirmar que la asignación ocurrió y qué cambió | 3. Confirmación con línea de tiempo |
+| Saber qué hacer cuando no hay drone para una CRÍTICA | Alerta |
 
-## Paso 4 · Prompt con contexto completo
+## Paso 4 · Prompts (uno por pantalla)
+
+Todos empiezan con el mismo bloque de contexto para que las pantallas sean consistentes:
 
 ```text
-Actúa como diseñador UX/UI senior de sistemas de monitoreo ambiental.
-SISTEMA: AquaPort, Panel de control de flota de drones acuáticos ECI
-PANTALLA: Panel de monitoreo de la flota (vista principal del operador)
-ESTILO: Paleta: fondo #061428 (Abismo), paneles #0A1F3C, tarjetas #0F2A4D,
-  acción #19C3E6 (Cian hídrico), acento #2ED3A0 (Verde ribera), texto #E8F4F8.
-  Tipografía Barlow Condensed para títulos, Inter para interfaz y
-  JetBrains Mono para IDs. Fondo oscuro tipo dashboard técnico hídrico,
-  paneles con efecto vidrio esmerilado, íconos vectoriales propios dentro de
-  círculos de color, nada de emojis.
-COLORES DE ESTADO: DISPONIBLE #2ED3A0 · EN_MISION #3B82F6 · RECARGANDO #F5B841 ·
-  MANTENIMIENTO #8A99AD · FALLO #F2545B. El color siempre acompañado de texto.
-ACTOR: Operador Hídrico, necesita tomar decisiones rápidas sobre la flota
-DATOS A MOSTRAR POR DRONE: ID (formato AR-XX), batería en %, estado
-  (DISPONIBLE/EN_MISION/RECARGANDO/MANTENIMIENTO/FALLO), zona actual
-  (Embalse Norte, Canal Central, Laguna Sur, Punto Ribereño Este, Laboratorio Hídrico).
-FLOTA: 4 drones del modelo Aqua-Ranger 100. Umbral mínimo de asignación: 35 %.
-ACCIONES DEL OPERADOR: Seleccionar drone, Asignar a misión, Ver detalle
-ESTADOS DE LA PANTALLA:
-  1. Normal: flota con drones en distintos estados
-  2. Alerta: un drone en estado FALLO (destacado visualmente)
-  3. Vacío: todos los drones en misión simultáneamente
-Nielsen: visibilidad del estado (#1), minimalismo (#8), prevención errores (#5)
-Además: los drones con batería < 35 % deben verse deshabilitados ANTES de intentar
-asignarlos, con el mensaje "Batería insuficiente (X%). Mínimo para asignar: 35%".
+CONTEXTO COMÚN
+Actúa como diseñador UX/UI senior de sistemas de despacho y monitoreo ambiental.
+SISTEMA: AquaPort v2, asignación automática de drones acuáticos de la ECI.
+ESTILO: fondo #061428, paneles #0A1F3C, tarjetas #0F2A4D, acción #19C3E6,
+  acento #2ED3A0, texto #E8F4F8, secundario #8BA3B8. Barlow Condensed para
+  títulos, Inter para interfaz, JetBrains Mono para IDs (AR-01, M-1042).
+  Paneles con efecto vidrio, íconos vectoriales en círculos, sin emojis.
+ESTADOS: DISPONIBLE #2ED3A0 · EN_MISION #3B82F6 · RECARGANDO #F5B841 ·
+  MANTENIMIENTO #8A99AD · FALLO #F2545B · SUMERGIDO #6D7CFF. Siempre color + texto.
+BATERÍA: ≥60 % verde, 35-59 % ámbar, <35 % rojo con "bajo 35 %". Línea del 35 % en la barra.
+NAVEGACIÓN: Flota, Misiones, Alertas, Reportes; indicador EN VIVO; botón EMERGENCIA
+  rojo, grande y fijo arriba a la derecha (ley de Fitts).
 ```
 
-## Resultado: los 3 estados (+ modal de asignación)
+### Prompt pantalla 1: Flota
 
-El mock está implementado como un único archivo `mock/panel-flota.html`; el estado se elige con el parámetro `?estado=`.
-
-### 1. Normal: `panel-flota.html?estado=normal`
-![Estado normal](capturas/estado-normal.png)
-AR-01 y AR-02 disponibles, AR-03 recargando con 18 % (bloqueado), AR-04 en misión M-014.
-
-### 2. Alerta: `panel-flota.html?estado=alerta`
-![Estado alerta](capturas/estado-alerta.png)
-AR-02 en **FALLO**: banner rojo en la parte superior con la causa y acciones (“Ver detalle”, “Enviar a recuperación”), tarjeta con borde y etiqueta “ATENCIÓN INMEDIATA”, KPI de alertas en rojo.
-
-### 3. Vacío: `panel-flota.html?estado=vacio`
-![Estado vacío](capturas/estado-vacio.png)
-Los 4 drones en misión: mensaje explicativo con el próximo drone en liberarse (AR-02 en ~6 min), opción “Registrar en cola” y botón “Nueva misión” deshabilitado con el motivo.
-
-### Extra: Modal de asignación (`?estado=asignar`)
-![Modal de asignación](capturas/estado-asignar.png)
-Selectores en cuadrícula para origen, destino, tipo de carga y drone; AR-03 y AR-04 aparecen deshabilitados y Embalse Norte no puede ser destino porque es el origen.
-
-También hay una captura en móvil: `capturas/estado-normal-movil.png` (menú hamburguesa y tarjetas en una columna).
-
-## Heurísticas de Nielsen que cumplen las pantallas
-
-| Heurística | Normal | Alerta | Vacío | Evidencia |
-|---|:-:|:-:|:-:|---|
-| #1 Visibilidad del estado | Sí | Sí | Sí | Estado + batería + “hace N s” por drone, KPIs, indicador EN VIVO. |
-| #3 Control y libertad | Sí | Sí | Sí | “Detalle”, “Enviar a recuperación”, “Registrar en cola”, “Cancelar” en el modal. |
-| #4 Consistencia | Sí | Sí | Sí | Mismo color por estado en tarjetas, ranking y modal. |
-| #5 Prevención de errores | Sí | Sí | Sí | Botones deshabilitados con motivo; umbral 35 % dibujado en la barra. |
-| #6 Reconocer antes que recordar | Sí | Sí | Sí | Recomendado y ranking de batería. |
-| #8 Minimalismo | Sí | Sí | Sí | Solo ID, batería, estado y zona por drone. |
-| #9 Mensajes de error claros | Sí | Sí | Sí | “AR-02 en FALLO · Se perdió la telemetría de propulsión hace 2 min…”. |
-
-## Archivos
-
+```text
+PANTALLA: Panel de flota (1 de 3).
+ACTOR: Operador Hídrico que supervisa la asignación automática.
+DATOS: 15 drones en 3 grupos por tipo (Superficial, Semisumergido, Buceador),
+  5 por grupo, cada tarjeta con ID, zona, estado y batería (solo esos 4 datos).
+  Encabezado de cada grupo: modelo, condición en la que opera, carga máxima y
+  "N operables de 5". KPIs: operables, en misión, en fallo, en cola.
+  Columna derecha: cola de misiones ordenada por prioridad (máximo 3 visibles)
+  y botón "Asignar automáticamente".
+LEYES: Hick (decidir primero el tipo, luego el drone), Miller (máx. 5 tarjetas
+  por grupo y 3 misiones en cola).
+NIELSEN: #1 visibilidad del estado, #4 consistencia, #8 minimalismo.
 ```
-11 Mocks con IA/
-├── README.md
-├── mock/panel-flota.html  (+ fuentes/)
-└── capturas/ estado-normal.png · estado-alerta.png · estado-vacio.png · estado-asignar.png · estado-normal-movil.png
+
+### Prompt pantalla 2: Detalle de misión
+
+```text
+PANTALLA: Detalle de la misión M-1042 (2 de 3).
+DATOS: misión CRÍTICA, Laguna Sur → Laboratorio Hídrico, muestra de agua 250 g.
+  Condiciones hídricas consultadas a la API: agitación MEDIA, 0 m, 17 °C.
+  Drone recomendado AR-11 (Buceador, 81 %, ya en Laguna Sur) con la lista
+  "Por qué este drone": cercanía (estrategia para CRÍTICAS), puede operar con
+  agitación MEDIA, capacidad 300 g ≥ 250 g, batería sobre el 35 %.
+  Otros candidatos y descartados con el motivo de cada uno.
+ACCIONES: "Confirmar asignación" (2/3 del ancho) y "Elegir otro".
+NIELSEN: #1 visibilidad, #6 reconocer antes que recordar, #3 control del usuario.
 ```
+
+### Prompt pantalla 3: Confirmación
+
+```text
+PANTALLA: Confirmación de asignación (3 de 3).
+DATOS: banner de éxito "M-1042 en tránsito con AR-11" con la ruta autorizada por
+  el Centro de Control y la hora estimada de llegada. Recorrido de la asignación
+  en 5 pasos con hora (solicitud, condiciones, estrategia, asignada, ruta
+  autorizada). Flota de 15 drones en miniatura donde AR-11 ya aparece EN MISIÓN.
+  Notificaciones enviadas (Centro de Control, Solicitante, Técnico) y cola restante.
+ACCIONES: "Ver en mapa" y "Siguiente misión (M-1044)".
+NIELSEN: #1 visibilidad del estado, #4 consistencia (mismos colores de estado).
+```
+
+### Prompt pantalla de alerta
+
+```text
+PANTALLA: Estado de alerta del panel de flota.
+DATOS: misión CRÍTICA M-1043 (Canal Central → Lab. Hídrico, equipo de medición
+  1.200 g) sin drone apto. Canal Central reporta agitación ALTA: solo el tipo
+  Semisumergido puede operar y sus 3 operables están ocupados (AR-06 y AR-09 en
+  misión, AR-08 en mantenimiento). Se notificó al Centro de Control.
+  Banner rojo arriba de todo con la causa en una frase y dos acciones:
+  "Ver detalle" y "Liberar AR-09 de M-1041 (NORMAL)".
+NIELSEN: #9 mensajes de error que explican la causa y proponen solución,
+  #1 visibilidad del estado, #5 prevención de errores.
+```
+
+## Resultado
+
+Archivo único `mock/flujo-asignacion.html`; la pantalla se elige con `?pantalla=flota|detalle|confirmacion|alerta`.
+
+| Pantalla | Captura |
+|---|---|
+| 1. Flota agrupada por tipo | ![Flota](capturas/flota.png) |
+| 2. Detalle de la misión M-1042 | ![Detalle](capturas/detalle.png) |
+| 3. Confirmación | ![Confirmación](capturas/confirmacion.png) |
+| Alerta: CRÍTICA sin drone | ![Alerta](capturas/alerta.png) |
+
+Los datos son los de `FlotaEjemplo` (los mismos 15 drones de las pruebas) y las decisiones mostradas son las que toma el código: en la pantalla 2 gana AR-11 por `ZonaCercanaStrategy` aunque AR-06 tiene más batería; en la alerta el banner corresponde al evento `MISION_SIN_DRONE` de una misión CRÍTICA.
+
+## Verificación con Nielsen
+
+| # | Heurística | Dónde |
+|---|---|---|
+| 1 | Visibilidad del estado | KPIs, EN VIVO, estado y batería en cada tarjeta, recorrido de la asignación y notificaciones enviadas en la confirmación. |
+| 2 | Relación con el mundo real | Zonas del campus, tipos de drone con su condición de operación (“agua agitada”, “profundidad”). |
+| 3 | Control y libertad | “Elegir otro” en el detalle: el operador puede no aceptar la recomendación. |
+| 4 | Consistencia | Misma tarjeta, mismos colores y misma navegación en las 4 vistas. |
+| 5 | Prevención de errores | Drones bajo 35 % atenuados con “bajo 35 %”; descartados con su motivo. |
+| 6 | Reconocer antes que recordar | El sistema muestra el recomendado y la razón; el operador no recuerda reglas. |
+| 8 | Minimalismo | 4 datos por tarjeta, máximo 3 misiones en cola. |
+| 9 | Ayuda a reconocer y recuperarse de errores | La alerta dice la causa (agitación ALTA, semisumergidos ocupados) y propone liberar AR-09. |
+
+No se cubren en este mock: #7 (atajos para expertos) y #10 (ayuda y documentación).
