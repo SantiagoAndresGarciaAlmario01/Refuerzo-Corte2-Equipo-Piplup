@@ -1,4 +1,4 @@
-// Iconos vectoriales propios de AquaPort y utilidades de render compartidas por los mocks v2.
+// Iconos vectoriales propios de AquaPort y utilidades de render compartidas por los mocks Enterprise (v3).
 document.body.insertAdjacentHTML('afterbegin', `
 <svg width="0" height="0" style="position:absolute"><defs>
   <symbol id="i-drone" viewBox="0 0 32 32"><path d="M5 19c3 0 3-2 6-2s3 2 6 2 3-2 6-2 3 2 4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9 14h14l-2-5h-10z" fill="currentColor" opacity=".9"/><circle cx="16" cy="11" r="1.6" fill="#061428"/><path d="M7 24c3 0 3-2 6-2s3 2 6 2 3-2 6-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".45"/></symbol>
@@ -20,6 +20,10 @@ document.body.insertAdjacentHTML('afterbegin', `
   <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2 20 5v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.5 12l2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   <symbol id="i-route" viewBox="0 0 24 24"><circle cx="5" cy="18" r="2.5" fill="currentColor"/><circle cx="19" cy="6" r="2.5" fill="currentColor"/><path d="M7 17c6 0 2-9 10-10" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"/></symbol>
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z M9 4v14 M15 6v14" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h14l-3-3M20 16H6l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2l2.2 6.3L20 10l-5.8 1.7L12 18l-2.2-6.3L4 10l5.8-1.7z" fill="currentColor"/></symbol>
 </defs></svg>`);
 
@@ -39,18 +43,22 @@ const TIPOS = {
 const ic = (id, w = 18) => `<svg width="${w}" height="${w}"><use href="#${id}"/></svg>`;
 const colorBat = b => b >= 60 ? 'var(--bat-alta)' : b >= 35 ? 'var(--bat-media)' : 'var(--bat-baja)';
 
-// Flota de 15 drones (misma que FlotaEjemplo.java)
-const FLOTA_BASE = [
-  ['AR-01','SUPERFICIAL',92,'DISPONIBLE','Embalse Norte'],['AR-02','SUPERFICIAL',45,'DISPONIBLE','Canal Central'],
-  ['AR-03','SUPERFICIAL',18,'RECARGANDO','Laguna Sur'],['AR-04','SUPERFICIAL',73,'DISPONIBLE','Ribera Este'],
-  ['AR-05','SUPERFICIAL',60,'EN_MISION','Lab. Hídrico'],
-  ['AR-06','SEMISUMERGIDO',88,'DISPONIBLE','Canal Central'],['AR-07','SEMISUMERGIDO',34,'DISPONIBLE','Embalse Norte'],
-  ['AR-08','SEMISUMERGIDO',70,'MANTENIMIENTO','Laguna Sur'],['AR-09','SEMISUMERGIDO',55,'DISPONIBLE','Ribera Este'],
-  ['AR-10','SEMISUMERGIDO',97,'EN_MISION','Embalse Norte'],
-  ['AR-11','BUCEADOR',81,'DISPONIBLE','Laguna Sur'],['AR-12','BUCEADOR',35,'DISPONIBLE','Lab. Hídrico'],
-  ['AR-13','BUCEADOR',64,'SUMERGIDO','Embalse Norte'],['AR-14','BUCEADOR',50,'FALLO','Canal Central'],
-  ['AR-15','BUCEADOR',77,'DISPONIBLE','Ribera Este']
-].map(([id,tipo,bat,estado,zona]) => ({id,tipo,bat,estado,zona}));
+
+const ZONAS = {
+  EMBALSE_INVESTIGACION: {nombre:'Embalse de Investigación', corto:'Embalse', c:'var(--zona-embalse)', hex:'#6D7CFF'},
+  RED_CANALES:           {nombre:'Red de Canales',           corto:'Canales', c:'var(--zona-canales)', hex:'#19C3E6'},
+  LAGUNA_RESERVA:        {nombre:'Laguna de Reserva',        corto:'Laguna',  c:'var(--zona-laguna)',  hex:'#2ED3A0'},
+  LAB_CENTRAL:           {nombre:'Laboratorio Hídrico Central', corto:'Lab. Central', c:'var(--zona-lab)', hex:'#F5B841'}
+};
+// Los 60 drones de FlotaEnterprise.java: misma fórmula de batería y misma ubicación.
+const ESTADOS_MOCK = {3:'RECARGANDO',7:'SUMERGIDO',12:'EN_MISION',18:'MANTENIMIENTO',26:'EN_MISION',29:'FALLO',44:'EN_MISION',57:'RECARGANDO'};
+const FLOTA = Array.from({length:60}, (_, i) => {
+  const n = i + 1, grupo = Math.floor(i / 20), pos = i % 20;
+  const tipo = ['BUCEADOR','SUPERFICIAL','SEMISUMERGIDO'][grupo];
+  const natural = ['EMBALSE_INVESTIGACION','RED_CANALES','LAGUNA_RESERVA'][grupo];
+  return {id:'AR-' + String(n).padStart(2,'0'), tipo, bat:30 + (n * 37) % 70,
+          zona: pos < 15 ? natural : 'LAB_CENTRAL', estado: ESTADOS_MOCK[n] || 'DISPONIBLE'};
+});
 
 function navHTML(activo) {
   return `<nav class="nav">
@@ -58,26 +66,16 @@ function navHTML(activo) {
       <svg width="42" height="46" viewBox="0 0 44 48"><defs><linearGradient id="crest" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#19C3E6"/><stop offset="1" stop-color="#2ED3A0"/></linearGradient></defs>
         <path d="M22 2 40 9v14c0 12-8 19-18 23C12 42 4 35 4 23V9z" fill="url(#crest)"/><path d="M22 7 35 12v11c0 9-6 14.5-13 17.6C15 37.5 9 32 9 23V12z" fill="#061428"/>
         <path d="M22 13c4 5 6 8.2 6 11a6 6 0 0 1-12 0c0-2.8 2-6 6-11z" fill="url(#crest)"/><path d="M11 31c2.6 0 2.6-1.6 5.5-1.6s2.9 1.6 5.5 1.6 2.6-1.6 5.5-1.6 2.9 1.6 5.5 1.6" stroke="#19C3E6" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-      <div><div class="brand-name">AQUA<span>PORT</span> <span style="font-size:15px;color:var(--ribera)">v2</span></div><div class="brand-sub">Asignación automática · ECI</div></div>
+      <div><div class="brand-name">AQUA<span>PORT</span> <span style="font-size:15px;color:var(--zona-lab)">ENTERPRISE</span></div><div class="brand-sub">Red multi-embalse · 60 drones · ECI</div></div>
     </div>
-    <div class="links">${['Flota','Misiones','Alertas','Reportes'].map(l => `<a href="#" class="${l===activo?'on':''}">${l}</a>`).join('')}</div>
+    <div class="links">${['Mapa','Rutas','Monitoreo','Alertas','Custodia'].map(l => `<a href="#" class="${l===activo?'on':''}">${l}</a>`).join('')}</div>
     <div class="nav-right">
-      <div class="live"><span class="dot pulse"></span>EN VIVO · 10:42</div>
-      <button class="btn-emergencia" title="Detiene todas las misiones en curso">${ic('i-stop',18)}EMERGENCIA</button>
+      <div class="live"><span class="dot pulse"></span>EN VIVO · 14:06</div>
+      <button class="btn-emergencia" title="Detiene todas las rutas en curso">${ic('i-stop',18)}EMERGENCIA</button>
       <div class="avatar">OH</div>
     </div>
     <button class="burger" aria-label="Menú">${ic('i-menu',22)}</button>
   </nav>`;
 }
-
-function tarjetaCompacta(d, extra = '') {
-  const e = ESTADOS[d.estado];
-  const baja = d.bat < 35;
-  return `<div class="dcard ${extra}" style="--c:${e.c};--bg:${e.bg}">
-    <div class="dc-top"><span class="dc-badge">${ic(TIPOS[d.tipo].icono,20)}</span>
-      <div><div class="mono dc-id">${d.id}</div><div class="dc-zona">${ic('i-pin',12)} ${d.zona}</div></div>
-      <span class="pill" style="background:${e.bg};color:${e.c}"><span class="dot ${d.estado==='FALLO'||d.estado==='EN_MISION'?'pulse':''}"></span>${e.txt}</span></div>
-    <div class="dc-bat"><b style="color:${colorBat(d.bat)}">${d.bat}%</b>${baja?`<span class="warn">${ic('i-alert',13)} bajo 35 %</span>`:''}</div>
-    <div class="bar"><i style="width:${d.bat}%;background:${colorBat(d.bat)}"></i><span class="umbral"></span></div>
-  </div>`;
-}
+const zchip = z => `<span class="zchip" style="--z:${ZONAS[z].c}"><i></i>${ZONAS[z].corto}</span>`;
+const tipoIc = (t, w = 18) => ic(TIPOS[t].icono, w);
