@@ -51,14 +51,10 @@ Aporta valor completo al Operador Hídrico: ver la flota, asignar drones a misio
 
 `To Do` → `In Progress` → `In Review` (Pull Request a `develop`) → `Done`. Cada subtarea se mueve cuando cambia su estado real; una HU pasa a `Done` solo cuando sus subtareas están en `Done` y sus criterios de aceptación se verificaron.
 
-## Errores evitados
+## Evidencia en Jira
 
-- Todas las HU tienen el formato *Como… quiero… para…* con beneficio explícito.
-- Ninguna subtarea es vaga (“codificar backend”): cada una dice qué clase o prueba se construye.
-- Se respeta la jerarquía Épica → Feature → HU → Subtarea (no todo como *Story*).
+Proyecto: AP1 (https://mail-team-lu7li63q.atlassian.net/jira/software/projects/AP1/boards/5)
 
-## Cargarlo en Jira
+<img width="1561" height="232" alt="image" src="https://github.com/user-attachments/assets/d81aad60-d448-41d7-8c24-022dc11359e1" />
+<img width="378" height="881" alt="image" src="https://github.com/user-attachments/assets/1a6713f4-73b6-4333-8eaa-1547c766cc6d" />
 
-`jira-import.csv` contiene la épica, la feature, las 3 HU y las 3 subtareas listas para **Jira → Configuración del sistema → Importación externa → CSV**. Mapear las columnas *Issue Type*, *Summary*, *Description*, *Priority*, *Story Points*, *Parent* (Parent usa la columna *Issue Id* de la fila padre).
-
-**Pendiente:** después de crear los tickets, agregar la captura del tablero/backlog en `capturas/jira-backlog.png` (el reto pide compartir captura).
