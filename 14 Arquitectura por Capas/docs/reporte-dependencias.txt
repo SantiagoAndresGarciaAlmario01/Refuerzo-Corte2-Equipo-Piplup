@@ -1,0 +1,35 @@
+
+== Imports por capa (paquete importado -> cantidad) ==
+[dominio]
+        38 java.util
+        38 edu.eci.dosw.aquaport.dominio
+         2 java.security
+         1 java.nio
+[aplicacion]
+        49 edu.eci.dosw.aquaport.dominio
+        40 java.util
+         7 edu.eci.dosw.aquaport.aplicacion
+[infraestructura]
+        46 edu.eci.dosw.aquaport.dominio
+        28 java.util
+         9 edu.eci.dosw.aquaport.aplicacion
+         5 edu.eci.dosw.aquaport.infraestructura
+         4 java.net
+         4 com.fasterxml.jackson
+         2 java.io
+         1 java.time
+
+== Regla 1: dominio solo importa java.* y su propio paquete ==
+OK: 0 imports externos en dominio
+
+== Regla 2: aplicacion no importa infraestructura ni librerías externas ==
+OK: aplicacion depende solo de dominio
+
+== Regla 3: ningún new de infraestructura fuera de infraestructura ==
+OK: 0 instancias de infraestructura en dominio o aplicacion
+
+== Regla 4: inyección por constructor (sin setters de dependencias ni campos mutables en servicios) ==
+OK: todos los campos de aplicacion son final y no hay setters
+
+== Resultado ==
+0 violaciones de capa

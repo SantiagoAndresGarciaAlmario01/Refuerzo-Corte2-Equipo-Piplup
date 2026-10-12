@@ -1,96 +1,80 @@
-# 03 Patrones de Diseño: Factory Method, Strategy y Observer en la asignación automática
+# 03 Patrones de Diseño: Chain of Responsibility, Decorator y Adapter
 
-**Nivel:** Prinplup · **Patrones:** Factory Method (creacional) · Strategy (comportamiento) · Observer (comportamiento) · Builder heredado de Piplup · **Pruebas:** JUnit 5 + Mockito
-
-En Piplup el operador elegía el drone a mano y solo hacía falta un Builder. En Prinplup el sistema **elige solo** el drone, hay **3 tipos** de drone y **varios interesados** en lo que pasa con cada misión. Cada uno de esos tres cambios pide un patrón distinto.
+**Nivel:** Empoleon · **Patrones nuevos:** Chain of Responsibility · Decorator · Adapter · **Se mantienen:** Factory Method, Builder, Observer · **Pruebas:** JUnit 5 + Mockito
 
 ## Problema → patrón
 
-| Problema real de AquaPort v2 | Patrón | Clases |
+| Problema de la red Enterprise | Patrón | Clases |
 |---|---|---|
-| Hay 3 tipos de drone y llegarán más. Si cada clase que crea drones hace `new DroneBuceador(...)` o un `switch (tipo)`, cada tipo nuevo obliga a tocar varias clases. | **Factory Method** | `CreadorDrone` (interfaz funcional), `FabricaDrones` (registro `Map<String, CreadorDrone>`) |
-| La regla para elegir drone cambia según el caso: a veces importa la batería, a veces la cercanía y para las misiones CRÍTICAS importa el más apto. Meter todo en `if/else` dentro del asignador lo vuelve imposible de probar y de extender. | **Strategy** | `EstrategiaSeleccion`, `MayorBateriaStrategy`, `ZonaCercanaStrategy`, `PrioridadCriticaStrategy` |
-| Cuando se asigna una misión, cuando un drone falla o cuando una misión queda sin drone, deben enterarse el Centro de Control y el técnico de mantenimiento. El asignador no debería conocerlos. | **Observer** | `ObservadorMision`, `PublicadorEventosMision`, `EventoMision`, `CentroControlObserver`, `TecnicoMantenimientoObserver` |
-| La misión tiene muchos campos y reglas (peso 1–1500 g, partida distinta de destino). | **Builder** (de Piplup) | `Mision.Builder` con validación en `build()` |
+| Antes de asignar un tramo hay que revisar 4 reglas distintas (batería, capacidad, zona destino activa y condiciones del canal). Si una falla no tiene sentido revisar las demás, y cada regla tiene su propia dependencia (estado de zonas, API hídrica). | **Chain of Responsibility** | `EslabonValidacion`, `ValidadorBateria`, `ValidadorCapacidadCarga`, `ValidadorZonaActiva`, `ValidadorCondicionesHidricas`, `CadenaValidacion` |
+| A cada drone hay que agregarle telemetría y un sello para la cadena de custodia sin tocar `DroneAcuatico` ni sus 3 subclases, y poder combinar ambas cosas. | **Decorator** | `Drone` (interfaz), `DroneDecorador`, `DroneConMonitoreo`, `DroneConCifrado` |
+| La API externa de condiciones responde JSON en inglés (`waterLevel`, `turbidity`, `waveHeight`) con sus propias unidades. El dominio no debe saber que existe esa API ni Jackson. | **Adapter** | `ProveedorCondicionesHidricas` (puerto del dominio), `AdaptadorAPIHidrica`, `ClienteAPIHidrica`, `RespuestaApiHidrica` |
 
-## Factory Method sin `switch`
+## Chain of Responsibility
+
+```
+ValidadorBateria → ValidadorCapacidadCarga → ValidadorZonaActiva → ValidadorCondicionesHidricas → aprobado
+```
 
 ```java
-public static FabricaDrones conTiposEstandar() {
-    FabricaDrones fabrica = new FabricaDrones();
-    fabrica.registrar(DroneSuperficial.TIPO, DroneSuperficial::new);
-    fabrica.registrar(DroneSemisumergido.TIPO, DroneSemisumergido::new);
-    fabrica.registrar(DroneBuceador.TIPO, DroneBuceador::new);
-    return fabrica;
+public ResultadoValidacion validar(SolicitudTramo solicitud) {
+    Optional<String> motivoRechazo = revisar(solicitud);
+    if (motivoRechazo.isPresent()) {
+        return ResultadoValidacion.rechazado(getClass().getSimpleName(), motivoRechazo.get());
+    }
+    return siguiente == null ? ResultadoValidacion.exitoso() : siguiente.validar(solicitud);
 }
 ```
 
-- Cada tipo se registra con una **referencia al constructor** (`DroneBuceador::new` cumple `CreadorDrone`).
-- Agregar un tipo es **una línea de registro**, no modificar un `switch` (en el punto 04 se demuestra con `DroneSumergibleProfundo`).
-- Un tipo desconocido lanza `IllegalArgumentException` con mensaje en español; nunca retorna `null`.
+- Cada eslabón solo implementa `revisar` (su regla). La decisión de **procesar o pasar al siguiente** está en la clase base, igual para todos.
+- **Caso en que ningún eslabón rechaza**: el último no tiene siguiente y retorna `exitoso()`.
+- El orden es intencional: primero las reglas baratas (batería, peso), después las que consultan algo (estado de zonas) y al final la que llama a la API externa. Una solicitud rechazada por batería nunca genera tráfico a la API.
+- `CadenaValidacion.enterprise(...)` arma la cadena en un solo lugar; `ConfiguracionAquaPort` la convierte en el `CriterioAptitud` que usa el planificador.
 
-## Strategy y la tensión AP-07 / AP-08
-
-`AsignadorAutomatico` recibe la estrategia por constructor y solo llama a `estrategia.seleccionar(candidatos, mision)`. No sabe cuál es.
-
-| Estrategia | Regla | Cuándo conviene |
-|---|---|---|
-| `MayorBateriaStrategy` | `max(comparingInt(getBateria))` | Misiones normales: reparte el desgaste de la flota. |
-| `ZonaCercanaStrategy` | Primero los drones que ya están en la zona de partida, luego mayor batería | Misiones urgentes: menor tiempo de respuesta. |
-| `PrioridadCriticaStrategy` | Si la misión es CRÍTICA usa una estrategia, si no usa otra | Resuelve AP-07 vs AP-08 (punto 06): las CRÍTICAS van al más apto/cercano y las demás al de mayor batería. |
-
-`PrioridadCriticaStrategy` es a la vez una estrategia y una composición de dos estrategias, así que la política completa se arma afuera:
+## Decorator
 
 ```java
-new PrioridadCriticaStrategy(new ZonaCercanaStrategy(), new MayorBateriaStrategy())
+List<Drone> flota = configuracion.decorar(drones);   // DroneConCifrado(DroneConMonitoreo(drone))
 ```
 
-## Observer: publicador y evento
-
-```
-AsignadorAutomatico ──publica──▶ PublicadorEventosMision ──notificar(EventoMision)──▶ CentroControlObserver
-                                                                                   └─▶ TecnicoMantenimientoObserver
-```
-
-| Evento (`TipoEvento`) | Centro de Control | Técnico de mantenimiento |
+| Decorador | Qué agrega a `recorrer(tramo)` | Qué no cambia |
 |---|---|---|
-| `MISION_ASIGNADA` | Registra “Misión M-801 asignada a AR-11” | Lo ignora |
-| `DRONE_EN_FALLO` | Registra la alerta | Abre una orden de mantenimiento |
-| `MISION_SIN_DRONE` | “ALERTA CRÍTICA” si la misión es CRÍTICA, “Aviso” si no | Lo ignora |
+| `DroneConMonitoreo` | Registra una `LecturaTelemetria` (drone, zona, batería, tramo) en el `RegistroTelemetria` | El resultado del tramo: es el mismo objeto que retorna el drone envuelto |
+| `DroneConCifrado` | Sella el resultado con SHA-256 para la cadena de custodia | Batería, zona y estado del drone |
 
-Se separó el **publicador** del **asignador**: el asignador solo decide, el publicador mantiene la lista de observadores (SRP). Los observadores se pueden agregar o quitar en tiempo de ejecución (`registrarObservador` / `removerObservador`).
+Se apilan en cualquier orden. `DroneDecorador` delega todos los métodos del contrato `Drone`, así que un drone decorado entra a la cadena de validación, al planificador y al ejecutor sin que ninguno sepa que está decorado (LSP). Un drone **sin** el decorador de cifrado no produce sello y la `CadenaCustodia` lo rechaza: es el flujo alterno “cadena de custodia interrumpida”.
 
-## Integración de los tres patrones
+## Adapter
 
-`AquaPortPatronesApp` crea la flota con la fábrica, asigna 3 misiones con `PrioridadCriticaStrategy` y registra los dos observadores:
+| JSON de la API (inglés) | Dominio | Regla de traducción |
+|---|---|---|
+| `waterLevel` (m) | `NivelAgua(metros)` | negativo → `IllegalArgumentException`; navegable desde 0,5 m |
+| `turbidity` (NTU) | `Turbidez` | < 5 CLARA · 5 a < 50 MODERADA · ≥ 50 ALTA |
+| `waveHeight` (m) | `NivelAgitacion` | < 0,3 BAJO · 0,3 a < 1,0 MEDIO · ≥ 1,0 ALTO |
+| `requiredDepth` (m) | `profundidadRequeridaMetros` | igual |
+| campos desconocidos | se ignoran | `@JsonIgnoreProperties(ignoreUnknown = true)` |
 
-```
-Misión M-801 asignada a AR-11      (CRÍTICA, sale primero, ZonaCercana: AR-11 ya está en Laguna Sur)
-Misión M-803 asignada a AR-06      (ALTA, MayorBateria entre los que quedan)
-Aviso: misión M-802 sin drone disponible   (NORMAL, ya no quedan drones aptos)
-```
+`AdaptadorAPIHidrica` vive en `infraestructura.api` y es la única clase que lee JSON con Jackson (la configuración solo le entrega el `ObjectMapper`). El dominio solo ve el puerto `ProveedorCondicionesHidricas.consultar(CanalHidrico)`. Cambiar de proveedor es escribir otro adaptador.
 
-### Prueba de integración con Mockito (pedida por el reto)
+## Los 3 patrones integrados en el flujo
 
-`AsignacionConPatronesIntegracionTest`: la estrategia (mock) devuelve primero un drone en **FALLO** y después uno sano. Se registran **dos observadores mock** y se verifica que **cada uno recibe exactamente una vez** el evento `DRONE_EN_FALLO`:
+1. **Adapter**: el `DesviadorRuta` consulta cada canal; si el canal es adverso, la ruta se desvía.
+2. **Chain**: el `PlanificadorRuta` solo considera los drones que la cadena aprueba para cada tramo.
+3. **Decorator**: al recorrer cada tramo el drone deja su lectura de telemetría y su sello; el `EjecutorRuta` los pasa a la `CadenaCustodia`.
 
-```java
-verify(centroControl, times(1)).notificar(argThat(e -> e.getTipo() == TipoEvento.DRONE_EN_FALLO));
-verify(tecnicoMantenimiento, times(1)).notificar(argThat(e -> e.getTipo() == TipoEvento.DRONE_EN_FALLO));
-```
+`FlujoMultiEtapaIntegracionTest` ejecuta este flujo con las clases reales (sin mocks): solicitud, planificación, asignación por tramos y notificación de waypoints.
 
-## Pruebas (25)
+## Pruebas pedidas por el reto (Mockito)
 
-| Clase de prueba | Qué verifica |
+| Lo que pide el reto | Prueba |
 |---|---|
-| `FabricaDronesTest` | Crea los 3 tipos, la instancia es de la clase correcta, tipo desconocido/nulo/vacío lanza excepción, registrar un tipo nuevo sin modificar la fábrica |
-| `EstrategiasSeleccionTest` | Cada estrategia elige el drone correcto, desempates, lista vacía retorna `Optional.empty()`, `PrioridadCritica` cambia de estrategia según la prioridad |
-| `ObservadoresTest` | Mensajes del Centro de Control para los 3 eventos, orden de mantenimiento, observador removido, conteo de observadores |
-| `AsignacionConPatronesIntegracionTest` | Los 3 patrones juntos con 2 observadores mock |
+| La cadena se detiene en el primer validador que falla | `CadenaValidacionTest.validar_bateriaBaja_seDetieneEnElPrimerEslabon`: con 34 % de batería, `verify(zonas, never())` y `verify(condiciones, never())`. Además, `validar_eslabonFalla_siguienteNoSeLlama` enlaza un **eslabón mock** detrás de `ValidadorCapacidadCarga` y verifica que nunca se invoca. |
+| El decorator registra sin alterar el comportamiento | `DecoradoresTest.monitoreo_recorrer_registraUnaLectura` (`verify(telemetria, times(1))`) y `monitoreo_recorrer_mismoResultadoQueSinDecorar` (resultado igual al del drone sin decorar). |
+| El adapter convierte campos con valores límite | `AdaptadorAPIHidricaTest`: parametrizadas con 4,99 / 5,0 / 49,99 / 50,0 NTU y 0,29 / 0,3 / 0,99 / 1,0 m; nivel negativo; JSON malformado; campos extra. El cliente HTTP es un mock. |
 
-## Ejecutar
+Total: 33 pruebas (`CadenaValidacionTest` 5, `DecoradoresTest` 5, `AdaptadorAPIHidricaTest` 6 métodos con 14 ejecuciones, `FabricaDronesTest` 2, `FlujoMultiEtapaIntegracionTest` 7).
 
 ```bash
 mvn test
-mvn compile exec:java -Dexec.mainClass=edu.eci.dosw.aquaport.AquaPortPatronesApp
+mvn compile exec:java -Dexec.mainClass=edu.eci.dosw.aquaport.infraestructura.configuracion.AquaPortEnterpriseApp
 ```

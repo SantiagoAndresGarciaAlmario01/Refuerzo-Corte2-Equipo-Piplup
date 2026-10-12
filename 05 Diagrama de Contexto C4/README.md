@@ -1,55 +1,55 @@
-# 05 Diagrama de Contexto C4: AquaPort v2 y sus nuevas integraciones
+# 05 Diagrama C4 nivel 2: Contenedores de AquaPort Enterprise
 
-**Nivel:** Prinplup · **C4 Nivel 1 (System Context)**
+**Nivel:** Empoleon · **C4 Nivel 2 (Container)** · cada flecha indica el dato que fluye y el protocolo
 
-![Diagrama de contexto C4 v2](docs/c4-contexto-prinplup.png)
+![Diagrama de contenedores](docs/c4-contenedores-empoleon.png)
 
-Archivos: `docs/c4-contexto-prinplup.png` (entregable), `docs/c4-contexto-prinplup.svg` (fuente vectorial) y `docs/c4-contexto-piplup-v1.png` (versión anterior, para comparar).
+Archivos: `docs/c4-contenedores-empoleon.png` (entregable) y `docs/c4-contenedores-empoleon.svg` (fuente vectorial).
 
-## Elementos
+## Por qué nivel 2
 
-| Tipo | Elemento | Descripción | ¿Nuevo en v2? |
+El nivel 1 de Prinplup mostraba a AquaPort como una sola caja. Con 60 drones, telemetría continua y una cadena de custodia que se entrega a otro sistema, la pregunta ya no es solo “con quién habla AquaPort” sino “qué piezas desplegables lo componen y cómo se comunican”. Eso es el nivel 2.
+
+## Contenedores
+
+| Contenedor | Tecnología | Responsabilidad | En el código |
 |---|---|---|---|
-| Sistema | **AquaPort v2** | Asigna automáticamente el drone más adecuado según zona, carga y condiciones del agua, y emite alertas de fallo. | Cambia su responsabilidad |
-| Persona | **Operador Hídrico** | Ya no asigna a mano: supervisa la flota y ajusta la estrategia activa. | Cambia su rol |
-| Persona | **Solicitante** | Pide transportar muestras, sensores o equipos indicando peso, tipo y prioridad. | Igual, con más datos |
-| Persona | **Administrador ECI** | Gestiona la flota de 15 drones por tipo y consulta reportes. | Igual |
-| Persona | **Técnico de Mantenimiento** | Atiende los drones en FALLO y los devuelve a servicio. | **Sí** |
-| Sistema externo | **API Condiciones Hídricas** | Entrega agitación, profundidad requerida y temperatura por zona. | **Sí** |
-| Sistema externo | **Centro de Control ECI** | Registra misiones y autoriza rutas acuáticas. | **Sí** |
-| Sistema externo | **Sistema de Alertas** | Distribuye alertas en tiempo real a técnicos y centro de control. | **Sí** |
+| **Consola de operación** | SPA HTML/JS | Mapa de zonas, configuración de rutas, monitoreo por tramo, reportes de custodia | mocks de los puntos 08 y 11 |
+| **Aplicación principal** | Java 17 (dominio + aplicación) | Planifica la ruta con la cadena de validación, asigna un drone por tramo, reasigna ante fallos y lleva la custodia | `dominio.*`, `aplicacion.*` |
+| **Módulo de telemetría** | Java 17 | Recibe lecturas de los drones y del Decorator `DroneConMonitoreo`; publica posición y batería en vivo | `RegistroTelemetria` (puerto) y `infraestructura.telemetria` |
+| **Adaptador API hídrica** | Java 17 + Jackson | Traduce el JSON en inglés del proveedor al modelo del dominio | `infraestructura.api.AdaptadorAPIHidrica` |
+| **Base de datos de misiones** | PostgreSQL | Misiones, tramos, planes y registros de custodia sellados | `RepositorioMisiones` (puerto); hoy `RepositorioMisionesEnMemoria` |
 
-## Relaciones nuevas (qué información fluye)
+## Sistemas externos (4) y dispositivos
 
-| Desde | Hacia | Dato |
+| Elemento | Qué intercambia con AquaPort |
+|---|---|
+| **API Condiciones Hídricas** | `GET /condiciones?desde&hasta` → `waterLevel`, `turbidity`, `waveHeight` por canal |
+| **Centro de Control ECI** | Recibe el registro de misión y la solicitud de ruta; responde la autorización por webhook |
+| **Sistema de Alertas** | Recibe eventos `FALLO`, `BATERIA_CRITICA_EN_RUTA`, `CUSTODIA_INTERRUMPIDA` y los reparte por push/SMS |
+| **Sistema del Laboratorio (LIMS)** | Recibe la cadena de custodia sellada al entregar la muestra |
+| Flota de 60 drones (dispositivos de campo) | Envía lecturas de batería y posición por MQTT |
+
+## Comunicaciones (dato + protocolo)
+
+| Desde → Hacia | Dato | Protocolo |
 |---|---|---|
-| AquaPort v2 | API Condiciones Hídricas | Consulta por zona destino |
-| API Condiciones Hídricas | AquaPort v2 | Agitación, profundidad, temperatura |
-| AquaPort v2 | Centro de Control ECI | Registro de misión y solicitud de ruta |
-| Centro de Control ECI | AquaPort v2 | Autorización de ruta acuática |
-| AquaPort v2 | Sistema de Alertas | Evento: drone en FALLO o misión CRÍTICA sin drone |
-| Sistema de Alertas | Técnico de Mantenimiento | Alerta push |
-| AquaPort v2 | Técnico de Mantenimiento | Orden de mantenimiento del drone en FALLO |
-| Técnico de Mantenimiento | AquaPort v2 | Drone reparado, vuelve a DISPONIBLE |
-| AquaPort v2 | Operador Hídrico | Flota agrupada por tipo, drone recomendado y la razón |
+| Personas → Consola | Solicitudes, supervisión, gestión de zonas y flota | HTTPS |
+| Consola → Aplicación | Misiones, planes y estado (JSON) | REST/HTTPS |
+| Telemetría → Consola | Posición y batería en vivo | WebSocket |
+| Aplicación → Base de datos | Misiones, tramos y custodia | JDBC/SQL |
+| Aplicación → Telemetría | `LecturaTelemetria` por tramo | AMQP |
+| Drones → Telemetría | Lecturas de campo | MQTT |
+| Aplicación → Adaptador | Consulta de condiciones por canal | llamada interna |
+| Adaptador → API Condiciones Hídricas | `GET /condiciones` y respuesta JSON | HTTPS/JSON |
+| Aplicación ↔ Centro de Control | Registro de misión / autorización de ruta | HTTPS/REST y webhook HTTPS |
+| Aplicación → Sistema de Alertas | Eventos de fallo, batería crítica y custodia | AMQP |
+| Aplicación → LIMS | Cadena de custodia sellada | HTTPS/JSON |
+| Sistema de Alertas → Técnico | Alerta | push / SMS |
 
-## Comparación v1 → v2
+## Decisiones
 
-| Aspecto | Piplup (v1) | Prinplup (v2) |
-|---|---|---|
-| Sistemas externos | Ninguno (declarado explícitamente) | 3: condiciones hídricas, centro de control y alertas |
-| Personas | 3 | 4 (entra el técnico) |
-| Quién decide el drone | El operador | El sistema (Strategy); el operador supervisa |
-| Información que entra | Partida, llegada, tipo de carga | Además peso, prioridad y condiciones del agua |
-
-**Qué se mantuvo:** el límite de la organización ECI, AquaPort como una sola caja negra, los actores como roles y las flechas con dato concreto en ambos sentidos.
-
-**Qué creció:** el sistema dejó de ser autónomo. Para elegir bien el drone necesita información que no produce (el estado del agua) y para avisar de fallos necesita a otros sistemas. Por eso la v2 tiene más flechas hacia afuera que la v1.
-
-## Justificación de las decisiones
-
-- **Los tres sistemas externos quedan fuera del límite ECI**: AquaPort no los construye ni los controla, solo se integra con ellos. En el código esto se refleja en `ProveedorCondicionesHidricas` (interfaz) y en los observadores; el dominio no conoce al proveedor concreto.
-- **El Técnico de Mantenimiento es persona, no sistema**: recibe la alerta y actúa sobre el drone físico.
-- **Los drones siguen sin ser sistema externo**: son el dominio que AquaPort gestiona.
-- **Etiqueta NUEVO** en cada elemento que aparece en la v2, para que la evolución se vea sin comparar dos imágenes.
-- No se dibujan patrones, clases ni base de datos (eso es nivel 2 y 3).
+- **Asíncrono (AMQP) para alertas y telemetría**: un fallo en el Sistema de Alertas no debe detener una ruta en curso. Las consultas que la aplicación necesita para decidir (condiciones del canal, autorización de ruta) son síncronas.
+- **El adaptador es un contenedor propio**: se despliega aparte porque depende de un proveedor externo con sus propios tiempos de respuesta y cambios de formato; si el proveedor cambia, solo se redespliega el adaptador.
+- **Los drones no son un sistema externo** sino dispositivos de campo del propio sistema; se dibujan con otro color.
+- No se dibujan clases ni paquetes: eso es nivel 3 (el mapa de dependencias del punto 04 cumple ese papel).
