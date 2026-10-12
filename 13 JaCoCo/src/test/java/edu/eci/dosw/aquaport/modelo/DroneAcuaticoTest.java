@@ -3,45 +3,122 @@ package edu.eci.dosw.aquaport.modelo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.stream.Stream;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DroneAcuaticoTest {
 
-    private static final String MODELO = "Aqua-Ranger 100";
-    private static final String ZONA = "Laguna Sur";
+    private static final CondicionesHidricas AGUA_TRANQUILA = new CondicionesHidricas(NivelAgitacion.BAJO, 0, 18);
+    private static final CondicionesHidricas AGUA_AGITADA = new CondicionesHidricas(NivelAgitacion.ALTO, 0, 18);
+    private static final CondicionesHidricas PROFUNDIDAD_10M = new CondicionesHidricas(NivelAgitacion.MEDIO, 10, 14);
 
-    @Test
-    @DisplayName("Un drone válido conserva los datos con los que se creó")
-    void crear_datosValidos_conservaBateria() {
-        DroneAcuatico drone = new DroneAcuatico("AR-04", MODELO, 73, true, ZONA);
+    static Stream<Arguments> compatibilidadPorTipo() {
+        return Stream.of(
+                Arguments.of(new DroneSuperficial("AR-01", 80, Zona.LAGUNA_SUR), AGUA_TRANQUILA, true),
+                Arguments.of(new DroneSuperficial("AR-01", 80, Zona.LAGUNA_SUR), AGUA_AGITADA, false),
+                Arguments.of(new DroneSuperficial("AR-01", 80, Zona.LAGUNA_SUR), PROFUNDIDAD_10M, false),
+                Arguments.of(new DroneSemisumergido("AR-06", 80, Zona.LAGUNA_SUR), AGUA_AGITADA, true),
+                Arguments.of(new DroneSemisumergido("AR-06", 80, Zona.LAGUNA_SUR), PROFUNDIDAD_10M, false),
+                Arguments.of(new DroneBuceador("AR-11", 80, Zona.LAGUNA_SUR), PROFUNDIDAD_10M, true),
+                Arguments.of(new DroneBuceador("AR-11", 80, Zona.LAGUNA_SUR), AGUA_AGITADA, false),
+                Arguments.of(new DroneBuceador("AR-11", 80, Zona.LAGUNA_SUR),
+                        new CondicionesHidricas(NivelAgitacion.BAJO, 31, 10), false));
+    }
 
-        assertEquals(73, drone.bateria());
+    @ParameterizedTest(name = "{0} en {1} -> {2}")
+    @MethodSource("compatibilidadPorTipo")
+    @DisplayName("Cada tipo de drone respeta sus condiciones de operación")
+    void puedeOperarEn_segunTipo_respetaCondiciones(DroneAcuatico drone, CondicionesHidricas condiciones,
+                                                    boolean esperado) {
+        assertEquals(esperado, drone.puedeOperarEn(condiciones));
     }
 
     @Test
-    @DisplayName("Un id nulo lanza IllegalArgumentException")
-    void crear_idNulo_lanzaExcepcion() {
-        assertThrows(IllegalArgumentException.class, () -> new DroneAcuatico(null, MODELO, 50, true, ZONA));
+    @DisplayName("El buceador no transporta cargas de más de 300 g")
+    void puedeTransportar_buceadorCon301Gramos_retornaFalse() {
+        DroneAcuatico buceador = new DroneBuceador("AR-11", 80, Zona.LAGUNA_SUR);
+
+        assertFalse(buceador.puedeTransportar(301));
     }
 
     @Test
-    @DisplayName("Un id en blanco lanza IllegalArgumentException")
-    void crear_idEnBlanco_lanzaExcepcion() {
-        assertThrows(IllegalArgumentException.class, () -> new DroneAcuatico("  ", MODELO, 50, true, ZONA));
+    @DisplayName("El semisumergido transporta exactamente su capacidad máxima de 1500 g")
+    void puedeTransportar_semisumergidoCon1500Gramos_retornaTrue() {
+        DroneAcuatico semisumergido = new DroneSemisumergido("AR-06", 80, Zona.CANAL_CENTRAL);
+
+        assertTrue(semisumergido.puedeTransportar(1500));
     }
 
-    @ParameterizedTest(name = "Batería fuera de rango [{0}] lanza IllegalArgumentException")
+    @Test
+    @DisplayName("Un drone nuevo nace DISPONIBLE")
+    void crear_droneNuevo_estaDisponible() {
+        assertTrue(new DroneSuperficial("AR-02", 50, Zona.CANAL_CENTRAL).estaDisponible());
+    }
+
+    @Test
+    @DisplayName("Un drone en FALLO no está disponible")
+    void estaDisponible_droneEnFallo_retornaFalse() {
+        DroneAcuatico drone = new DroneSuperficial("AR-02", 50, Zona.CANAL_CENTRAL);
+
+        drone.cambiarEstado(EstadoDrone.FALLO);
+
+        assertFalse(drone.estaDisponible());
+    }
+
+    @ParameterizedTest(name = "batería {0} -> operable {1}")
+    @CsvSource({"34,false", "35,true"})
+    @DisplayName("Valor límite de batería mínima de operación (35 %)")
+    void tieneBateriaParaOperar_valorLimite(int bateria, boolean esperado) {
+        assertEquals(esperado, new DroneBuceador("AR-12", bateria, Zona.LAB_HIDRICO).tieneBateriaParaOperar());
+    }
+
+    @ParameterizedTest(name = "batería inválida {0}")
     @ValueSource(ints = {-1, 101})
+    @DisplayName("No se puede crear un drone con batería fuera de 0-100")
     void crear_bateriaFueraDeRango_lanzaExcepcion(int bateria) {
-        assertThrows(IllegalArgumentException.class, () -> new DroneAcuatico("AR-09", MODELO, bateria, true, ZONA));
+        assertThrows(IllegalArgumentException.class, () -> new DroneSuperficial("AR-09", bateria, Zona.LAGUNA_SUR));
     }
 
-    @ParameterizedTest(name = "Batería en el límite [{0}] es válida")
-    @ValueSource(ints = {0, 100})
-    void crear_bateriaEnLimites_esValida(int bateria) {
-        assertEquals(bateria, new DroneAcuatico("AR-09", MODELO, bateria, true, ZONA).bateria());
+    @Test
+    @DisplayName("No se puede crear un drone sin id")
+    void crear_sinId_lanzaExcepcion() {
+        assertThrows(IllegalArgumentException.class, () -> new DroneSuperficial(" ", 50, Zona.LAGUNA_SUR));
+    }
+
+    @Test
+    @DisplayName("Cambiar a un estado nulo lanza NullPointerException")
+    void cambiarEstado_nulo_lanzaExcepcion() {
+        DroneAcuatico drone = new DroneSuperficial("AR-02", 50, Zona.CANAL_CENTRAL);
+
+        assertThrows(NullPointerException.class, () -> drone.cambiarEstado(null));
+    }
+
+    @Test
+    @DisplayName("Las condiciones hídricas no aceptan profundidad negativa")
+    void crearCondiciones_profundidadNegativa_lanzaExcepcion() {
+        assertThrows(IllegalArgumentException.class, () -> new CondicionesHidricas(NivelAgitacion.BAJO, -1, 18));
+    }
+
+    // Ramas detectadas en amarillo por JaCoCo (punto 13)
+
+    @Test
+    @DisplayName("No se puede crear un drone con id nulo (rama id == null)")
+    void crear_idNulo_lanzaExcepcion() {
+        assertThrows(IllegalArgumentException.class, () -> new DroneBuceador(null, 50, Zona.LAGUNA_SUR));
+    }
+
+    @Test
+    @DisplayName("Cada tipo informa su modelo comercial")
+    void getModelo_semisumergido_retornaAquaSemi() {
+        assertEquals("Aqua-Semi 300", new DroneSemisumergido("AR-06", 80, Zona.CANAL_CENTRAL).getModelo());
     }
 }

@@ -1,53 +1,54 @@
-# 12 TDD: ValidadorMision con Red → Green → Refactor
+# 12 TDD: AsignadorAutomatico con Red → Green → Refactor y Mockito
 
-**Nivel:** Piplup · **Herramientas:** JUnit 5 (Jupiter + Params) · patrón AAA · JaCoCo
+**Nivel:** Prinplup · **Herramientas:** JUnit 5, Mockito 5 (`@Mock`, `when/thenReturn`, `thenAnswer`, `verify`, `ArgumentCaptor`), patrón AAA, JaCoCo
 
-## El ciclo aplicado (verificable en el historial de commits)
+En Piplup el ciclo se hizo sobre un validador sin dependencias. Ahora la clase bajo prueba **depende de 4 colaboradores** (estrategia, API de condiciones, validador y publicador). Por eso las pruebas usan **Mockito**: la estrategia y la API se reemplazan por dobles para probar el asignador aislado, sin red y con resultados controlados.
 
-| Fase | Commit | Qué contiene | Resultado |
+## El ciclo en el historial de commits
+
+| Fase | Commit | Contenido | Resultado |
 |---|---|---|---|
-| **Red** | `test:Piplup-Punto 12 - Red: pruebas de ValidadorMision` | Solo `ValidadorMisionTest` (20 pruebas). `ValidadorMision` **no existe**. | No compila, por lo tanto todas fallan (resultado esperado). |
-| **Green** | `feat:Piplup-Punto 12 - Green: ValidadorMision minimo` | Código mínimo: `if` directos, número mágico `35`, `Set.of(...)` creado en cada llamada, mensajes genéricos. | 20/20 en verde. |
-| **Refactor** | `refactor:Piplup-Punto 12 - Refactor: constantes, mensajes y helper` | Constantes `BATERIA_MINIMA` y `ZONAS_VALIDAS`, método privado `requerirDrone` (elimina duplicación del chequeo de `null`), mensajes descriptivos en español, Javadoc. | 20/20 siguen en verde: el comportamiento no cambió. |
+| Preparación | `feat:Prinplup-Punto 12 - Agregar dominio e interfaces que usa el asignador` | Modelo, `EstrategiaSeleccion`, `ProveedorCondicionesHidricas`, `ValidadorAsignacion`, Observer y `pom.xml` con Mockito y JaCoCo. | Compila, sin pruebas del asignador. |
+| **Red** | `test:Prinplup-Punto 12 - Red: pruebas de AsignadorAutomatico con Mockito` | Solo `AsignadorAutomaticoTest` (11 pruebas). `AsignadorAutomatico` **no existe**. | No compila: las 11 fallan (esperado). |
+| **Green** | `feat:Prinplup-Punto 12 - Green: AsignadorAutomatico minimo` | Código mínimo: un `while` que reintenta mientras el elegido esté en FALLO, sin validar parámetros, `asignar` de 25 líneas, `ArrayList` + `sort` y la lista interna retornada sin copia. | 11/11 en verde. |
+| **Refactor** | `refactor:Prinplup-Punto 12 - Refactor: extraer elegirEntre, confirmar y sinIncluir` | `asignar` queda en 4 líneas; la reelección por FALLO pasa a `elegirEntre` (recursivo, sin variables reasignadas); `confirmar` agrupa el cambio de estado y el evento; `requireNonNull` con mensajes en español; `sorted(...).toList()` y `List.copyOf`. | 11/11 siguen en verde. |
 
-Con `git log --oneline -- "12 TDD"` se ve que **el commit de pruebas es anterior al de producción**.
+```bash
+git log --oneline -- "12 TDD"
+```
 
-## API del validador
+muestra que el commit de pruebas es anterior al de producción.
 
-| Método | Regla | Si falla |
+## Pruebas (11)
+
+| # | Prueba | Técnica Mockito |
 |---|---|---|
-| `boolean tieneBateriaSuficiente(DroneAcuatico)` | batería ≥ 35 % | `IllegalArgumentException` si el drone es `null` |
-| `void validarPuntoLlegada(String)` | no nulo, no vacío, no en blanco | `IllegalArgumentException` |
-| `void validarDisponibilidad(DroneAcuatico)` | `disponible == true` | `IllegalStateException` (o `IllegalArgumentException` si es `null`) |
-| `void validarZona(String)` | pertenece a las 5 zonas fijas (sensible a mayúsculas) | `IllegalArgumentException` |
-
-Se usa `IllegalArgumentException` cuando **el dato recibido es inválido** e `IllegalStateException` cuando **el dato es válido pero el drone está en un estado que no permite la operación**.
-
-## Pruebas (20 ejecuciones, 15 métodos)
-
-| Grupo | Casos |
-|---|---|
-| Batería | 85 % válido, 18 % inválido, **35 % (límite) válido**, **34 % (límite) inválido** · drone `null` → excepción |
-| Punto de llegada | `null` → excepción · `""` y `"   "` (parametrizada) → excepción · válido → sin excepción |
-| Disponibilidad | no disponible → `IllegalStateException` · disponible → sin excepción · `null` → excepción |
-| Zona (edge) | las 5 zonas fijas (parametrizada) válidas, “Río Bogotá” inválida, **“embalse norte” en minúsculas** inválida, `null` inválida |
+| 1 | Happy path: la misión queda `EN_TRANSITO` | `when(estrategia.seleccionar(...)).thenReturn(Optional.of(drone))` |
+| 2 | Happy path: el drone pasa a `EN_MISION` | Igual que 1, verificación de estado |
+| 3 | Misión CRÍTICA sin drones: los observadores reciben el evento **una vez** | `verify(observador, times(1)).notificar(argThat(...))` |
+| 4 | Drone en FALLO: notifica y asigna un alternativo | `thenAnswer` que devuelve el drone en FALLO la primera vez y el sano la segunda |
+| 5 | En el reintento, el drone en FALLO ya no se ofrece a la estrategia | `ArgumentCaptor<List<DroneAcuatico>>` + `times(2)` sobre la segunda lista |
+| 6 | Flota vacía: no hay asignación y se publica `MISION_SIN_DRONE` | `verify` del evento |
+| 7 | Caso borde: batería **35 %** sí llega a la estrategia | `verify(estrategia).seleccionar(argThat(c -> c.contains(drone)), any())` |
+| 8 | Caso borde: batería **34 %** no llega a la estrategia | `verify(estrategia).seleccionar(argThat(List::isEmpty), any())` |
+| 9 | La asignación exitosa publica un único `MISION_ASIGNADA` | `ArgumentCaptor<EventoMision>` + `verify(observador).notificar(captor.capture())` |
+| 10 | Las CRÍTICAS eligen drone antes que las demás (un solo drone, dos misiones) | `thenAnswer` que devuelve el primer candidato |
+| 11 | Un observador removido ya no es notificado | `verify(observador, never())` |
 
 Convenciones:
-- Nombre `metodo_condicion_resultadoEsperado` + `@DisplayName` en español.
-- **AAA** explícito (`// Arrange`, `// Act`, `// Assert`) en el primer test; en el resto las tres partes están separadas por líneas en blanco.
-- **Una sola verificación por prueba**; asserts específicos (`assertTrue/False`, `assertThrows` con el tipo exacto, `assertDoesNotThrow`).
-- `@BeforeEach` crea el validador y un método `drone(bateria, disponible)` evita repetir el `new DroneAcuatico(...)`.
-- `@ParameterizedTest` + `@ValueSource` para los casos que solo cambian el dato de entrada.
+- Nombres `metodo_condicion_resultadoEsperado` + `@DisplayName` en español.
+- **AAA**: explícito con comentarios `// Arrange`, `// Act`, `// Assert` en la primera prueba; en las demás las tres partes van separadas por líneas en blanco.
+- `@ExtendWith(MockitoExtension.class)` con modo estricto: un stub que no se usa hace fallar la prueba, así no quedan `when(...)` sobrantes.
+- Lo que se simula son **abstracciones** (estrategia, API, observador). El `ValidadorAsignacion` y el `PublicadorEventosMision` son reales: simularlos haría que la prueba no verifique nada del flujo.
 
-## Cobertura obtenida
+## Cobertura
 
-![Reporte JaCoCo del punto 12](evidencias/jacoco-punto12-antes.png)
+![JaCoCo del paquete servicio](evidencias/jacoco-servicio.png)
 
-`ValidadorMision`: **100 % líneas y 100 % ramas**. El total del proyecto queda en ~90 % porque las validaciones del `record DroneAcuatico` no tienen pruebas propias: eso se corrige en el **punto 13**.
+`AsignadorAutomatico`: **100 % líneas y 100 % ramas**.
 
 ## Ejecutar
 
 ```bash
-mvn test                              # pruebas
-# reporte: target/site/jacoco/index.html
+mvn test        # reporte en target/site/jacoco/index.html
 ```
