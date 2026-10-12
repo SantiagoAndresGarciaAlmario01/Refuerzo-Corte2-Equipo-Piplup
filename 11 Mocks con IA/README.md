@@ -9,7 +9,9 @@ Se tomaron como referencia (solo para estudiar la pantalla de monitoreo, no para
 1. **Paneles de control de flotas de vehículos autónomos/drones** (vista de flota con tarjeta por unidad, batería, estado y ubicación).
 2. **Tableros de monitoreo hídrico de centros de control ambiental** (indicadores en vivo por cuerpo de agua, alertas destacadas en rojo y registro cronológico de eventos).
 
-**Pendiente:** agregar en `referencias/` las dos capturas de pantalla de las referencias concretas que consultaron (el reto pide capturarlas).
+<img width="1505" height="958" alt="image" src="https://github.com/user-attachments/assets/3178b799-24f3-4472-800a-adf938a4b9b6" />
+<img width="1000" height="625" alt="image" src="https://github.com/user-attachments/assets/8fd18b8a-d13e-4871-9445-3feb3f8b622c" />
+
 
 Patrones tomados de las referencias: tarjeta por unidad con estado + batería, banner de alerta arriba de todo, KPIs resumidos en la cabecera y registro de actividad lateral.
 
