@@ -1,0 +1,13 @@
+Issue Id,Issue Type,Summary,Description,Priority,Story Points,Parent,Labels
+1,Epic,Digitalizar el monitoreo y reparto hídrico de la ECI mediante una flota de drones acuáticos supervisada,"Objetivo estratégico de AquaPort. Incluye MVP (Piplup), flota autónoma (Prinplup) y red multi-embalse (Empoleon).",High,,,aquaport;piplup
+2,Feature,Gestión de la flota de drones acuáticos del campus,"Permite al Operador Hídrico ver la flota, asignar drones a misiones y corregir asignaciones.",High,,1,aquaport;piplup
+3,Story,Ver flota disponible,"Como operador hídrico, quiero ver qué drones están disponibles con su nivel de batería y zona para asignar la misión al drone más adecuado según la zona de partida.",High,3,2,aquaport;piplup
+4,Story,Asignar drone a misión,"Como operador hídrico, quiero asignar manualmente un drone disponible a una misión de transporte para que la muestra o el sensor llegue a su destino sin usar un drone con batería crítica.
+
+Criterios de aceptación:
+1. Dado que AR-01 está disponible con 92% de batería, cuando el operador lo asigna a una misión de Embalse Norte a Laboratorio Hídrico, entonces el sistema crea la misión en estado PENDIENTE, muestra su código y AR-01 deja de aparecer como disponible.
+2. Dado que AR-03 tiene 18% de batería, cuando el operador intenta asignarlo, entonces el sistema no permite la asignación y muestra 'El drone AR-03 tiene batería insuficiente (18%). Mínimo requerido: 35%.'",High,5,2,aquaport;piplup
+5,Story,Cancelar misión pendiente,"Como operador hídrico, quiero cancelar una misión que aún está en estado PENDIENTE para corregir una asignación errónea y liberar el drone.",Medium,2,2,aquaport;piplup
+6,Sub-task,Implementar consulta Stream de drones disponibles con batería >= 35% en la zona de partida,"Filtrar disponibles, batería >= 35 y zona = puntoPartida; ordenar de mayor a menor batería. Sin for/while.",High,,4,aquaport;streams
+7,Sub-task,Implementar Mision.Builder con validación en build(),"Validar id, drone, puntoPartida, puntoLlegada y tipoCarga obligatorios; lanzar IllegalStateException si el drone no está disponible.",High,,4,aquaport;builder
+8,Sub-task,Escribir pruebas JUnit (Red-Green) de ValidadorMision,"Casos: batería 34% y 35%, drone no disponible, punto de llegada nulo/vacío, zona inválida.",High,,4,aquaport;tdd
