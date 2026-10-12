@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Valida que el mensaje siga Conventional Commits: tipo(alcance): descripción
+# Se activa con: git config core.hooksPath .githooks
+primera_linea=$(head -n 1 "$1")
+patron='^(feat|fix|refactor|test|docs|chore|build|ci|perf|style)(\([a-z0-9-]+\))?!?: [^ ].{9,}$'
+
+if printf '%s' "$primera_linea" | grep -qE '^(Merge|Revert) '; then
+    exit 0
+fi
+if ! printf '%s' "$primera_linea" | grep -qE "$patron"; then
+    echo "Commit rechazado: el mensaje no sigue Conventional Commits." >&2
+    echo "  Recibido: $primera_linea" >&2
+    echo "  Formato:  tipo(alcance): descripción de al menos 10 caracteres" >&2
+    echo "  Tipos:    feat, fix, refactor, test, docs, chore, build, ci, perf, style" >&2
+    echo "  Ejemplo:  feat(empoleon-03): agregar cadena de validación de tramos" >&2
+    exit 1
+fi
