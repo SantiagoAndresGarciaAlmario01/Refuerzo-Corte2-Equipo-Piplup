@@ -1,0 +1,83 @@
+digraph AquaPortSOLID {
+  graph [rankdir=TB, fontname="Helvetica", fontsize=20, labelloc=t, nodesep=0.6, ranksep=0.9, bgcolor="white",
+         label=<<B>AquaPort MVP (Piplup) – Diagrama de clases · SRP + DIP</B><BR/><FONT POINT-SIZE="13" COLOR="#5A6B7F">Las flechas punteadas con triángulo = implementa · línea con rombo vacío = agregación (dependencia inyectada por constructor) · punteada abierta = usa</FONT>>];
+  node  [shape=plain, fontname="Helvetica", fontsize=12];
+  edge  [fontname="Helvetica", fontsize=11, color="#0A1F3C"];
+
+  Gestor [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#0E8FB8" BGCOLOR="#E6F7FB">
+    <TR><TD><B>GestorSolicitudesMision</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">- validador : ValidadorMision<BR ALIGN="LEFT"/>- registrador : RegistradorMisiones<BR ALIGN="LEFT"/>- notificador : NotificadorOperador<BR ALIGN="LEFT"/></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ GestorSolicitudesMision(v, r, n)<BR ALIGN="LEFT"/>+ procesar(m : Mision) : boolean<BR ALIGN="LEFT"/></TD></TR>
+    <TR><TD><FONT POINT-SIZE="10" COLOR="#0E6E8F">SRP: orquesta validar → registrar → notificar</FONT></TD></TR></TABLE>>];
+
+  Validador [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#FFFFFF">
+    <TR><TD><B>ValidadorMision</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ BATERIA_MINIMA : int = 35<BR ALIGN="LEFT"/>+ ZONAS_VALIDAS : Set&lt;String&gt;<BR ALIGN="LEFT"/></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ validar(m : Mision) : void<BR ALIGN="LEFT"/>- validarZona(z : String) : void<BR ALIGN="LEFT"/>- validarRutaDistinta(m) : void<BR ALIGN="LEFT"/>- validarBateria(d) : void<BR ALIGN="LEFT"/></TD></TR>
+    <TR><TD><FONT POINT-SIZE="10" COLOR="#0E6E8F">SRP: reglas de negocio</FONT></TD></TR></TABLE>>];
+
+  Registrador [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#FFFFFF">
+    <TR><TD><B>RegistradorMisiones</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">- repositorio : RepositorioMisiones<BR ALIGN="LEFT"/></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ RegistradorMisiones(r : RepositorioMisiones)<BR ALIGN="LEFT"/>+ registrar(m : Mision) : void<BR ALIGN="LEFT"/>+ consultarPorId(id : String) : Optional&lt;Mision&gt;<BR ALIGN="LEFT"/>+ listarMisiones() : List&lt;Mision&gt;<BR ALIGN="LEFT"/></TD></TR>
+    <TR><TD><FONT POINT-SIZE="10" COLOR="#0E6E8F">SRP: registrar y consultar misiones</FONT></TD></TR></TABLE>>];
+
+  Notificador [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#F4F0FF" COLOR="#5B4BB7">
+    <TR><TD><I>«interface»</I><BR/><B>NotificadorOperador</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ notificarMisionRegistrada(m : Mision) : void<BR ALIGN="LEFT"/>+ notificarMisionRechazada(id : String, motivo : String) : void<BR ALIGN="LEFT"/></TD></TR>
+    <TR><TD><FONT POINT-SIZE="10" COLOR="#5B4BB7">SRP: comunicar al operador</FONT></TD></TR></TABLE>>];
+
+  Consola [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#FFFFFF">
+    <TR><TD><B>NotificadorOperadorConsola</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">- salida : PrintStream<BR ALIGN="LEFT"/></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ notificarMisionRegistrada(m) : void<BR ALIGN="LEFT"/>+ notificarMisionRechazada(id, motivo) : void<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+
+  Repo [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#F4F0FF" COLOR="#5B4BB7">
+    <TR><TD><I>«interface»</I><BR/><B>RepositorioMisiones</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ guardar(m : Mision) : void<BR ALIGN="LEFT"/>+ buscarPorId(id : String) : Optional&lt;Mision&gt;<BR ALIGN="LEFT"/>+ listarTodas() : List&lt;Mision&gt;<BR ALIGN="LEFT"/></TD></TR>
+    <TR><TD><FONT POINT-SIZE="10" COLOR="#5B4BB7">DIP: abstracción del almacenamiento</FONT></TD></TR></TABLE>>];
+
+  RepoMem [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#FFFFFF">
+    <TR><TD><B>RepositorioMisionesEnMemoria</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">- misionesPorId : Map&lt;String, Mision&gt;<BR ALIGN="LEFT"/></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ guardar(m) · buscarPorId(id) · listarTodas()<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+
+  Mision [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#FFFFFF">
+    <TR><TD><B>Mision</B> <FONT POINT-SIZE="10">(inmutable)</FONT></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">- id : String<BR ALIGN="LEFT"/>- drone : DroneAcuatico<BR ALIGN="LEFT"/>- puntoPartida : String<BR ALIGN="LEFT"/>- puntoLlegada : String<BR ALIGN="LEFT"/>- tipoCarga : TipoCarga<BR ALIGN="LEFT"/>- estado : EstadoMision<BR ALIGN="LEFT"/></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ getters<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+
+  Builder [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#FFFFFF">
+    <TR><TD><B>Mision.Builder</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ id(..) · drone(..) · puntoPartida(..)<BR ALIGN="LEFT"/>+ puntoLlegada(..) · tipoCarga(..) · estado(..) : Builder<BR ALIGN="LEFT"/>+ build() : Mision<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+
+  Drone [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#FFFFFF">
+    <TR><TD><I>«record»</I><BR/><B>DroneAcuatico</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">id : String · modelo : String<BR ALIGN="LEFT"/>bateria : int · disponible : boolean<BR ALIGN="LEFT"/>zona : String<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+
+  Enums [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#FFFFFF">
+    <TR><TD><I>«enum»</I> <B>TipoCarga</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">MUESTRA_AGUA · SENSOR · PAQUETE_LIGERO<BR ALIGN="LEFT"/></TD></TR><HR/>
+    <TR><TD><I>«enum»</I> <B>EstadoMision</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">PENDIENTE · EN_TRANSITO · ENTREGADA · FALLIDA<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+
+  App [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#FFF7E6" COLOR="#B4541A">
+    <TR><TD><B>AquaPortSolidApp</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ main(args : String[]) : void<BR ALIGN="LEFT"/></TD></TR>
+    <TR><TD><FONT POINT-SIZE="10" COLOR="#B4541A">Raíz de composición: único lugar con new de concretos</FONT></TD></TR></TABLE>>];
+
+  {rank=same; Validador; Registrador; Notificador}
+  {rank=same; Repo; Consola}
+  App -> Gestor [style=dashed, arrowhead=vee, label="  crea e inyecta"];
+  Gestor -> Validador [arrowtail=odiamond, dir=back];
+  Gestor -> Registrador [arrowtail=odiamond, dir=back];
+  Gestor -> Notificador [arrowtail=odiamond, dir=back];
+  Registrador -> Repo [arrowtail=odiamond, dir=back];
+  RepoMem -> Repo [style=dashed, arrowhead=empty, label=" implementa"];
+  Consola -> Notificador [style=dashed, arrowhead=empty, label=" implementa"];
+  Validador -> Mision [style=dashed, arrowhead=vee, label=" usa"];
+  Repo -> Mision [style=dashed, arrowhead=vee, label=" almacena"];
+  Builder -> Mision [style=dashed, arrowhead=vee, label=" construye"];
+  Mision -> Drone [arrowhead=vee, label=" drone 1"];
+  Mision -> Enums [arrowhead=vee];
+}
