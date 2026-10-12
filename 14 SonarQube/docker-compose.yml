@@ -1,4 +1,4 @@
-# SonarQube Community para analizar AquaPort MVP en local
+# SonarQube Community para analizar AquaPort v2 en local (es el mismo servidor del punto 14 de Piplup)
 # Uso: docker compose up -d   →  http://localhost:9000  (admin / admin la primera vez)
 services:
   sonarqube:
