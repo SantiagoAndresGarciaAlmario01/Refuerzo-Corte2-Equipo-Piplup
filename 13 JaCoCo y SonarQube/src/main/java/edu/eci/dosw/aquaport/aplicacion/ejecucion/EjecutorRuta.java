@@ -33,25 +33,33 @@ public class EjecutorRuta {
         CadenaCustodia custodia = new CadenaCustodia(mision.getId());
         for (TramoAsignado asignado : plan.asignados()) {
             Optional<Drone> drone = reasignador.droneListo(mision, asignado, plan, flota);
-            if (drone.isEmpty()) {
-                publicador.publicar(TipoEventoRuta.MISION_FALLIDA, mision.getId(), "La misión no pudo completarse");
-                return new ResultadoMision(mision.getId(), EstadoMision.FALLIDA, custodia.getRegistros());
+            if (drone.isEmpty() || !recorrerYCustodiar(mision, asignado.tramo(), drone.get(), custodia)) {
+                return terminar(mision, EstadoMision.FALLIDA, custodia);
             }
-            Tramo tramo = asignado.tramo();
-            drone.get().cambiarEstado(EstadoDrone.EN_MISION);
-            try {
-                custodia.registrar(drone.get().recorrer(tramo));
-            } catch (CustodiaInterrumpidaException e) {
-                publicador.publicar(TipoEventoRuta.CUSTODIA_INTERRUMPIDA, mision.getId(), e.getMessage());
-                publicador.publicar(TipoEventoRuta.MISION_FALLIDA, mision.getId(), "La misión no pudo completarse");
-                return new ResultadoMision(mision.getId(), EstadoMision.FALLIDA, custodia.getRegistros());
-            }
-            drone.get().cambiarEstado(EstadoDrone.DISPONIBLE);
-            publicador.publicar(TipoEventoRuta.WAYPOINT_ALCANZADO, mision.getId(), drone.get().getId() + " llegó a "
-                    + tramo.destino().getNombre() + " (tramo " + tramo.orden() + ")");
         }
         publicador.publicar(TipoEventoRuta.MISION_ENTREGADA, mision.getId(),
                 "Entregada en " + mision.getDestino().getNombre() + " con " + plan.asignados().size() + " tramos");
-        return new ResultadoMision(mision.getId(), EstadoMision.ENTREGADA, custodia.getRegistros());
+        return terminar(mision, EstadoMision.ENTREGADA, custodia);
+    }
+
+    private boolean recorrerYCustodiar(MisionRuta mision, Tramo tramo, Drone drone, CadenaCustodia custodia) {
+        drone.cambiarEstado(EstadoDrone.EN_MISION);
+        try {
+            custodia.registrar(drone.recorrer(tramo));
+        } catch (CustodiaInterrumpidaException e) {
+            publicador.publicar(TipoEventoRuta.CUSTODIA_INTERRUMPIDA, mision.getId(), e.getMessage());
+            return false;
+        }
+        drone.cambiarEstado(EstadoDrone.DISPONIBLE);
+        publicador.publicar(TipoEventoRuta.WAYPOINT_ALCANZADO, mision.getId(),
+                drone.getId() + " llegó a " + tramo.destino().getNombre() + " (tramo " + tramo.orden() + ")");
+        return true;
+    }
+
+    private ResultadoMision terminar(MisionRuta mision, EstadoMision estado, CadenaCustodia custodia) {
+        if (estado == EstadoMision.FALLIDA) {
+            publicador.publicar(TipoEventoRuta.MISION_FALLIDA, mision.getId(), "La misión no pudo completarse");
+        }
+        return new ResultadoMision(mision.getId(), estado, custodia.getRegistros());
     }
 }
