@@ -1,54 +1,49 @@
-# 06 RF y RNF: Requisitos de AquaPort v2 con priorización MoSCoW
+# 06 RF y RNF: Requisitos Enterprise con SLA, trazabilidad y recuperación ante fallos
 
-**Nivel:** Prinplup · **Sistema:** AquaPort v2 (15 drones de 3 tipos, asignación automática, alertas en tiempo real)
+**Nivel:** Empoleon · **Sistema:** AquaPort Enterprise (60 drones, 4 zonas, rutas multi-etapa) · Los códigos continúan la numeración del proyecto (Prinplup llegó hasta AP-12).
 
-Los códigos continúan la numeración del proyecto (Piplup usó AP-01 a AP-06). Un **RF** dice qué hace el sistema; un **RNF** dice cómo de bien lo hace y siempre trae métrica, umbral, condición y forma de verificarlo.
+## Requisitos funcionales
 
-## Requisitos Funcionales
-
-Los 4 RF pedidos para las funcionalidades nuevas son **AP-07** (asignación automática), **AP-09** (alertas de fallo), **AP-10** (consulta de condiciones hídricas) y **AP-12** (gestión por el técnico). **AP-08** es el RF dado por el enunciado que entra en tensión con AP-07, y **AP-11** complementa las alertas.
-
-| Código | Requisito funcional | Actor | Resultado observable | Dónde está en el código |
+| Código | Requisito | Actor | Resultado observable | En el código |
 |---|---|---|---|---|
-| **AP-07** | El sistema asigna automáticamente el drone **de mayor batería disponible** para cualquier misión hídrica, entre los drones aptos: disponibles, con batería ≥ 35 %, con capacidad para el peso de la carga y compatibles con las condiciones hídricas de la zona destino. | Sistema (lo dispara el Solicitante) | La misión pasa a `EN_TRANSITO` con un drone y el drone pasa a `EN_MISION`. | `AsignadorAutomatico`, `ValidadorAsignacion`, `MayorBateriaStrategy` |
-| **AP-08** | Las misiones **CRÍTICAS** tienen prioridad absoluta: se atienden antes que las demás y reciben el drone **técnicamente más apto para la zona**, independientemente de la batería. | Sistema | En un lote, las CRÍTICAS se asignan primero y con un drone compatible que ya opera en la zona de partida cuando existe. | `asignarPorPrioridad`, `ZonaCercanaStrategy`, `PrioridadCriticaStrategy` |
-| **AP-09** | Cuando un drone elegido está en **FALLO**, el sistema alerta al Centro de Control y al Técnico de Mantenimiento y busca otro drone para la misma misión. | Centro de Control, Técnico de Mantenimiento | Alerta registrada y la misión asignada a un drone alternativo. | `EventoMision.droneEnFallo`, `CentroControlObserver`, `TecnicoMantenimientoObserver` |
-| **AP-10** | Antes de asignar, el sistema consulta las **condiciones hídricas** de la zona destino (agitación, profundidad requerida, temperatura) y descarta los tipos de drone que no pueden operar en ellas. | Sistema, API Condiciones Hídricas | Un superficial nunca se asigna con agua agitada; un semisumergido nunca a más de 1 m. | `ProveedorCondicionesHidricas`, `puedeOperarEn` de cada tipo |
-| **AP-11** | Cuando una misión CRÍTICA no tiene ningún drone apto, el sistema emite una **alerta crítica** al Centro de Control. | Centro de Control ECI | Registro “ALERTA CRÍTICA: misión M-1043 sin drone disponible”. | `EventoMision.sinDrone`, `CentroControlObserver` |
-| **AP-12** | El **Técnico de Mantenimiento** consulta las órdenes abiertas de los drones en FALLO y, al terminar la reparación, devuelve el drone a `DISPONIBLE` para que vuelva a ser candidato. | Técnico de Mantenimiento | La orden aparece en su lista; el drone reparado vuelve a la flota operable. | `TecnicoMantenimientoObserver.getOrdenesAbiertas`, `DroneAcuatico.cambiarEstado` |
+| **AP-13** | **Coordinación entre zonas.** El sistema traslada una carga entre zonas usando solo canales navegables del mapa hídrico; si dos zonas no tienen canal directo (Embalse y Laguna), la ruta pasa por la zona intermedia más corta. | Sistema | La ruta Embalse → Laguna se ejecuta como Embalse → Red de Canales → Laguna. | `MapaHidrico`, `DesviadorRuta` |
+| **AP-14** | **Reasignación automática ante fallo en waypoint.** Si el drone que debe tomar el siguiente tramo está en FALLO o tiene menos de 20 % de batería, el sistema asigna el drone apto más cercano que no esté en el plan y avisa al técnico. | Sistema, Técnico | Evento `TRAMO_REASIGNADO`, orden de mantenimiento abierta y la ruta continúa. | `ReasignadorTramo` |
+| **AP-15** | **Ejecutar misión multi-etapa con waypoints.** El sistema recibe origen, hasta 3 waypoints, destino y carga; planifica un drone por tramo validado por la cadena (batería, capacidad, zona activa, condiciones) y lo ejecuta tramo a tramo. | Solicitante, Operador | Misión `ENTREGADA` con un registro por tramo. | `ServicioMisionMultiEtapa`, `PlanificadorRuta`, `EjecutorRuta` |
+| **AP-16** | **Trazabilidad de la cadena de custodia.** Cada traspaso de la muestra en un waypoint queda registrado en orden, con el drone, el tramo y un sello SHA-256; un registro fuera de orden o sin sello interrumpe la misión. | Laboratorio (LIMS) | Lista de `RegistroCustodia` completa y sellada; `CUSTODIA_INTERRUMPIDA` si no. | `CadenaCustodia`, `DroneConCifrado` |
+| **AP-17** | **Reportes de eficiencia por zona.** El sistema calcula por zona la proporción de misiones entregadas, la batería promedio de la flota y la carga de trabajo de waypoints en tránsito. | Personal ECI | Tabla por zona (por ejemplo, Lab. Central 97 %). | `ConsultorRed`, `BateriaPromedioPorZona` |
 
-## Requisitos No Funcionales
+## Requisitos no funcionales (métricas de producción)
 
 | Código | Atributo | Requisito medible | Verificación |
 |---|---|---|---|
-| **RNF-01** | Rendimiento | Asignar un lote de **10 misiones** sobre una flota de **30 drones** debe tardar **menos de 400 ms**. | `RendimientoAsignacionTest` con `assertTimeout(Duration.ofMillis(400), ...)` (puntos 13 y 14). |
-| **RNF-02** | Fiabilidad / seguridad | El **100 %** de las asignaciones debe respetar batería ≥ 35 %, capacidad de carga del tipo y condiciones hídricas. | `ValidadorAsignacionTest` (34 %, mantenimiento, buceador con 400 g, agua agitada) y `AsignadorAutomaticoTest` con el límite 35 % / 34 %. |
-| **RNF-03** | Disponibilidad de alertas | Cada evento de fallo debe llegar **exactamente una vez** a **cada** observador registrado. | `AsignacionConPatronesIntegracionTest` con `verify(..., times(1))`. |
-| **RNF-04** | Mantenibilidad | Cobertura ≥ **80 %** de líneas y ramas **por clase** (JaCoCo), **0 bugs**, deuda técnica < **30 min** y duplicación < **5 %** en SonarQube en cada merge a `develop`. | `mvn verify` (falla si no se cumple la regla) y Quality Gate de SonarQube (puntos 13 y 14). |
-| **RNF-05** | Extensibilidad | Agregar un tipo de drone nuevo no debe modificar **ninguna** clase existente del asignador, del validador ni de la fábrica. | Prueba OCP con `DroneSumergibleProfundo` (punto 04). |
+| **RNF-E1** | Disponibilidad (SLA) | El servicio de rutas debe estar disponible el **99,5 %** del tiempo mensual (máximo 3 h 36 min de caída al mes), excluyendo ventanas de mantenimiento avisadas con 48 h. | Monitor de salud cada 60 s sobre el endpoint de la aplicación; reporte mensual. |
+| **RNF-E2** | Tiempo de reasignación | Desde que un drone entra en FALLO en un waypoint hasta que el tramo tiene un drone nuevo: **≤ 5 s** en producción (p95) y **< 500 ms** en el núcleo sin red. | `RendimientoRedTest.ejecutar_reasignacionPorFallo_menosDe500ms` con `assertTimeout`. |
+| **RNF-E3** | Throughput | Soportar **20 misiones multi-etapa simultáneas** sobre la red de 60 drones; el núcleo debe planificar y ejecutar 20 misiones en **< 2 s**. | `RendimientoRedTest.ejecutar_veinteMisiones_menosDeDosSegundos`. |
+| **RNF-E4** | Integridad de la custodia | El **100 %** de los registros de custodia deben estar en orden y sellados con SHA-256; cero muestras aceptadas con custodia incompleta. | `CadenaCustodiaTest` y flujo alterno 5 de `FlujoMultiEtapaIntegracionTest`. |
+| **RNF-E5** | Mantenibilidad | JaCoCo **≥ 85 %** de líneas y **≥ 75 %** de ramas; SonarQube **0 bugs, 0 vulnerabilidades, deuda < 15 min, duplicación < 3 %** en cada merge a `develop`. | `mvn verify` (regla JaCoCo) y Quality Gate del punto 13. |
 
 ## Priorización MoSCoW
 
 | Requisito | Categoría | Justificación |
 |---|---|---|
-| AP-07 Asignación automática | **Must** | Es el cambio central de la v2; sin esto Prinplup es igual a Piplup. |
-| AP-10 Condiciones hídricas | **Must** | Sin ellas la asignación automática puede mandar un superficial a agua agitada y perder la carga. |
-| RNF-02 Asignaciones válidas | **Must** | Regla de seguridad del equipo y de las muestras. |
-| AP-08 Prioridad CRÍTICA | **Should** | Muy importante para muestras urgentes, pero el sistema funciona sin ella (asignaría por batería). |
-| AP-09 Alertas de fallo | **Should** | Evita que un drone en FALLO bloquee misiones; al principio se puede suplir con revisión manual. |
-| RNF-01 < 400 ms | **Should** | Con 15 drones el riesgo es bajo; se fija para cuando la flota crezca. |
-| RNF-03 Alertas exactamente una vez | **Should** | Alertas duplicadas generan órdenes de mantenimiento repetidas. |
-| AP-12 Gestión por el técnico | **Should** | Sin ella los drones en FALLO no vuelven a la flota de forma controlada; al principio puede hacerse a mano. |
-| AP-11 Alerta crítica sin drone | **Could** | Aporta trazabilidad; el operador también lo vería en el panel. |
-| RNF-04 Calidad de código | **Could** (como requisito de producto) | Exigido al equipo, el usuario final no lo percibe directamente. |
-| RNF-05 Extensibilidad | **Could** | Valor a futuro (Empoleon). |
-| Rutas multi-etapa entre embalses | **Won't (esta versión)** | Se planea para Empoleon. |
+| AP-15 Misión multi-etapa | **Must** | Es el enunciado de Empoleon; sin rutas por tramos no hay versión Enterprise. |
+| AP-16 Cadena de custodia | **Must** | Una muestra sin custodia completa no tiene validez para el laboratorio: entregarla es lo mismo que perderla. |
+| AP-14 Reasignación automática | **Must** | Con 60 drones y rutas de varios tramos la probabilidad de un fallo en ruta es alta; sin reasignación la misión entera se pierde. |
+| RNF-E4 Integridad de custodia | **Must** | Va de la mano con AP-16. |
+| AP-13 Coordinación entre zonas | **Should** | Las rutas con canal directo funcionan sin ella; es necesaria para Embalse ↔ Laguna. |
+| RNF-E2 Reasignación ≤ 5 s | **Should** | Una muestra de agua tolera unos segundos de espera en un waypoint, no minutos. |
+| RNF-E3 20 misiones simultáneas | **Should** | Es la carga esperada en temporada de muestreo; fuera de ella hay menos. |
+| RNF-E1 SLA 99,5 % | **Should** | El laboratorio puede reprogramar en caso de caída, pero no a diario. |
+| AP-17 Reportes de eficiencia | **Could** | Aporta a la gestión, no a la operación diaria. |
+| RNF-E5 Calidad de código | **Could** (como requisito de producto) | Es exigencia del equipo y del curso; el usuario no lo percibe directamente. |
+| Planificación con costo de energía por distancia | **Won't (v3)** | Hoy el consumo es fijo por tramo; queda para una versión posterior. |
 
-## Tensión entre AP-07 y AP-08 y cómo se resolvió
+## Tensiones entre requisitos y cómo se resolvieron
 
-- **AP-07** pide el drone de **mayor batería**: reparte el desgaste y deja margen para el regreso.
-- **AP-08** pide el drone **técnicamente más apto para la zona** para las CRÍTICAS, independientemente de la batería: lo urgente es llegar rápido con un drone que ya opera ahí.
-
-Aplicadas a la misma misión, las dos reglas pueden elegir drones distintos. Por ejemplo, para una CRÍTICA desde Laguna Sur, AP-07 elegiría AR-06 (88 %, Canal Central) y AP-08 elegiría AR-11 (81 %, Buceador compatible que ya está en Laguna Sur).
-
-**Decisión:** no son contradictorios, pero hay que decidir cuál manda en cada caso; la regla depende de la prioridad. `PrioridadCriticaStrategy` usa `ZonaCercanaStrategy` para las CRÍTICAS y `MayorBateriaStrategy` para las demás, y `asignarPorPrioridad` procesa primero las CRÍTICAS para que no les gane un drone una misión menos urgente. El mínimo de 35 % se mantiene en los dos casos porque lo valida `ValidadorAsignacion` antes de cualquier estrategia.
+| # | Tensión | Por qué chocan | Resolución |
+|---|---|---|---|
+| 1 | **AP-14 (reasignar) vs AP-16 (custodia)** | Cada reasignación agrega un traspaso de la muestra que la custodia debe registrar; reasignar en mitad de un tramo dejaría un tramo con dos drones y sin un registro claro. | Solo se reasigna **en waypoints, antes de empezar el tramo** (`ReasignadorTramo.droneListo`). El tramo siempre lo recorre un solo drone y su resultado sale sellado. |
+| 2 | **AP-15 (drone más cercano) vs AP-13 (coordinación entre zonas)** | Elegir siempre el más cercano puede dejar una zona sin drones disponibles para su siguiente misión. | La cercanía se mide a la zona de inicio del tramo, así que normalmente gana un drone de esa zona; además 15 drones quedan de reserva en el Lab. Central. La carga por zona se vigila con AP-17 (`cargaDeTrabajoPorZona`). |
+| 3 | **AP-13/AP-15 (desvío por condiciones) vs RNF-E3 (throughput)** | Un desvío convierte 1 tramo en 2: usa un drone más y más tiempo. | Solo se desvía si el canal es adverso (no navegable o turbidez ≥ 50 NTU). Se publica `DESVIO_POR_CONDICIONES` para que el operador sepa por qué la ruta es más larga. |
+| 4 | **AP-14 (reasignar rápido) vs RNF-E4 (integridad)** | Para reasignar en menos de 5 s es tentador saltarse validaciones. | El reemplazo pasa por la misma cadena de validación que el plan original; el tiempo medido (< 500 ms en el núcleo) muestra que la validación completa cabe dentro del límite. |
+| 5 | **AP-17 (reportes) vs RNF-E3 (throughput)** | Las consultas sobre el historial de telemetría crecen con cada tramo y compiten con la operación. | Las consultas pesadas usan stream paralelo (`lecturasBajoUmbral`) y en producción leen de la base de misiones, no del flujo en vivo. |

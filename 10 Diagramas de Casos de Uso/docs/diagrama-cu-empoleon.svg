@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1960" height="1360" viewBox="0 0 1960 1360" font-family="Inter, Arial, sans-serif">
+<defs><marker id="o" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1 1 11 6 1 11" fill="none" stroke="#0A1F3C" stroke-width="1.6"/></marker><marker id="g" viewBox="0 0 16 16" refX="15" refY="8" markerWidth="16" markerHeight="16" orient="auto"><path d="M1 1 15 8 1 15z" fill="#fff" stroke="#0A1F3C" stroke-width="1.6"/></marker></defs>
+<rect width="1960" height="1360" fill="#fff"/>
+<text x="40" y="50" font-size="28" font-weight="700" fill="#0A1F3C">Diagrama de Casos de Uso – AquaPort Enterprise (Empoleon): misión multi-etapa con flujos de fallo</text>
+<rect x="390" y="90" width="1240" height="1190" rx="14" fill="#F7FAFC" stroke="#0A1F3C" stroke-width="2"/>
+<text x="410" y="122" font-size="18" font-weight="700" fill="#0A1F3C">«sistema» AquaPort Enterprise</text>
+<g stroke="#0A1F3C" stroke-width="2.6" fill="none" stroke-linecap="round"><circle cx="170" cy="182" r="18" fill="#E6F7FB"/><line x1="170" y1="200" x2="170" y2="250"/><line x1="140" y1="218" x2="200" y2="218"/><line x1="170" y1="250" x2="146" y2="288"/><line x1="170" y1="250" x2="194" y2="288"/></g>
+<text x="170" y="316" font-size="16.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Personal ECI</text>
+<text x="170" y="335" font-size="12.5" fill="#5A6B7F" text-anchor="middle">(actor base)</text>
+<g stroke="#0A1F3C" stroke-width="2.6" fill="none" stroke-linecap="round"><circle cx="95" cy="522" r="18" fill="#E6F7FB"/><line x1="95" y1="540" x2="95" y2="590"/><line x1="65" y1="558" x2="125" y2="558"/><line x1="95" y1="590" x2="71" y2="628"/><line x1="95" y1="590" x2="119" y2="628"/></g>
+<text x="95" y="656" font-size="16.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Operador Hídrico</text>
+<g stroke="#0A1F3C" stroke-width="2.6" fill="none" stroke-linecap="round"><circle cx="270" cy="522" r="18" fill="#E6F7FB"/><line x1="270" y1="540" x2="270" y2="590"/><line x1="240" y1="558" x2="300" y2="558"/><line x1="270" y1="590" x2="246" y2="628"/><line x1="270" y1="590" x2="294" y2="628"/></g>
+<text x="270" y="656" font-size="16.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Administrador ECI</text>
+<g stroke="#0A1F3C" stroke-width="2.6" fill="none" stroke-linecap="round"><circle cx="170" cy="1002" r="18" fill="#E6F7FB"/><line x1="170" y1="1020" x2="170" y2="1070"/><line x1="140" y1="1038" x2="200" y2="1038"/><line x1="170" y1="1070" x2="146" y2="1108"/><line x1="170" y1="1070" x2="194" y2="1108"/></g>
+<text x="170" y="1136" font-size="16.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Solicitante</text>
+<rect x="1730" y="140" width="160" height="90" rx="10" fill="#EEF2F6" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1810" y="166" font-size="12.5" fill="#5A6B7F" text-anchor="middle">«actor sistema»</text>
+<text x="1810" y="190" font-size="15.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">API Condiciones</text>
+<text x="1810" y="209" font-size="15.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Hídricas</text>
+<rect x="1730" y="640" width="160" height="90" rx="10" fill="#EEF2F6" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1810" y="666" font-size="12.5" fill="#5A6B7F" text-anchor="middle">«actor sistema»</text>
+<text x="1810" y="690" font-size="15.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Centro de Control</text>
+<text x="1810" y="709" font-size="15.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">ECI</text>
+<rect x="1730" y="390" width="160" height="90" rx="10" fill="#EEF2F6" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1810" y="416" font-size="12.5" fill="#5A6B7F" text-anchor="middle">«actor sistema»</text>
+<text x="1810" y="440" font-size="15.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Sistema del</text>
+<text x="1810" y="459" font-size="15.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Laboratorio (LIMS)</text>
+<rect x="1730" y="880" width="160" height="90" rx="10" fill="#EEF2F6" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1810" y="906" font-size="12.5" fill="#5A6B7F" text-anchor="middle">«actor sistema»</text>
+<text x="1810" y="930" font-size="15.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Sistema de</text>
+<text x="1810" y="949" font-size="15.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Alertas</text>
+<g stroke="#0A1F3C" stroke-width="2.6" fill="none" stroke-linecap="round"><circle cx="1810" cy="1052" r="18" fill="#E6F7FB"/><line x1="1810" y1="1070" x2="1810" y2="1120"/><line x1="1780" y1="1088" x2="1840" y2="1088"/><line x1="1810" y1="1120" x2="1786" y2="1158"/><line x1="1810" y1="1120" x2="1834" y2="1158"/></g>
+<text x="1810" y="1186" font-size="16.5" font-weight="700" fill="#0A1F3C" text-anchor="middle">Técnico de Mantenimiento</text>
+<line x1="95" y1="510" x2="155" y2="340" stroke="#0A1F3C" stroke-width="2" marker-end="url(#g)"/>
+<line x1="270" y1="510" x2="188" y2="340" stroke="#0A1F3C" stroke-width="2" marker-end="url(#g)"/>
+<text x="182" y="445" font-size="12.5" fill="#5A6B7F" text-anchor="middle">generalización</text>
+<ellipse cx="600" cy="180" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="600" y="175.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Consultar eficiencia</text>
+<text x="600" y="194.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">por zona</text>
+<ellipse cx="600" cy="320" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="600" y="315.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Monitorear progreso</text>
+<text x="600" y="334.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">por tramo</text>
+<ellipse cx="600" cy="460" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="600" y="455.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Configurar ruta</text>
+<text x="600" y="474.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">con waypoints</text>
+<ellipse cx="600" cy="600" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="600" y="595.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Activar o inactivar</text>
+<text x="600" y="614.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">una zona</text>
+<ellipse cx="600" cy="1180" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="600" y="1175.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Solicitar misión</text>
+<text x="600" y="1194.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">multi-etapa</text>
+<ellipse cx="1000" cy="700" rx="195" ry="60" fill="#D7F3FA" stroke="#0E8FB8" stroke-width="3"/>
+<text x="1000" y="686.0" font-size="15" font-weight="700" fill="#0A1F3C" text-anchor="middle">Ejecutar misión multi-etapa</text>
+<text x="1000" y="705.0" font-size="15" font-weight="700" fill="#0A1F3C" text-anchor="middle">(AP-15)</text>
+<text x="1000" y="724.0" font-size="12" font-weight="400" fill="#5A6B7F" text-anchor="middle">5 puntos de extensión</text>
+<ellipse cx="1000" cy="420" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1000" y="415.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Planificar ruta</text>
+<text x="1000" y="434.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">por tramos</text>
+<ellipse cx="1000" cy="190" rx="150" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1000" y="185.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Validar tramo</text>
+<text x="1000" y="204.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">(cadena de validación)</text>
+<ellipse cx="1390" cy="560" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1390" y="555.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Registrar cadena</text>
+<text x="1390" y="574.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">de custodia</text>
+<ellipse cx="1390" cy="380" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1390" y="375.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Notificar waypoint</text>
+<text x="1390" y="394.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">alcanzado</text>
+<ellipse cx="1420" cy="790" rx="150" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1420" y="785.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Reasignar tramo</text>
+<text x="1420" y="804.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">por drone en FALLO</text>
+<ellipse cx="1260" cy="960" rx="150" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1260" y="955.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Reemplazar drone con</text>
+<text x="1260" y="974.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">batería crítica</text>
+<ellipse cx="1470" cy="1170" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1470" y="1165.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Abrir orden</text>
+<text x="1470" y="1184.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">de mantenimiento</text>
+<ellipse cx="630" cy="760" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="630" y="755.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Desviar ruta por</text>
+<text x="630" y="774.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">zona intermedia</text>
+<ellipse cx="640" cy="910" rx="140" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="640" y="905.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Dejar misión</text>
+<text x="640" y="924.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">en espera</text>
+<ellipse cx="1000" cy="1110" rx="150" ry="42" fill="#FFFFFF" stroke="#0A1F3C" stroke-width="2"/>
+<text x="1000" y="1105.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">Abortar por custodia</text>
+<text x="1000" y="1124.5" font-size="15" font-weight="500" fill="#0A1F3C" text-anchor="middle">interrumpida</text>
+<line x1="200" y1="225" x2="468.9" y2="194.7" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="125" y1="560" x2="528.5" y2="356.1" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="125" y1="575" x2="491.1" y2="486.4" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="300" y1="580" x2="463.3" y2="590.9" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="200" y1="1050" x2="505.0" y2="1149.1" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="1730" y1="200" x2="1149.8" y2="192.1" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="1730" y1="700" x2="1195.0" y2="700.0" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="1730" y1="450" x2="1485.2" y2="529.2" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="1730" y1="950" x2="1409.6" y2="956.8" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="1770" y1="1110" x2="1586.5" y2="1146.7" stroke="#0A1F3C" stroke-width="1.8"/>
+<line x1="634.0" y1="1139.3" x2="951.6" y2="758.1" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="724.7608971014422" y="1053.6869234782694" width="96" height="22" rx="5" fill="#fff" opacity=".95"/>
+<text x="772.7608971014422" y="1070.6869234782694" font-size="13.5" font-weight="700" fill="#0E6E8F" text-anchor="middle">«include»</text>
+<line x1="1000.0" y1="640.0" x2="1000.0" y2="462.0" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="942.0" y="536.0" width="96" height="22" rx="5" fill="#fff" opacity=".95"/>
+<text x="990.0" y="553.0" font-size="13.5" font-weight="700" fill="#0E6E8F" text-anchor="middle">«include»</text>
+<line x1="1000.0" y1="378.0" x2="1000.0" y2="232.0" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="942.0" y="290.0" width="96" height="22" rx="5" fill="#fff" opacity=".95"/>
+<text x="990.0" y="307.0" font-size="13.5" font-weight="700" fill="#0E6E8F" text-anchor="middle">«include»</text>
+<line x1="1126.9" y1="654.4" x2="1300.2" y2="592.2" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="1175.5638207754446" y="626.3360643370199" width="96" height="22" rx="5" fill="#fff" opacity=".95"/>
+<text x="1223.5638207754446" y="643.3360643370199" font-size="13.5" font-weight="700" fill="#0E6E8F" text-anchor="middle">«include»</text>
+<line x1="1068.5" y1="643.8" x2="1341.9" y2="419.4" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="1117.197087060255" y="496.6331593351756" width="96" height="22" rx="5" fill="#fff" opacity=".95"/>
+<text x="1165.197087060255" y="513.6331593351756" font-size="13.5" font-weight="700" fill="#0E6E8F" text-anchor="middle">«include»</text>
+<line x1="1300.9" y1="764.5" x2="1160.0" y2="734.3" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="1120.8495428936499" y="728.3820449057821" width="239.20000000000002" height="40" rx="5" fill="#fff" opacity=".95"/>
+<text x="1240.4495428936498" y="745.3820449057821" font-size="13.5" font-weight="700" fill="#B4541A" text-anchor="middle">«extend»</text>
+<text x="1240.4495428936498" y="763.3820449057821" font-size="12.5" fill="#5A6B7F" text-anchor="middle">[drone en FALLO en un waypoint]</text>
+<line x1="1219.6" y1="919.6" x2="1057.3" y2="757.3" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="1040.8511258476608" y="823.4511258476607" width="275.2" height="40" rx="5" fill="#fff" opacity=".95"/>
+<text x="1178.4511258476607" y="840.4511258476607" font-size="13.5" font-weight="700" fill="#B4541A" text-anchor="middle">«extend»</text>
+<text x="1178.4511258476607" y="858.4511258476607" font-size="12.5" fill="#5A6B7F" text-anchor="middle">[batería &lt; 20 % en mitad de ruta]</text>
+<line x1="753.2" y1="740.0" x2="827.5" y2="728.0" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="491.9252267569884" y="657.0013145799478" width="296.8" height="40" rx="5" fill="#fff" opacity=".95"/>
+<text x="640.3252267569884" y="674.0013145799478" font-size="13.5" font-weight="700" fill="#B4541A" text-anchor="middle">«extend»</text>
+<text x="640.3252267569884" y="692.0013145799478" font-size="12.5" fill="#5A6B7F" text-anchor="middle">[condición hídrica adversa en el tramo]</text>
+<line x1="704.0" y1="872.6" x2="909.0" y2="753.1" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="655.7259859598701" y="827.8598415234092" width="181.6" height="40" rx="5" fill="#fff" opacity=".95"/>
+<text x="746.52598595987" y="844.8598415234092" font-size="13.5" font-weight="700" fill="#B4541A" text-anchor="middle">«extend»</text>
+<text x="746.52598595987" y="862.8598415234092" font-size="12.5" fill="#5A6B7F" text-anchor="middle">[zona destino inactiva]</text>
+<line x1="1000.0" y1="1068.0" x2="1000.0" y2="760.0" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="873.2" y="879.0" width="253.6" height="40" rx="5" fill="#fff" opacity=".95"/>
+<text x="1000.0" y="896.0" font-size="13.5" font-weight="700" fill="#B4541A" text-anchor="middle">«extend»</text>
+<text x="1000.0" y="914.0" font-size="12.5" fill="#5A6B7F" text-anchor="middle">[cadena de custodia interrumpida]</text>
+<line x1="1425.5" y1="832.0" x2="1464.5" y2="1128.0" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="1457.0002768583095" y="1005.0021041231507" width="96" height="22" rx="5" fill="#fff" opacity=".95"/>
+<text x="1505.0002768583095" y="1022.0021041231507" font-size="13.5" font-weight="700" fill="#0E6E8F" text-anchor="middle">«include»</text>
+<line x1="1300.4" y1="1000.4" x2="1429.8" y2="1129.8" stroke="#0A1F3C" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#o)"/>
+<rect x="1287.1078924243536" y="1080.1078924243536" width="96" height="22" rx="5" fill="#fff" opacity=".95"/>
+<text x="1335.1078924243536" y="1097.1078924243536" font-size="13.5" font-weight="700" fill="#0E6E8F" text-anchor="middle">«include»</text>
+<g transform="translate(40,1330)" font-size="13" fill="#0A1F3C"><text x="0" y="-12"><tspan font-weight="700" fill="#0E6E8F">«include»</tspan> siempre ocurre · <tspan font-weight="700" fill="#B4541A">«extend»</tspan> solo si se cumple la condición entre corchetes (la flecha apunta al CU base) · triángulo vacío = generalización</text><text x="0" y="8">Los 5 «extend» son los flujos alternos del RF AP-15 · las dos reasignaciones incluyen la apertura de una orden de mantenimiento</text></g>
+</svg>
