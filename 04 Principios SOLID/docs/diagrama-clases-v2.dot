@@ -1,0 +1,78 @@
+digraph AquaPortV2 {
+  graph [rankdir=TB, fontname="Helvetica", fontsize=20, labelloc=t, nodesep=0.5, ranksep=0.8, bgcolor="white",
+         label=<<B>AquaPort v2 (Prinplup) – Diagrama de clases</B><BR/><FONT POINT-SIZE="13" COLOR="#5A6B7F">Triángulo vacío = herencia / implementación · rombo vacío = dependencia inyectada por constructor · punteada = usa / crea</FONT>>];
+  node  [shape=plain, fontname="Helvetica", fontsize=11.5];
+  edge  [fontname="Helvetica", fontsize=10.5, color="#0A1F3C"];
+
+  Asignador [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#0E8FB8" BGCOLOR="#E6F7FB">
+    <TR><TD><B>AsignadorAutomatico</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">- estrategia : EstrategiaSeleccion<BR ALIGN="LEFT"/>- proveedorCondiciones : ProveedorCondicionesHidricas<BR ALIGN="LEFT"/>- validador : ValidadorAsignacion<BR ALIGN="LEFT"/>- publicador : PublicadorEventosMision<BR ALIGN="LEFT"/></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ asignar(m, flota) : Optional&lt;Mision&gt;<BR ALIGN="LEFT"/>+ asignarPorPrioridad(misiones, flota) : List&lt;Mision&gt;<BR ALIGN="LEFT"/>+ registrarObservador(o) · removerObservador(o)<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+
+  Estrategia [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="#F4F0FF" COLOR="#5B4BB7">
+    <TR><TD><I>«interface»</I><BR/><B>EstrategiaSeleccion</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ seleccionar(candidatos, mision) : Optional&lt;DroneAcuatico&gt;<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+  Mayor [label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="5"><TR><TD><B>MayorBateriaStrategy</B></TD></TR></TABLE>>];
+  Cercana [label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="5"><TR><TD><B>ZonaCercanaStrategy</B></TD></TR></TABLE>>];
+  Critica [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"><TR><TD><B>PrioridadCriticaStrategy</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">- paraCriticas : EstrategiaSeleccion<BR ALIGN="LEFT"/>- paraLasDemas : EstrategiaSeleccion<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+
+  Proveedor [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="#F4F0FF" COLOR="#5B4BB7">
+    <TR><TD><I>«interface»</I><BR/><B>ProveedorCondicionesHidricas</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ consultar(zona) : CondicionesHidricas<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+  Validador [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"><TR><TD><B>ValidadorAsignacion</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ esApto(drone, mision, condiciones) : boolean<BR ALIGN="LEFT"/>+ filtrarAptos(flota, mision, condiciones) : List<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+
+  Publicador [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"><TR><TD><B>PublicadorEventosMision</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">- observadores : List&lt;ObservadorMision&gt;<BR ALIGN="LEFT"/></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ registrar(o) · remover(o) · publicar(evento)<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+  Observador [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="#F4F0FF" COLOR="#5B4BB7">
+    <TR><TD><I>«interface»</I><BR/><B>ObservadorMision</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ notificar(evento : EventoMision) : void<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+  Centro [label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="5"><TR><TD><B>CentroControlObserver</B></TD></TR></TABLE>>];
+  Tecnico [label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="5"><TR><TD><B>TecnicoMantenimientoObserver</B></TD></TR></TABLE>>];
+  Evento [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"><TR><TD><B>EventoMision</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">- tipo : TipoEvento<BR ALIGN="LEFT"/>- mision : Mision<BR ALIGN="LEFT"/>+ getDrone() : Optional&lt;DroneAcuatico&gt;<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+
+  Fabrica [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"><TR><TD><B>FabricaDrones</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">- creadoresPorTipo : Map&lt;String, CreadorDrone&gt;<BR ALIGN="LEFT"/></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ registrar(tipo, creador)<BR ALIGN="LEFT"/>+ crear(tipo, id, bateria, zona) : DroneAcuatico<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+  Creador [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="#F4F0FF" COLOR="#5B4BB7">
+    <TR><TD><I>«interface»</I><BR/><B>CreadorDrone</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ crear(id, bateria, zona) : DroneAcuatico<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+
+  Drone [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="#FFF7E6" COLOR="#B4541A">
+    <TR><TD><I>«abstract»</I><BR/><B>DroneAcuatico</B></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">- id · modelo · bateria · zona · estado<BR ALIGN="LEFT"/></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT"><I>+ getTipo() : String</I><BR ALIGN="LEFT"/><I>+ getCapacidadCargaGramos() : int</I><BR ALIGN="LEFT"/><I>+ puedeOperarEn(c) : boolean</I><BR ALIGN="LEFT"/>+ estaDisponible() · tieneBateriaParaOperar()<BR ALIGN="LEFT"/>+ puedeTransportar(gramos) · cambiarEstado(e)<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+  Sup [label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="5"><TR><TD><B>DroneSuperficial</B><BR/><FONT POINT-SIZE="10">500 g · agua tranquila</FONT></TD></TR></TABLE>>];
+  Semi [label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="5"><TR><TD><B>DroneSemisumergido</B><BR/><FONT POINT-SIZE="10">1500 g · agua agitada</FONT></TD></TR></TABLE>>];
+  Buc [label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="5"><TR><TD><B>DroneBuceador</B><BR/><FONT POINT-SIZE="10">300 g · hasta 30 m</FONT></TD></TR></TABLE>>];
+  Prof [label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="5" COLOR="#2E9E7A" BGCOLOR="#E9FBF4"><TR><TD><B>DroneSumergibleProfundo</B><BR/><FONT POINT-SIZE="10">extensión OCP · 800 g · 5-60 m</FONT></TD></TR></TABLE>>];
+  Mision [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"><TR><TD><B>Mision</B> <FONT POINT-SIZE="10">(inmutable + Builder)</FONT></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">- id · zonaPartida · zonaDestino · tipoCarga<BR ALIGN="LEFT"/>- pesoCargaGramos · prioridad · estado · drone<BR ALIGN="LEFT"/></TD></TR><HR/>
+    <TR><TD ALIGN="LEFT">+ asignarA(drone) : Mision · esCritica()<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+
+  {rank=same; Estrategia; Proveedor; Validador; Publicador}
+  Asignador -> Estrategia [arrowtail=odiamond, dir=back];
+  Asignador -> Proveedor [arrowtail=odiamond, dir=back];
+  Asignador -> Validador [arrowtail=odiamond, dir=back];
+  Asignador -> Publicador [arrowtail=odiamond, dir=back];
+  Mayor -> Estrategia [style=dashed, arrowhead=empty];
+  Cercana -> Estrategia [style=dashed, arrowhead=empty];
+  Critica -> Estrategia [style=dashed, arrowhead=empty];
+  Critica -> Estrategia [arrowtail=odiamond, dir=back, label=" delega (2)", constraint=false];
+  Publicador -> Observador [arrowtail=odiamond, dir=back, label=" 0..*"];
+  Centro -> Observador [style=dashed, arrowhead=empty];
+  Tecnico -> Observador [style=dashed, arrowhead=empty];
+  Publicador -> Evento [style=dashed, arrowhead=vee, label=" publica"];
+  Validador -> Drone [style=dashed, arrowhead=vee, label=" valida"];
+  Fabrica -> Creador [arrowtail=odiamond, dir=back, label=" 1 por tipo"];
+  Creador -> Drone [style=dashed, arrowhead=vee, label=" crea"];
+  Sup -> Drone [arrowhead=empty];
+  Semi -> Drone [arrowhead=empty];
+  Buc -> Drone [arrowhead=empty];
+  Prof -> Drone [arrowhead=empty];
+  Evento -> Mision [arrowhead=vee];
+  Mision -> Drone [arrowhead=vee, label=" 0..1"];
+}
