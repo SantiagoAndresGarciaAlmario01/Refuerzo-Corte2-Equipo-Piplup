@@ -1,6 +1,6 @@
-package edu.eci.dosw.aquaport.modelo;
+package edu.eci.dosw.aquaport.dominio.modelo;
 
-/** Opera en agua agitada hasta 1 m de profundidad. Carga hasta 1500 g. */
+/** Aguanta agua agitada hasta 1 m de profundidad. Asignado sobre todo a la Laguna de Reserva. */
 public class DroneSemisumergido extends DroneAcuatico {
 
     public static final String TIPO = "SEMISUMERGIDO";

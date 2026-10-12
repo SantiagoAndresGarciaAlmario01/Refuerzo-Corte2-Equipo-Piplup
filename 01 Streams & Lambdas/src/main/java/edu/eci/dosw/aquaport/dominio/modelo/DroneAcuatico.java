@@ -1,20 +1,17 @@
-package edu.eci.dosw.aquaport.modelo;
+package edu.eci.dosw.aquaport.dominio.modelo;
 
 import java.util.Objects;
 
-/**
- * Drone acuático de la flota v2. Cada tipo define su capacidad de carga
- * y las condiciones hídricas en las que puede operar.
- */
-public abstract class DroneAcuatico {
+/** Base de los drones físicos: guarda el estado y descuenta batería por tramo. */
+public abstract class DroneAcuatico implements Drone {
 
-    public static final int BATERIA_MINIMA_OPERACION = 35;
+    public static final int CONSUMO_POR_TRAMO = 12;
     private static final int BATERIA_MAXIMA = 100;
 
     private final String id;
     private final String modelo;
-    private final int bateria;
-    private final Zona zona;
+    private int bateria;
+    private Zona zona;
     private EstadoDrone estado;
 
     protected DroneAcuatico(String id, String modelo, int bateria, Zona zona) {
@@ -31,31 +28,20 @@ public abstract class DroneAcuatico {
         this.estado = EstadoDrone.DISPONIBLE;
     }
 
-    /** @return código del tipo de drone, por ejemplo SUPERFICIAL */
-    public abstract String getTipo();
-
-    /** @return carga máxima que puede transportar, en gramos */
-    public abstract int getCapacidadCargaGramos();
-
-    /** @return true si el tipo de drone puede operar con estas condiciones del agua */
-    public abstract boolean puedeOperarEn(CondicionesHidricas condiciones);
-
-    public boolean estaDisponible() {
-        return estado == EstadoDrone.DISPONIBLE;
+    @Override
+    public ResultadoTramo recorrer(Tramo tramo) {
+        Objects.requireNonNull(tramo, "El tramo a recorrer es obligatorio");
+        bateria = Math.max(0, bateria - CONSUMO_POR_TRAMO);
+        zona = tramo.destino();
+        return ResultadoTramo.sinSello(tramo, id, bateria);
     }
 
-    public boolean tieneBateriaParaOperar() {
-        return bateria >= BATERIA_MINIMA_OPERACION;
-    }
-
-    public boolean puedeTransportar(int pesoGramos) {
-        return pesoGramos <= getCapacidadCargaGramos();
-    }
-
+    @Override
     public void cambiarEstado(EstadoDrone nuevoEstado) {
         this.estado = Objects.requireNonNull(nuevoEstado, "El nuevo estado del drone es obligatorio");
     }
 
+    @Override
     public String getId() {
         return id;
     }
@@ -64,14 +50,17 @@ public abstract class DroneAcuatico {
         return modelo;
     }
 
+    @Override
     public int getBateria() {
         return bateria;
     }
 
+    @Override
     public Zona getZona() {
         return zona;
     }
 
+    @Override
     public EstadoDrone getEstado() {
         return estado;
     }

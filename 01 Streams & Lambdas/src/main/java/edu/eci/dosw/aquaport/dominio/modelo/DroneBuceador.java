@@ -1,6 +1,6 @@
-package edu.eci.dosw.aquaport.modelo;
+package edu.eci.dosw.aquaport.dominio.modelo;
 
-/** Toma muestras a profundidad (hasta 30 m) sin agitación alta. Carga hasta 300 g. */
+/** Toma muestras a profundidad. Asignado sobre todo al Embalse de Investigación. */
 public class DroneBuceador extends DroneAcuatico {
 
     public static final String TIPO = "BUCEADOR";

@@ -1,6 +1,6 @@
-package edu.eci.dosw.aquaport.modelo;
+package edu.eci.dosw.aquaport.dominio.modelo;
 
-/** Opera solo en superficie y con agua tranquila. Carga hasta 500 g. */
+/** Opera en superficie con agua tranquila. Asignado sobre todo a la Red de Canales. */
 public class DroneSuperficial extends DroneAcuatico {
 
     public static final String TIPO = "SUPERFICIAL";
