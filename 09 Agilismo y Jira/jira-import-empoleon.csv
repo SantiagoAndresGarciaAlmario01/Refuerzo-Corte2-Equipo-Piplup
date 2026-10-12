@@ -1,0 +1,21 @@
+Issue Type,Summary,Description,Story Points
+Epic,AquaPort Enterprise: red multi-embalse con rutas multi-etapa,"Versión Empoleon: 60 drones, 4 zonas interconectadas, misiones con waypoints, arquitectura por capas y estándares de calidad de producción. Se ejecuta en 3 sprints.",
+Story,Separar el código en dominio aplicación e infraestructura,"Como equipo de desarrollo, quiero separar el sistema en las capas dominio, aplicación e infraestructura para que el dominio no dependa de ninguna librería externa y se pueda probar sin red ni base de datos.",5
+Story,Validar cada tramo con una cadena de reglas,"Como operador hídrico, quiero que cada drone candidato pase por batería, capacidad, zona activa y condiciones del canal en ese orden para que ningún tramo se asigne a un drone que no puede completarlo.",5
+Story,Registrar telemetría y sellar la custodia con decoradores,"Como responsable del laboratorio, quiero que cada tramo deje una lectura de telemetría y un sello SHA-256 para auditar quién llevó la muestra y en qué estado llegó.",5
+Story,Aislar la API hídrica con un adaptador,"Como equipo de desarrollo, quiero traducir el JSON en inglés de la API hídrica en una sola clase para que un cambio del proveedor no obligue a tocar el dominio.",3
+Story,Validar Conventional Commits y proteger main y develop,"Como equipo de desarrollo, quiero que los commits mal formados se rechacen y que main y develop solo cambien por Pull Request para que el historial sirva como documentación.",3
+Story,Diagrama de contenedores C4 de la red Enterprise,"Como arquitecto del equipo, quiero el diagrama C4 nivel 2 con protocolos y datos para que todos entiendan qué contenedores se despliegan y cómo se comunican.",2
+Story,Auditoría automática de capas,"Como equipo de desarrollo, quiero una prueba que falle si una capa importa lo que no debe para que la arquitectura no se degrade con el tiempo.",3
+Story,Planificar la ruta multi-etapa con un drone por tramo,"Como solicitante, quiero que el sistema asigne a cada tramo el drone apto más cercano para que la muestra cruce varias zonas sin intervención manual.",8
+Story,Desviar un tramo por condición hídrica adversa,"Como operador hídrico, quiero que un canal turbio o sin nivel se rodee por la zona intermedia más corta para no arriesgar el drone ni la muestra.",5
+Story,Reasignar el tramo ante fallo o batería crítica en un waypoint,"Como técnico de mantenimiento, quiero que el sistema reemplace al drone en FALLO o con menos de 20 % de batería y me abra una orden para que la ruta continúe mientras lo reparo.",5
+Story,Cadena de custodia sellada por tramo,"Como responsable del laboratorio, quiero recibir un registro sellado y en orden por cada traspaso para aceptar la muestra como válida.",5
+Story,Dejar la misión en espera si el destino está inactivo,"Como administrador ECI, quiero que las misiones hacia una zona cerrada queden en espera para reactivarlas cuando la zona vuelva a operar.",2
+Story,Reportes de eficiencia por zona,"Como personal ECI, quiero ver por zona la proporción de entregas, la batería promedio y la carga de trabajo para redistribuir la flota.",3
+Story,Quality gate de JaCoCo 85 % líneas y 75 % ramas,"Como equipo de desarrollo, quiero que el build falle si la cobertura baja de 85 % de líneas o 75 % de ramas para que ninguna feature entre sin pruebas.",3
+Story,Quality gate Enterprise en SonarQube,"Como equipo de desarrollo, quiero 0 bugs, 0 vulnerabilidades, deuda menor a 15 min y duplicación menor a 3 % para entregar código de producción.",5
+Story,Design system con contraste WCAG AA,"Como operador hídrico, quiero que todos los estados se lean con contraste suficiente para no confundir un drone en FALLO en turnos largos.",5
+Story,Mocks del flujo multi-etapa,"Como equipo de producto, quiero las pantallas de mapa, ruta, monitoreo, alerta y reporte para validar el flujo con usuarios antes de construirlo.",5
+Story,Pruebas de rendimiento de reasignación y throughput,"Como responsable de operación, quiero medir la reasignación y las 20 misiones simultáneas para comprobar los RNF antes de producción.",3
+Story,Changelog y release v3.0.0,"Como equipo de desarrollo, quiero generar el CHANGELOG desde los commits y publicar la versión 3.0.0 por Pull Request para cerrar Empoleon.",2
