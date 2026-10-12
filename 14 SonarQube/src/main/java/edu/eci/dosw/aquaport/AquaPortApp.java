@@ -13,16 +13,24 @@ import edu.eci.dosw.aquaport.servicio.ValidadorMision;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class AquaPortApp {
+/**
+ * Punto de entrada del AquaPort MVP.
+ */
+public final class AquaPortApp {
 
     private static final Logger LOGGER = Logger.getLogger(AquaPortApp.class.getName());
+    private static final String MODELO_FLOTA = "Aqua-Ranger 100";
+    private static final String DESTINO_LABORATORIO = "Laboratorio Hídrico";
+
+    private AquaPortApp() {
+    }
 
     public static void main(String[] args) {
         List<DroneAcuatico> flota = List.of(
-                new DroneAcuatico("AR-01", "Aqua-Ranger 100", 92, true, "Embalse Norte"),
-                new DroneAcuatico("AR-02", "Aqua-Ranger 100", 45, true, "Canal Central"),
-                new DroneAcuatico("AR-03", "Aqua-Ranger 100", 18, false, "Laguna Sur"),
-                new DroneAcuatico("AR-04", "Aqua-Ranger 100", 73, true, "Punto Ribereño Este"));
+                new DroneAcuatico("AR-01", MODELO_FLOTA, 92, true, "Embalse Norte"),
+                new DroneAcuatico("AR-02", MODELO_FLOTA, 45, true, "Canal Central"),
+                new DroneAcuatico("AR-03", MODELO_FLOTA, 18, false, "Laguna Sur"),
+                new DroneAcuatico("AR-04", MODELO_FLOTA, 73, true, "Punto Ribereño Este"));
         ConsultorFlota consultor = new ConsultorFlota();
         LOGGER.info(() -> "Drones operables: " + consultor.obtenerDisponiblesConBateriaSuficiente(flota));
 
@@ -30,9 +38,18 @@ public class AquaPortApp {
         GestorSolicitudesMision gestor = new GestorSolicitudesMision(
                 new ValidadorMision(), registrador, new NotificadorOperadorLog());
         consultor.obtenerDroneConMayorBateria(flota)
-                .map(drone -> new Mision.Builder().id("M-001").drone(drone).puntoPartida(drone.zona())
-                        .puntoLlegada("Laboratorio Hídrico").tipoCarga(TipoCarga.MUESTRA_AGUA).build())
+                .map(AquaPortApp::crearMisionHaciaLaboratorio)
                 .ifPresent(gestor::procesar);
         LOGGER.info(() -> "Misiones registradas: " + registrador.listarMisiones().size());
+    }
+
+    private static Mision crearMisionHaciaLaboratorio(DroneAcuatico drone) {
+        return new Mision.Builder()
+                .id("M-001")
+                .drone(drone)
+                .puntoPartida(drone.zona())
+                .puntoLlegada(DESTINO_LABORATORIO)
+                .tipoCarga(TipoCarga.MUESTRA_AGUA)
+                .build();
     }
 }
