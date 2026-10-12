@@ -79,4 +79,5 @@ Nunca se usó `@SuppressWarnings`: suprimir un issue lo esconde, no lo resuelve.
 | Duplicación | 0 % (límite 5 %) |
 | Cobertura | 100 % en las clases con lógica |
 
-**Pendiente:** correr el análisis y guardar la captura del dashboard con el Quality Gate en verde en `evidencias/sonarqube-dashboard-prinplup.png`. Si el servidor reporta otro issue (las reglas activas dependen de la versión), se corrige con un commit nuevo con el mismo formato.
+<img width="1675" height="750" alt="image" src="https://github.com/user-attachments/assets/b5e5eb97-27cc-4840-97ac-bfb0b8e4ba10" />
+
