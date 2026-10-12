@@ -63,4 +63,5 @@ Además, al integrar se eliminó una duplicación: la regla “batería ≥ 35 %
 | Cobertura (JaCoCo) | 100 % líneas y ramas en las clases con lógica |
 | Duplicaciones | 0 % |
 
-**Pendiente:** correr el análisis en su equipo y guardar la captura del dashboard en `evidencias/sonarqube-dashboard.png`. Si SonarQube reporta algún issue adicional (las reglas activas dependen de la versión del servidor), se corrige con un commit nuevo siguiendo el mismo formato de la tabla.
+<img width="1669" height="771" alt="image" src="https://github.com/user-attachments/assets/6870c608-05c4-4524-b6a4-03a434e831f5" />
+
