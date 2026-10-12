@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="800" viewBox="0 0 1500 800" font-family="Inter, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#5A6B7F"/></marker>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#0A1F3C" flood-opacity=".25"/></filter>
+  </defs>
+  <rect width="1500" height="800" fill="#FFFFFF"/>
+  <text x="40" y="52" font-size="30" font-weight="700" fill="#0A1F3C">[Diagrama de Contexto C4 – Nivel 1] AquaPort MVP (Piplup)</text>
+  <text x="40" y="82" font-size="16" fill="#5A6B7F">Sistema de drones acuáticos de la ECI · 4 drones Aqua-Ranger 100 · zonas fijas · asignación manual</text>
+
+  <!-- Límite de la ECI -->
+  <rect x="30" y="110" width="1440" height="600" rx="16" fill="none" stroke="#9AA9BA" stroke-width="2" stroke-dasharray="10 8"/>
+  <text x="50" y="140" font-size="15" fill="#5A6B7F" font-weight="600">[Organización] Escuela Colombiana de Ingeniería Julio Garavito</text>
+
+  <g transform="translate(0,-175)">
+  <!-- Sistema central -->
+  <g filter="url(#sh)">
+    <rect x="560" y="390" width="380" height="190" rx="14" fill="#1168BD"/>
+  </g>
+  <text x="750" y="450" font-size="28" font-weight="700" fill="#fff" text-anchor="middle">AquaPort MVP</text>
+  <text x="750" y="476" font-size="14" fill="#DCEBFA" text-anchor="middle">[Sistema de software]</text>
+  <text x="750" y="510" font-size="14.5" fill="#fff" text-anchor="middle">Registra solicitudes de transporte, muestra la</text>
+  <text x="750" y="530" font-size="14.5" fill="#fff" text-anchor="middle">flota disponible, permite asignar drones y</text>
+  <text x="750" y="550" font-size="14.5" fill="#fff" text-anchor="middle">registra el estado de cada misión.</text>
+
+  <!-- Persona: Operador Hídrico (izquierda) -->
+  <g filter="url(#sh)">
+    <circle cx="210" cy="400" r="44" fill="#08427B"/>
+    <rect x="90" y="440" width="240" height="150" rx="40" fill="#08427B"/>
+  </g>
+  <text x="210" y="490" font-size="21" font-weight="700" fill="#fff" text-anchor="middle">Operador Hídrico</text>
+  <text x="210" y="512" font-size="13" fill="#CFE0F2" text-anchor="middle">[Persona]</text>
+  <text x="210" y="540" font-size="13.5" fill="#fff" text-anchor="middle">Revisa la flota, asigna</text>
+  <text x="210" y="558" font-size="13.5" fill="#fff" text-anchor="middle">drones y confirma entregas.</text>
+
+  <!-- Persona: Solicitante (derecha) -->
+  <g filter="url(#sh)">
+    <circle cx="1290" cy="400" r="44" fill="#08427B"/>
+    <rect x="1170" y="440" width="240" height="150" rx="40" fill="#08427B"/>
+  </g>
+  <text x="1290" y="490" font-size="21" font-weight="700" fill="#fff" text-anchor="middle">Solicitante</text>
+  <text x="1290" y="512" font-size="13" fill="#CFE0F2" text-anchor="middle">[Persona]</text>
+  <text x="1290" y="540" font-size="13.5" fill="#fff" text-anchor="middle">Investigador o laboratorio que</text>
+  <text x="1290" y="558" font-size="13.5" fill="#fff" text-anchor="middle">pide transportar muestras/sensores.</text>
+
+  <!-- Persona: Administrador ECI (abajo) -->
+  <g filter="url(#sh)">
+    <circle cx="750" cy="700" r="44" fill="#08427B"/>
+    <rect x="630" y="740" width="240" height="120" rx="40" fill="#08427B"/>
+  </g>
+  <text x="750" y="785" font-size="21" font-weight="700" fill="#fff" text-anchor="middle">Administrador ECI</text>
+  <text x="750" y="806" font-size="13" fill="#CFE0F2" text-anchor="middle">[Persona]</text>
+  <text x="750" y="832" font-size="13.5" fill="#fff" text-anchor="middle">Gestiona la flota y consulta reportes.</text>
+
+  <!-- Operador <-> Sistema -->
+  <path d="M330 470 C 430 430, 470 425, 556 440" fill="none" stroke="#5A6B7F" stroke-width="2.2" marker-end="url(#a)"/>
+  <rect x="335" y="355" width="215" height="60" rx="8" fill="#fff"/>
+  <text x="442" y="378" font-size="13.5" fill="#0A1F3C" text-anchor="middle" font-weight="600">Registra misión, asigna drone</text>
+  <text x="442" y="396" font-size="13.5" fill="#0A1F3C" text-anchor="middle" font-weight="600">manualmente y confirma entrega</text>
+  <text x="442" y="412" font-size="12" fill="#5A6B7F" text-anchor="middle">[UI de escritorio]</text>
+
+  <path d="M556 545 C 470 560, 430 560, 334 545" fill="none" stroke="#5A6B7F" stroke-width="2.2" marker-end="url(#a)"/>
+  <rect x="340" y="565" width="215" height="62" rx="8" fill="#fff"/>
+  <text x="447" y="586" font-size="13.5" fill="#0A1F3C" text-anchor="middle" font-weight="600">Flota disponible (ID, batería,</text>
+  <text x="447" y="604" font-size="13.5" fill="#0A1F3C" text-anchor="middle" font-weight="600">zona), confirmación y estado</text>
+  <text x="447" y="621" font-size="13.5" fill="#0A1F3C" text-anchor="middle" font-weight="600">de la misión</text>
+
+  <!-- Solicitante <-> Sistema -->
+  <path d="M1168 470 C 1070 430, 1030 425, 944 440" fill="none" stroke="#5A6B7F" stroke-width="2.2" marker-end="url(#a)"/>
+  <rect x="955" y="350" width="215" height="66" rx="8" fill="#fff"/>
+  <text x="1062" y="372" font-size="13.5" fill="#0A1F3C" text-anchor="middle" font-weight="600">Solicitud de transporte</text>
+  <text x="1062" y="390" font-size="13.5" fill="#0A1F3C" text-anchor="middle" font-weight="600">(partida, llegada, tipo de carga)</text>
+
+  <path d="M944 545 C 1030 560, 1070 560, 1166 545" fill="none" stroke="#5A6B7F" stroke-width="2.2" marker-end="url(#a)"/>
+  <rect x="955" y="568" width="215" height="44" rx="8" fill="#fff"/>
+  <text x="1062" y="589" font-size="13.5" fill="#0A1F3C" text-anchor="middle" font-weight="600">Código de misión generado</text>
+  <text x="1062" y="606" font-size="12" fill="#5A6B7F" text-anchor="middle">(p. ej. M-016)</text>
+
+  <!-- Administrador <-> Sistema -->
+  <path d="M705 655 L 705 584" fill="none" stroke="#5A6B7F" stroke-width="2.2" marker-end="url(#a)"/>
+  <text x="694" y="615" font-size="13.5" fill="#0A1F3C" text-anchor="end" font-weight="600">Gestiona la flota</text>
+  <text x="694" y="633" font-size="13.5" fill="#0A1F3C" text-anchor="end" font-weight="600">(alta/baja de drones)</text>
+  <path d="M795 584 L 795 655" fill="none" stroke="#5A6B7F" stroke-width="2.2" marker-end="url(#a)"/>
+  <text x="806" y="615" font-size="13.5" fill="#0A1F3C" font-weight="600">Reportes de misiones</text>
+  <text x="806" y="633" font-size="13.5" fill="#0A1F3C" font-weight="600">y estado de la flota</text>
+
+  <!-- Nota sistemas externos -->
+  <rect x="1060" y="700" width="380" height="120" rx="12" fill="#F4F6F9" stroke="#C3CDD8" stroke-dasharray="6 5"/>
+  <text x="1080" y="730" font-size="15" font-weight="700" fill="#0A1F3C">Sistemas externos: ninguno</text>
+  <text x="1080" y="754" font-size="13.5" fill="#5A6B7F">El MVP opera sin integraciones. Clima,</text>
+  <text x="1080" y="774" font-size="13.5" fill="#5A6B7F">sensores del embalse y centro de control</text>
+  <text x="1080" y="794" font-size="13.5" fill="#5A6B7F">llegan en Prinplup.</text>
+
+</g>
+  <!-- Leyenda -->
+  <g transform="translate(40,740)">
+    <text x="0" y="16" font-size="14" font-weight="700" fill="#0A1F3C">Leyenda</text>
+    <rect x="80" y="0" width="22" height="22" rx="11" fill="#08427B"/><text x="110" y="16" font-size="13.5" fill="#0A1F3C">Persona (actor)</text>
+    <rect x="250" y="0" width="22" height="22" rx="4" fill="#1168BD"/><text x="280" y="16" font-size="13.5" fill="#0A1F3C">Sistema de software en alcance</text>
+    <line x1="510" y1="11" x2="560" y2="11" stroke="#5A6B7F" stroke-width="2.2" marker-end="url(#a)"/><text x="570" y="16" font-size="13.5" fill="#0A1F3C">Relación: qué información fluye</text>
+    <rect x="820" y="0" width="40" height="22" rx="4" fill="none" stroke="#9AA9BA" stroke-dasharray="6 4"/><text x="870" y="16" font-size="13.5" fill="#0A1F3C">Límite organizacional</text>
+  </g>
+</svg>
