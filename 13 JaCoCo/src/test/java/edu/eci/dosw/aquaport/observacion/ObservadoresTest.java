@@ -94,4 +94,12 @@ class ObservadoresTest {
 
         assertTrue(centroControl.getRegistro().get(0).startsWith("ALERTA: drone AR-14"));
     }
+
+    // Línea detectada en rojo por JaCoCo (punto 13)
+
+    @Test
+    @DisplayName("El publicador cuenta los observadores registrados")
+    void cantidadObservadores_dosRegistrados_retornaDos() {
+        assertEquals(2, publicador.cantidadObservadores());
+    }
 }

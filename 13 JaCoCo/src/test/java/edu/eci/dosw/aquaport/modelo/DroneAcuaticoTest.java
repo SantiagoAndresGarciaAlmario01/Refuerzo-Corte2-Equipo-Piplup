@@ -107,4 +107,18 @@ class DroneAcuaticoTest {
     void crearCondiciones_profundidadNegativa_lanzaExcepcion() {
         assertThrows(IllegalArgumentException.class, () -> new CondicionesHidricas(NivelAgitacion.BAJO, -1, 18));
     }
+
+    // Ramas detectadas en amarillo por JaCoCo (punto 13)
+
+    @Test
+    @DisplayName("No se puede crear un drone con id nulo (rama id == null)")
+    void crear_idNulo_lanzaExcepcion() {
+        assertThrows(IllegalArgumentException.class, () -> new DroneBuceador(null, 50, Zona.LAGUNA_SUR));
+    }
+
+    @Test
+    @DisplayName("Cada tipo informa su modelo comercial")
+    void getModelo_semisumergido_retornaAquaSemi() {
+        assertEquals("Aqua-Semi 300", new DroneSemisumergido("AR-06", 80, Zona.CANAL_CENTRAL).getModelo());
+    }
 }

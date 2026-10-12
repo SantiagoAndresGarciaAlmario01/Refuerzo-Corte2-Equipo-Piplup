@@ -67,4 +67,12 @@ class FabricaDronesTest {
     void registrar_tipoVacio_lanzaExcepcion() {
         assertThrows(IllegalArgumentException.class, () -> fabrica.registrar(" ", DroneSuperficial::new));
     }
+
+    // Rama detectada en amarillo por JaCoCo (punto 13)
+
+    @Test
+    @DisplayName("Registrar un tipo nulo lanza IllegalArgumentException (rama tipo == null)")
+    void registrar_tipoNulo_lanzaExcepcion() {
+        assertThrows(IllegalArgumentException.class, () -> fabrica.registrar(null, DroneSuperficial::new));
+    }
 }

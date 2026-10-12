@@ -88,4 +88,28 @@ class MisionTest {
 
         assertThrows(NullPointerException.class, () -> mision.asignarA(null));
     }
+
+    // Ramas detectadas en amarillo por JaCoCo (punto 13)
+
+    @Test
+    @DisplayName("Un id en blanco lanza IllegalStateException (rama id.isBlank())")
+    void build_idEnBlanco_lanzaExcepcion() {
+        Mision.Builder builder = builderValido().id("   ");
+
+        assertThrows(IllegalStateException.class, builder::build);
+    }
+
+    @Test
+    @DisplayName("Asignar un drone conserva el tipo de carga de la misión original")
+    void asignarA_conservaTipoDeCarga() {
+        Mision asignada = builderValido().build().asignarA(new DroneBuceador("AR-11", 80, Zona.EMBALSE_NORTE));
+
+        assertEquals(TipoCarga.MUESTRA_AGUA, asignada.getTipoCarga());
+    }
+
+    @Test
+    @DisplayName("La representación en texto muestra la prioridad")
+    void toString_incluyePrioridad() {
+        assertTrue(builderValido().build().toString().contains("[ALTA]"));
+    }
 }
