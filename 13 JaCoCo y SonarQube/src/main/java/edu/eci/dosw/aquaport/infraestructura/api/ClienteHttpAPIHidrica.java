@@ -37,8 +37,11 @@ public class ClienteHttpAPIHidrica implements ClienteAPIHidrica {
     private HttpResponse<String> enviar(HttpRequest solicitud) {
         try {
             return http.send(solicitud, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException | InterruptedException e) {
-            throw new UncheckedIOException("La API hídrica no está disponible", new IOException(e));
+        } catch (IOException e) {
+            throw new UncheckedIOException("La API hídrica no está disponible", e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Se interrumpió la consulta a la API hídrica", e);
         }
     }
 }
