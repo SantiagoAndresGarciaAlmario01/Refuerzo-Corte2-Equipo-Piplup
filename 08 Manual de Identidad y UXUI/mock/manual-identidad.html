@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaPort · Manual de identidad</title>
+<style>
+@font-face{font-family:'Barlow Condensed';font-weight:700;src:url(fuentes/barlow-condensed-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-weight:800;src:url(fuentes/barlow-condensed-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Inter';font-weight:400;src:url(fuentes/inter-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Inter';font-weight:600;src:url(fuentes/inter-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:500;src:url(fuentes/jetbrains-mono-latin-500-normal.woff2) format('woff2')}
+:root{--abismo:#061428;--profundo:#0A1F3C;--superficie:#0F2A4D;--cian:#19C3E6;--ribera:#2ED3A0;--espuma:#E8F4F8;--niebla:#8BA3B8;--linea:rgba(139,163,184,.16)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--abismo);color:var(--espuma);font-family:'Inter',sans-serif;padding:40px;
+  background-image:radial-gradient(900px 400px at 0 0,rgba(25,195,230,.10),transparent 60%),radial-gradient(700px 400px at 100% 100%,rgba(46,211,160,.08),transparent 60%)}
+.wrap{max-width:1360px;margin:0 auto}
+.head{position:relative;overflow:hidden;display:flex;align-items:center;gap:28px;padding:34px;border-radius:24px;background:linear-gradient(135deg,var(--superficie),var(--profundo));border:1px solid var(--linea);margin-bottom:24px}
+.aura{position:absolute;border-radius:50%;filter:blur(70px);pointer-events:none}
+.br{position:absolute;width:24px;height:24px;border:2px solid rgba(25,195,230,.7)}
+h1{font-family:'Barlow Condensed';font-weight:800;font-size:64px;line-height:.9;letter-spacing:.04em}
+h1 span{color:var(--cian)}
+h2{font-family:'Barlow Condensed';font-weight:700;font-size:26px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
+.eyebrow{font-family:'JetBrains Mono';font-size:12px;letter-spacing:.18em;color:var(--cian);margin-bottom:8px}
+p{color:var(--niebla);font-size:14px;line-height:1.55}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:20px}
+.box{border-radius:20px;padding:22px;background:rgba(15,42,77,.6);border:1px solid var(--linea)}
+.c7{grid-column:span 7}.c5{grid-column:span 5}.c6{grid-column:span 6}.c12{grid-column:span 12}
+.sw{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.s{border-radius:16px;overflow:hidden;border:1px solid var(--linea)}
+.s .c{height:92px}
+.s .t{padding:10px 12px;background:rgba(6,20,40,.6)}
+.s b{display:block;font-size:13px}
+.s code{font-family:'JetBrains Mono';font-size:12px;color:var(--niebla)}
+.s small{display:block;font-size:11px;color:var(--niebla);margin-top:4px;line-height:1.35}
+.st{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.pill{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;font-weight:600;font-size:12px;letter-spacing:.06em;margin-bottom:8px}
+.dot{width:9px;height:9px;border-radius:50%;background:currentColor}
+.type .row{display:flex;align-items:baseline;gap:20px;padding:12px 0;border-bottom:1px solid var(--linea)}
+.type .row:last-child{border-bottom:0}
+.type .lbl{width:150px;flex-shrink:0;font-family:'JetBrains Mono';font-size:11px;color:var(--niebla)}
+.tono li{list-style:none;padding:9px 0;border-bottom:1px solid var(--linea);font-size:13.5px;display:flex;gap:10px}
+.tono li:last-child{border-bottom:0}
+.ok{color:var(--ribera);font-weight:600;width:60px;flex-shrink:0}.no{color:#F2545B;font-weight:600;width:60px;flex-shrink:0}
+.logos{display:flex;gap:16px;align-items:center}
+.lg{flex:1;height:150px;border-radius:16px;display:grid;place-items:center;border:1px solid var(--linea)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="head">
+    <div class="aura" style="width:380px;height:380px;background:#19C3E6;opacity:.3;top:-200px;left:-60px"></div>
+    <div class="aura" style="width:300px;height:300px;background:#2ED3A0;opacity:.22;bottom:-200px;right:10%"></div>
+    <span class="br" style="top:14px;left:14px;border-width:2px 0 0 2px"></span><span class="br" style="top:14px;right:14px;border-width:2px 2px 0 0"></span>
+    <span class="br" style="bottom:14px;left:14px;border-width:0 0 2px 2px"></span><span class="br" style="bottom:14px;right:14px;border-width:0 2px 2px 0"></span>
+    <svg width="110" height="120" viewBox="0 0 44 48" style="position:relative">
+      <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#19C3E6"/><stop offset="1" stop-color="#2ED3A0"/></linearGradient></defs>
+      <path d="M22 2 40 9v14c0 12-8 19-18 23C12 42 4 35 4 23V9z" fill="url(#g)"/>
+      <path d="M22 7 35 12v11c0 9-6 14.5-13 17.6C15 37.5 9 32 9 23V12z" fill="#061428"/>
+      <path d="M22 13c4 5 6 8.2 6 11a6 6 0 0 1-12 0c0-2.8 2-6 6-11z" fill="url(#g)"/>
+      <path d="M11 31c2.6 0 2.6-1.6 5.5-1.6s2.9 1.6 5.5 1.6 2.6-1.6 5.5-1.6 2.9 1.6 5.5 1.6" stroke="#19C3E6" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </svg>
+    <div style="position:relative">
+      <div class="eyebrow">MANUAL DE IDENTIDAD · V1.0 · EQUIPO PIPLUP</div>
+      <h1>AQUA<span>PORT</span></h1>
+      <p style="max-width:640px;margin-top:10px">Sistema de monitoreo y reparto con drones acuáticos de la ECI. La identidad transmite <b style="color:var(--espuma)">calma</b> (azules profundos del agua), <b style="color:var(--espuma)">precisión</b> (cian técnico de instrumentación) y <b style="color:var(--espuma)">entorno natural</b> (verde ribera de monitoreo ambiental).</p>
+    </div>
+  </section>
+
+  <div class="grid">
+    <section class="box c7">
+      <h2>Paleta principal</h2>
+      <div class="sw">
+        <div class="s"><div class="c" style="background:#061428"></div><div class="t"><b>Abismo</b><code>#061428</code><small>Fondo base. Oscuro para reducir fatiga en turnos largos de monitoreo.</small></div></div>
+        <div class="s"><div class="c" style="background:#0A1F3C"></div><div class="t"><b>Profundo</b><code>#0A1F3C</code><small>Primario oscuro: navegación y paneles.</small></div></div>
+        <div class="s"><div class="c" style="background:#19C3E6"></div><div class="t"><b>Cian hídrico</b><code>#19C3E6</code><small>Primario de acción: botones, foco, selección.</small></div></div>
+        <div class="s"><div class="c" style="background:#2ED3A0"></div><div class="t"><b>Verde ribera</b><code>#2ED3A0</code><small>Acento ambiental y estado “disponible”.</small></div></div>
+        <div class="s"><div class="c" style="background:#0F2A4D"></div><div class="t"><b>Superficie</b><code>#0F2A4D</code><small>Tarjetas y contenedores.</small></div></div>
+        <div class="s"><div class="c" style="background:#E8F4F8"></div><div class="t"><b>Espuma</b><code>#E8F4F8</code><small>Texto principal (contraste 16.4:1 sobre Abismo).</small></div></div>
+        <div class="s"><div class="c" style="background:#8BA3B8"></div><div class="t"><b>Niebla</b><code>#8BA3B8</code><small>Texto secundario y etiquetas.</small></div></div>
+        <div class="s"><div class="c" style="background:linear-gradient(135deg,#19C3E6,#2ED3A0)"></div><div class="t"><b>Gradiente Corriente</b><code>#19C3E6 → #2ED3A0</code><small>Solo para logo y elemento destacado.</small></div></div>
+      </div>
+    </section>
+
+    <section class="box c5">
+      <h2>Logotipo</h2>
+      <div class="logos">
+        <div class="lg" style="background:#061428"><svg width="70" height="76" viewBox="0 0 44 48"><path d="M22 2 40 9v14c0 12-8 19-18 23C12 42 4 35 4 23V9z" fill="url(#g)"/><path d="M22 7 35 12v11c0 9-6 14.5-13 17.6C15 37.5 9 32 9 23V12z" fill="#061428"/><path d="M22 13c4 5 6 8.2 6 11a6 6 0 0 1-12 0c0-2.8 2-6 6-11z" fill="url(#g)"/><path d="M11 31c2.6 0 2.6-1.6 5.5-1.6s2.9 1.6 5.5 1.6 2.6-1.6 5.5-1.6 2.9 1.6 5.5 1.6" stroke="#19C3E6" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+        <div class="lg" style="background:#E8F4F8"><svg width="70" height="76" viewBox="0 0 44 48"><path d="M22 2 40 9v14c0 12-8 19-18 23C12 42 4 35 4 23V9z" fill="#0A1F3C"/><path d="M22 7 35 12v11c0 9-6 14.5-13 17.6C15 37.5 9 32 9 23V12z" fill="#E8F4F8"/><path d="M22 13c4 5 6 8.2 6 11a6 6 0 0 1-12 0c0-2.8 2-6 6-11z" fill="#0E8FB8"/><path d="M11 31c2.6 0 2.6-1.6 5.5-1.6s2.9 1.6 5.5 1.6 2.6-1.6 5.5-1.6 2.9 1.6 5.5 1.6" stroke="#0E8FB8" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+      </div>
+      <p style="margin-top:14px">Escudo (protección del recurso hídrico) + gota (muestra de agua) + onda (navegación del drone). Área de respeto: el ancho de la gota alrededor del escudo. Versión clara para documentos impresos.</p>
+    </section>
+
+    <section class="box c12">
+      <h2>Colores de estado del drone</h2>
+      <div class="st">
+        <div><div class="pill" style="background:rgba(46,211,160,.14);color:#2ED3A0"><span class="dot"></span>DISPONIBLE</div><p><code style="font-family:'JetBrains Mono'">#2ED3A0</code> · puede recibir misión.</p></div>
+        <div><div class="pill" style="background:rgba(59,130,246,.16);color:#3B82F6"><span class="dot"></span>EN MISIÓN</div><p><code style="font-family:'JetBrains Mono'">#3B82F6</code> · ejecutando ruta.</p></div>
+        <div><div class="pill" style="background:rgba(245,184,65,.14);color:#F5B841"><span class="dot"></span>RECARGANDO</div><p><code style="font-family:'JetBrains Mono'">#F5B841</code> · ámbar: espera, no error.</p></div>
+        <div><div class="pill" style="background:rgba(138,153,173,.16);color:#8A99AD"><span class="dot"></span>MANTENIMIENTO</div><p><code style="font-family:'JetBrains Mono'">#8A99AD</code> · fuera de servicio planeado.</p></div>
+        <div><div class="pill" style="background:rgba(242,84,91,.16);color:#F2545B"><span class="dot"></span>FALLO</div><p><code style="font-family:'JetBrains Mono'">#F2545B</code> · requiere acción inmediata.</p></div>
+      </div>
+      <p style="margin-top:12px">Regla: el color nunca va solo. Cada estado lleva además texto en mayúsculas y un punto indicador, para que sea legible por personas con daltonismo.</p>
+    </section>
+
+    <section class="box c7 type">
+      <h2>Tipografía</h2>
+      <div class="row"><span class="lbl">DISPLAY · títulos</span><span style="font-family:'Barlow Condensed';font-weight:800;font-size:44px;letter-spacing:.03em">FLOTA ACUÁTICA</span></div>
+      <div class="row"><span class="lbl">INTERFAZ · textos</span><span style="font-size:18px">Inter 400/600 — “Asignar drone a la misión”</span></div>
+      <div class="row"><span class="lbl">MONO · IDs y códigos</span><span style="font-family:'JetBrains Mono';font-size:20px;color:var(--cian)">AR-01 · M-016 · AP-01</span></div>
+      <p style="margin-top:10px">Barlow Condensed: condensada y robusta, se lee a distancia en pantallas de monitoreo. Inter: sans-serif diseñada para pantalla. JetBrains Mono: evita confundir 0/O y 1/l en identificadores.</p>
+    </section>
+
+    <section class="box c5">
+      <h2>Tono de voz</h2>
+      <p style="margin-bottom:8px">Técnico, preciso y ambiental. Frases cortas, con dato y acción.</p>
+      <ul class="tono">
+        <li><span class="ok">SÍ</span>“El drone AR-03 tiene batería insuficiente (18%). Mínimo requerido: 35%.”</li>
+        <li><span class="no">NO</span>“Error de asignación.”</li>
+        <li><span class="ok">SÍ</span>“Misión M-014 entregada en Laboratorio Hídrico.”</li>
+        <li><span class="no">NO</span>“¡Listo! Todo salió súper bien”</li>
+      </ul>
+    </section>
+  </div>
+</div>
+</body>
+</html>
