@@ -72,12 +72,5 @@ En el sprint de Piplup el equipo cerró 10 puntos (HU de 3, 5 y 2) con un alcanc
 | HU-05, HU-06, HU-07 | `feature/asignacion-automatica` |
 | HU-08, HU-09 | `feature/alertas-centro-control` |
 
-## Cargarlo en Jira (AP1)
-
-1. En **Backlog → Crear sprint**, nombrarlo `AP1 Sprint 2 - Prinplup` y poner el objetivo de arriba.
-2. Importar `jira-import-prinplup.csv` (**Configuración del sistema → Importación externa → CSV**), mapeando *Issue Type*, *Summary*, *Description* y *Story Points*. El archivo no lleva columna *Parent* porque la importación de AP1 la rechazó en Piplup.
-3. En cada historia, **Vincular a la épica** y crear las subtareas de HU-05 y HU-08 a mano.
-4. Arrastrar las 7 historias al sprint e **Iniciar sprint**.
-
 <img width="1535" height="331" alt="image" src="https://github.com/user-attachments/assets/55851429-fb96-4063-80f5-f26d9837f4d0" />
 
