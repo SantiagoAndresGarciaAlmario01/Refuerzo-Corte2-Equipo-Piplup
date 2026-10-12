@@ -1,0 +1,19 @@
+# Compilados y build de Maven
+target/
+*.class
+out/
+build/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
+
+# Sistema operativo y logs
+.DS_Store
+Thumbs.db
+*.log
