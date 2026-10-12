@@ -1,0 +1,58 @@
+digraph capas {
+graph [rankdir=TB, fontname="Helvetica", fontsize=20, nodesep=0.35, ranksep=0.9, labelloc=t, label=<<B>AquaPort Enterprise – mapa de dependencias entre capas</B><BR/><FONT POINT-SIZE="13" COLOR="#5A6B7F">Generado leyendo los imports de src/main/java · el número en cada flecha es la cantidad de imports</FONT>>];
+node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=13, penwidth=1.5];
+edge [fontname="Helvetica", fontsize=11, color="#5A6B7F"];
+subgraph cluster_infraestructura { label=<<B>Infraestructura (adaptadores y configuración)</B>>; style="rounded,filled"; fillcolor="#F4F0FF"; color="#5B4BB7"; fontcolor="#5B4BB7"; fontsize=16;
+"infraestructura.api" [label=<api<BR/><FONT POINT-SIZE="10" COLOR="#7A5C00">usa com.fasterxml.jackson.annotation, com.fasterxml.jackson.core, com.fasterxml.jackson.databind, java.net.http</FONT>>, fillcolor="white", color="#5B4BB7"];
+"infraestructura.configuracion" [label=<configuracion<BR/><FONT POINT-SIZE="10" COLOR="#7A5C00">usa com.fasterxml.jackson.databind, java.util.logging</FONT>>, fillcolor="white", color="#5B4BB7"];
+"infraestructura.notificacion" [label=<notificacion<BR/><FONT POINT-SIZE="10" COLOR="#7A5C00">usa java.util.logging</FONT>>, fillcolor="white", color="#5B4BB7"];
+"infraestructura.persistencia" [label=<persistencia>, fillcolor="white", color="#5B4BB7"];
+"infraestructura.telemetria" [label=<telemetria>, fillcolor="white", color="#5B4BB7"];
+}
+subgraph cluster_aplicacion { label=<<B>Aplicación (casos de uso)</B>>; style="rounded,filled"; fillcolor="#E6F7FB"; color="#0E8FB8"; fontcolor="#0E8FB8"; fontsize=16;
+"aplicacion.consulta" [label=<consulta>, fillcolor="white", color="#0E8FB8"];
+"aplicacion.ejecucion" [label=<ejecucion>, fillcolor="white", color="#0E8FB8"];
+"aplicacion.planificacion" [label=<planificacion>, fillcolor="white", color="#0E8FB8"];
+}
+subgraph cluster_dominio { label=<<B>Dominio (Java puro)</B>>; style="rounded,filled"; fillcolor="#FFF7E6"; color="#B4541A"; fontcolor="#B4541A"; fontsize=16;
+"dominio.decorador" [label=<decorador<BR/><FONT POINT-SIZE="10" COLOR="#7A5C00">usa java.security</FONT>>, fillcolor="white", color="#B4541A"];
+"dominio.evento" [label=<evento>, fillcolor="white", color="#B4541A"];
+"dominio.fabrica" [label=<fabrica>, fillcolor="white", color="#B4541A"];
+"dominio.modelo" [label=<modelo>, fillcolor="white", color="#B4541A"];
+"dominio.puerto" [label=<puerto>, fillcolor="white", color="#B4541A"];
+"dominio.validacion" [label=<validacion>, fillcolor="white", color="#B4541A"];
+}
+"aplicacion.consulta" -> "dominio.modelo" [label="9", color="#5A6B7F"];
+"aplicacion.ejecucion" -> "aplicacion.planificacion" [label="7", color="#5A6B7F"];
+"aplicacion.ejecucion" -> "dominio.evento" [label="6", color="#5A6B7F"];
+"aplicacion.ejecucion" -> "dominio.modelo" [label="15", color="#5A6B7F"];
+"aplicacion.ejecucion" -> "dominio.puerto" [label="2", color="#5A6B7F"];
+"aplicacion.planificacion" -> "dominio.modelo" [label="16", color="#5A6B7F"];
+"aplicacion.planificacion" -> "dominio.puerto" [label="1", color="#5A6B7F"];
+"dominio.decorador" -> "dominio.modelo" [label="14", color="#5A6B7F"];
+"dominio.decorador" -> "dominio.puerto" [label="1", color="#5A6B7F"];
+"dominio.fabrica" -> "dominio.modelo" [label="7", color="#5A6B7F"];
+"dominio.puerto" -> "dominio.modelo" [label="5", color="#5A6B7F"];
+"dominio.validacion" -> "dominio.modelo" [label="7", color="#5A6B7F"];
+"dominio.validacion" -> "dominio.puerto" [label="4", color="#5A6B7F"];
+"infraestructura.api" -> "dominio.modelo" [label="5", color="#5A6B7F"];
+"infraestructura.api" -> "dominio.puerto" [label="1", color="#5A6B7F"];
+"infraestructura.configuracion" -> "aplicacion.consulta" [label="1", color="#5A6B7F"];
+"infraestructura.configuracion" -> "aplicacion.ejecucion" [label="5", color="#5A6B7F"];
+"infraestructura.configuracion" -> "aplicacion.planificacion" [label="3", color="#5A6B7F"];
+"infraestructura.configuracion" -> "dominio.decorador" [label="2", color="#5A6B7F"];
+"infraestructura.configuracion" -> "dominio.evento" [label="1", color="#5A6B7F"];
+"infraestructura.configuracion" -> "dominio.fabrica" [label="3", color="#5A6B7F"];
+"infraestructura.configuracion" -> "dominio.modelo" [label="16", color="#5A6B7F"];
+"infraestructura.configuracion" -> "dominio.puerto" [label="4", color="#5A6B7F"];
+"infraestructura.configuracion" -> "dominio.validacion" [label="3", color="#5A6B7F"];
+"infraestructura.configuracion" -> "infraestructura.api" [label="1", color="#5A6B7F"];
+"infraestructura.configuracion" -> "infraestructura.notificacion" [label="1", color="#5A6B7F"];
+"infraestructura.configuracion" -> "infraestructura.persistencia" [label="2", color="#5A6B7F"];
+"infraestructura.configuracion" -> "infraestructura.telemetria" [label="1", color="#5A6B7F"];
+"infraestructura.notificacion" -> "dominio.evento" [label="5", color="#5A6B7F"];
+"infraestructura.persistencia" -> "dominio.modelo" [label="2", color="#5A6B7F"];
+"infraestructura.persistencia" -> "dominio.puerto" [label="2", color="#5A6B7F"];
+"infraestructura.telemetria" -> "dominio.modelo" [label="1", color="#5A6B7F"];
+"infraestructura.telemetria" -> "dominio.puerto" [label="1", color="#5A6B7F"];
+}

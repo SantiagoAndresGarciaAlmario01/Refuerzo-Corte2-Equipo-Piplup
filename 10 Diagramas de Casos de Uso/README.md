@@ -1,60 +1,69 @@
-# 10 Diagramas de Casos de Uso: AP-07 “Asignar misión automáticamente”
+# 10 Diagramas de Casos de Uso: AP-15 con todos los flujos de fallo
 
-**Nivel:** Prinplup · Se agregan **generalización de actores**, **«include» encadenados** y **«extend» con condición**.
+**Nivel:** Empoleon · 5 «extend» con condición explícita · «include» encadenados · generalización de actores · 4 actores sistema
 
-![Diagrama de casos de uso v2](docs/diagrama-cu-prinplup.png)
+![Diagrama de casos de uso Enterprise](docs/diagrama-cu-empoleon.png)
 
-Archivos: `docs/diagrama-cu-prinplup.png` (entregable) y `docs/diagrama-cu-prinplup.svg` (fuente vectorial).
+Archivos: `docs/diagrama-cu-empoleon.png` (entregable) y `docs/diagrama-cu-empoleon.svg` (fuente vectorial).
 
 ## Actores
 
 | Actor | Tipo | Casos de uso |
 |---|---|---|
-| **Personal ECI** | Actor base (abstracto) | Consultar estado de la flota |
-| **Operador Hídrico** | Hereda de Personal ECI | Además: Cambiar estrategia de selección, supervisa Asignar misión automáticamente |
-| **Administrador ECI** | Hereda de Personal ECI | Además: Gestionar flota por tipo (Factory) |
-| **Solicitante** | Persona | Solicitar transporte de carga |
-| **Técnico de Mantenimiento** | Persona (nuevo en v2) | Notificar fallo al técnico |
-| **API Condiciones Hídricas** | «actor sistema» | Validar condiciones hídricas |
-| **Centro de Control ECI** | «actor sistema» | Asignar misión automáticamente (registro), Escalar misión CRÍTICA |
+| Personal ECI | Actor base | Consultar eficiencia por zona |
+| Operador Hídrico | Hereda de Personal ECI | Monitorear progreso por tramo, Configurar ruta con waypoints |
+| Administrador ECI | Hereda de Personal ECI | Activar o inactivar una zona |
+| Solicitante | Persona | Solicitar misión multi-etapa |
+| Técnico de Mantenimiento | Persona | Abrir orden de mantenimiento |
+| API Condiciones Hídricas | «actor sistema» | Validar tramo |
+| Centro de Control ECI | «actor sistema» | Ejecutar misión multi-etapa (registro y autorización) |
+| Sistema del Laboratorio (LIMS) | «actor sistema» | Registrar cadena de custodia |
+| Sistema de Alertas | «actor sistema» | Reemplazar drone con batería crítica |
 
-**Generalización:** Operador y Administrador comparten “Consultar estado de la flota”. En vez de dibujar dos líneas al mismo caso de uso, ambos heredan de *Personal ECI* (triángulo vacío). Si mañana entra otro rol del personal, hereda lo común sin redibujar.
+## Caso base: Ejecutar misión multi-etapa (AP-15)
 
-## «include» (siempre ocurre)
+### «include» (siempre ocurren)
 
-| CU base | «include» | Por qué es include |
+| CU base | «include» | Por qué |
 |---|---|---|
-| Solicitar transporte de carga | Asignar misión automáticamente | En la v2 toda solicitud dispara la asignación; no hay paso manual. |
-| Asignar misión automáticamente | Validar condiciones hídricas | Nunca se asigna sin conocer el agua del destino (AP-10). |
-| Asignar misión automáticamente | Aplicar estrategia de selección | La elección siempre la hace la estrategia activa (Strategy). |
-| Notificar fallo al técnico | Abrir orden de mantenimiento | Cada notificación de fallo genera su orden. |
+| Solicitar misión multi-etapa | Ejecutar misión multi-etapa | Toda solicitud válida se ejecuta. |
+| Ejecutar misión multi-etapa | Planificar ruta por tramos | No se recorre nada sin un drone por tramo. |
+| Planificar ruta por tramos | Validar tramo (cadena de validación) | Cada candidato pasa por batería, capacidad, zona activa y condiciones. |
+| Ejecutar misión multi-etapa | Registrar cadena de custodia | Cada tramo deja un registro sellado (RN-04). |
+| Ejecutar misión multi-etapa | Notificar waypoint alcanzado | Cada llegada se publica a los observadores. |
+| Reasignar tramo por drone en FALLO | Abrir orden de mantenimiento | El drone retirado siempre genera una orden. |
+| Reemplazar drone con batería crítica | Abrir orden de mantenimiento | Igual que la anterior. |
 
-Las relaciones forman una cadena: **Solicitar → Asignar → Validar / Aplicar**, y **Notificar fallo → Abrir orden**.
+### «extend» (los 5 flujos alternos de Empoleon)
 
-## «extend» (solo con condición)
-
-| CU que extiende | → CU base | Condición |
+| CU que extiende | Condición | Flujo alterno del RF AP-15 |
 |---|---|---|
-| Notificar fallo al técnico | Asignar misión automáticamente | `[un drone pasa a FALLO]` |
-| Escalar misión CRÍTICA al Centro de Control | Asignar misión automáticamente | `[CRÍTICA y ningún drone apto]` |
+| Reasignar tramo por drone en FALLO | `[drone en FALLO en un waypoint]` | FA-01 |
+| Desviar ruta por zona intermedia | `[condición hídrica adversa en el tramo]` | FA-02 |
+| Dejar misión en espera | `[zona destino inactiva]` | FA-03 |
+| Reemplazar drone con batería crítica | `[batería < 20 % en mitad de ruta]` | FA-04 |
+| Abortar por custodia interrumpida | `[cadena de custodia interrumpida]` | FA-05 |
 
-La flecha de «extend» apunta al caso base, porque es el caso extendido el que sabe cuándo se agrega. La asignación funciona igual si nunca hay fallos ni misiones críticas sin drone.
+Todas las flechas «extend» apuntan al caso base y llevan su condición en la etiqueta. El caso base funciona completo sin ninguna extensión (la ruta normal), que es justo lo que distingue un «extend» de un «include».
 
 ## Correspondencia con el código
 
 | Caso de uso | Clase |
 |---|---|
-| Asignar misión automáticamente | `AsignadorAutomatico.asignar` / `asignarPorPrioridad` |
-| Validar condiciones hídricas | `ProveedorCondicionesHidricas` + `ValidadorAsignacion` |
-| Aplicar estrategia de selección | `EstrategiaSeleccion` y sus implementaciones |
-| Cambiar estrategia de selección | Se inyecta otra estrategia en el constructor del asignador |
-| Notificar fallo al técnico / Abrir orden | `EventoMision.droneEnFallo` → `TecnicoMantenimientoObserver` |
-| Escalar misión CRÍTICA | `EventoMision.sinDrone` → `CentroControlObserver` (“ALERTA CRÍTICA”) |
-| Gestionar flota por tipo | `FabricaDrones` |
-| Consultar estado de la flota | `ConsultorFlota` |
+| Ejecutar misión multi-etapa | `ServicioMisionMultiEtapa.ejecutar` |
+| Planificar ruta por tramos | `PlanificadorRuta.planificar` |
+| Validar tramo | `CadenaValidacion.enterprise` y los 4 `Validador*` |
+| Registrar cadena de custodia | `CadenaCustodia.registrar` + `DroneConCifrado` |
+| Notificar waypoint alcanzado | `PublicadorEventosRuta` → `ObservadorRuta` |
+| Reasignar tramo / Reemplazar drone | `ReasignadorTramo.droneListo` |
+| Desviar ruta | `DesviadorRuta.tramosSeguros` |
+| Dejar misión en espera | `ServicioMisionMultiEtapa` (zona destino inactiva) |
+| Abortar por custodia interrumpida | `EjecutorRuta` al capturar `CustodiaInterrumpidaException` |
+| Abrir orden de mantenimiento | `TecnicoMantenimientoObservador` |
+| Consultar eficiencia por zona | `ConsultorRed.eficienciaPorZona` |
 
 ## Decisiones
 
-- **Ningún caso de uso es un paso de interfaz** (“hacer clic”, “abrir pantalla”): todos son objetivos del actor.
-- **Los sistemas externos van como actores con estereotipo «actor sistema»** y en el lado derecho, para separarlos de las personas.
-- **Las condiciones de los extend van en la etiqueta**, no en una nota aparte, para que se lean junto a la flecha.
+- **Dos casos distintos para FALLO y batería crítica** aunque los dos terminan en una reasignación: la condición, el evento publicado (`TRAMO_REASIGNADO` frente a `BATERIA_CRITICA_EN_RUTA`) y el actor que se entera (técnico frente a Sistema de Alertas) son distintos.
+- **“Validar tramo” lo incluye la planificación, no la ejecución**: la validación ocurre al elegir el drone, y una reasignación vuelve a planificar ese tramo.
+- **Generalización**: Operador y Administrador heredan “Consultar eficiencia por zona” de Personal ECI en lugar de tener dos líneas al mismo caso.

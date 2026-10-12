@@ -1,58 +1,62 @@
-# 04 Principios SOLID: Auditoría del diseño de AquaPort v2
+# 04 Principios SOLID: Auditoría de la arquitectura Enterprise
 
-**Nivel:** Prinplup · **Principios:** SRP · OCP · LSP · ISP · DIP · **Prueba de extensión:** `DroneSumergibleProfundo`
+**Nivel:** Empoleon · **Regla de oro:** el paquete `dominio` no importa ninguna librería externa · **Código auditado:** el proyecto completo de [`14 Arquitectura por Capas`](../14%20Arquitectura%20por%20Capas/)
 
-## Diagrama de clases
+## Cómo se auditó
 
-![Diagrama de clases v2](docs/diagrama-clases-v2.png)
+| Técnica | Qué revisa | Resultado |
+|---|---|---|
+| Revisión manual de imports con `grep` ([`scripts/auditar-capas.sh`](scripts/auditar-capas.sh)) | Imports de cada capa, `new` de infraestructura fuera de infraestructura, campos no `final` y setters en servicios | 0 violaciones ([reporte](../14%20Arquitectura%20por%20Capas/docs/reporte-dependencias.txt)) |
+| Prueba automática `ArquitecturaCapasTest` (punto 14) | Las mismas reglas, pero como prueba JUnit: si alguien rompe una capa, falla `mvn test` | 4/4 en verde |
+| SonarQube (punto 13) | Issues de diseño y mantenibilidad sobre el mismo código | Los issues encontrados y su corrección están en el punto 13 |
+| Lectura clase por clase | Una razón para cambiar, extensión sin modificación, contratos de subtipos | tabla de abajo |
 
-Fuente: [`docs/diagrama-clases-v2.dot`](docs/diagrama-clases-v2.dot) (Graphviz: `dot -Tpng docs/diagrama-clases-v2.dot -o docs/diagrama-clases-v2.png`). En verde está el cuarto tipo agregado para demostrar OCP.
+```bash
+bash scripts/auditar-capas.sh            # se ejecuta desde "14 Arquitectura por Capas"
+```
 
-## Auditoría por clase
+## Mapa de dependencias entre capas
 
-| Clase | Principio que aplica | Cómo se ve en el código | Qué pasaría si no se cumpliera |
+![Mapa de dependencias](docs/mapa-dependencias.png)
+
+Generado leyendo los imports reales de `src/main/java` (fuente: [`docs/mapa-dependencias.dot`](docs/mapa-dependencias.dot)). Todas las flechas van hacia adentro:
+
+```
+infraestructura ──▶ aplicacion ──▶ dominio
+        └─────────────────────────────▲
+```
+
+| Capa | Puede importar | Importa realmente | Librerías externas |
 |---|---|---|---|
-| `AsignadorAutomatico` | **DIP** + **SRP** | Recibe por constructor `EstrategiaSeleccion`, `ProveedorCondicionesHidricas`, `ValidadorAsignacion` y `PublicadorEventosMision`. Solo coordina: consulta condiciones, filtra aptos, delega la elección y confirma. | Si creara `new MayorBateriaStrategy()` o llamara a la API real, no se podría probar sin red ni cambiar la política sin editarlo. |
-| `ValidadorAsignacion` | **SRP** | Única responsabilidad: decidir si un drone es apto (disponible, batería ≥ 35 %, capacidad, condiciones hídricas). | Las reglas de aptitud estarían repartidas entre asignador, estrategias y UI. |
-| `EstrategiaSeleccion` y sus 3 implementaciones | **OCP** + **ISP** | Una interfaz de un método; una política nueva es una clase nueva. | Cada criterio nuevo sería otro `if` dentro del asignador. |
-| `PublicadorEventosMision` | **SRP** | Solo mantiene la lista de observadores y reparte los eventos. | El asignador cargaría con la lista de suscriptores además de su lógica. |
-| `ObservadorMision` | **ISP** + **OCP** | Un solo método `notificar(EventoMision)`. Un nuevo interesado (por ejemplo un registro de auditoría) se agrega sin tocar a nadie. | Una interfaz con `onAsignada`, `onFallo`, `onSinDrone`, ... obligaría al técnico a implementar métodos que no usa. |
-| `ProveedorCondicionesHidricas` | **DIP** + **ISP** | Abstracción de la API externa de condiciones hídricas (sistema externo del C4). | El dominio quedaría acoplado a HTTP y a un proveedor concreto. |
-| `FabricaDrones` + `CreadorDrone` | **OCP** | Registro `Map<String, CreadorDrone>`; un tipo nuevo se registra con `Tipo::new`. | Un `switch (tipo)` que habría que modificar por cada drone nuevo. |
-| `DroneAcuatico` y subclases | **LSP** + **OCP** | Cada subtipo responde `getCapacidadCargaGramos()` y `puedeOperarEn(condiciones)` con sus propias reglas, sin lanzar excepciones ni cambiar el contrato. | `if (drone instanceof DroneBuceador)` repartidos por el código. |
-| `Mision` (inmutable + Builder) | **SRP** | Solo representa la misión y valida sus invariantes en `build()`. `asignarA(drone)` devuelve una misión nueva. | Misiones en estado inválido circulando por el sistema. |
-| `ConsultorFlota` | **SRP** | Solo consultas de lectura con Streams; no modifica la flota. | Consultas mezcladas con la lógica de asignación. |
+| `dominio` | `java.*` y `dominio.*` | `java.util`, `java.nio`, `java.security` (SHA-256 del sello) | **ninguna** |
+| `aplicacion` | además `dominio.*` | `dominio.*`, `java.util` | ninguna |
+| `infraestructura` | todo | `aplicacion.*`, `dominio.*`, Jackson, `java.net.http`, `java.util.logging` | Jackson (en `infraestructura.api` y en la raíz de composición que crea el `ObjectMapper`) |
 
-## OCP demostrado: un cuarto tipo sin modificar el asignador
+## Auditoría por principio
 
-Se agregó `DroneSumergibleProfundo` (800 g, de 5 a 60 m, solo agitación baja). Los cambios fueron:
+| Principio | Dónde se respeta | Por qué importa en AquaPort |
+|---|---|---|
+| **S** · Responsabilidad única | `PlanificadorRuta` solo elige drones por tramo; `DesviadorRuta` solo reemplaza tramos adversos; `ReasignadorTramo` solo decide si un drone sigue o se reemplaza; `EjecutorRuta` solo recorre y custodia; `ServicioMisionMultiEtapa` solo coordina el caso de uso. | En Prinplup un solo `AsignadorAutomatico` hacía todo. Con rutas multi-etapa esa clase habría pasado de 150 líneas; separada, cada flujo alterno tiene una clase donde vive y una prueba que la cubre. |
+| **O** · Abierto/cerrado | Un validador nuevo es una subclase de `EslabonValidacion` y una línea en `CadenaValidacion`; un decorador nuevo extiende `DroneDecorador`; un tipo de drone nuevo se registra en `FabricaDrones`; un observador nuevo implementa `ObservadorRuta`. | Ninguna de estas extensiones toca `PlanificadorRuta` ni `EjecutorRuta`, que son las clases con más pruebas y más riesgo de regresión. |
+| **L** · Sustitución de Liskov | `DroneConMonitoreo` y `DroneConCifrado` implementan `Drone` y se usan donde se espera un `Drone`; los 3 tipos de `DroneAcuatico` responden `puedeOperarEn` sin excepciones. `FlujoMultiEtapaIntegracionTest` corre todo el flujo con drones decorados. | Si un decorador lanzara una excepción en `getBateria()` o cambiara el resultado del tramo, la cadena de validación o la custodia fallarían en producción y no en compilación. |
+| **I** · Segregación de interfaces | Puertos de un método: `ProveedorCondicionesHidricas.consultar`, `EstadoZonas.estaActiva`, `RegistroTelemetria.registrar`, `ObservadorRuta.notificar`, `CriterioAptitud.esApto`. `RepositorioMisiones` tiene 3 métodos y todos los usa su implementación. | Las pruebas simulan exactamente lo que cada clase necesita (un `when(...)` por puerto) y ninguna implementación queda con métodos vacíos o `UnsupportedOperationException`. |
+| **D** · Inversión de dependencias | El dominio define los puertos (`dominio.puerto`) y la infraestructura los implementa (`AdaptadorAPIHidrica`, `EstadoZonasEnMemoria`, `RepositorioMisionesEnMemoria`, `RegistroTelemetriaEnMemoria`). Todo se inyecta por constructor en `ConfiguracionAquaPort`, la única raíz de composición. | Pasar de memoria a PostgreSQL o de la API simulada a la real es cambiar una clase de infraestructura y una línea en la configuración. El dominio y la aplicación ni se recompilan por razones de infraestructura. |
 
-| Archivo | Cambio |
-|---|---|
-| `modelo/DroneSumergibleProfundo.java` | **Nuevo** (extiende `DroneAcuatico`) |
-| `AsignadorAutomatico`, `ValidadorAsignacion`, estrategias, observadores | **Ninguno** |
-| `FabricaDrones` | **Ninguno**: el tipo se registra desde afuera con `fabrica.registrar(DroneSumergibleProfundo.TIPO, DroneSumergibleProfundo::new)` |
+## Verificaciones específicas del reto
 
-La prueba `ocp_nuevoTipoDeDrone_seAsignaSinCambiarElAsignador` pide una misión de 600 g a 20 m de profundidad: el buceador (300 g) no puede llevarla y el asignador, sin cambios, elige el `AR-16` sumergible profundo.
-
-## LSP
-
-`lsp_cualquierSubtipo_cumpleElContratoDelPadre` es una prueba parametrizada que corre sobre los **4** subtipos. Todos responden `puedeOperarEn` y `puedeTransportar` sin excepciones y con capacidad positiva. Las precondiciones del padre (id obligatorio, batería 0–100) están en el constructor de `DroneAcuatico` y ningún hijo las endurece.
-
-## DIP
-
-`dip_asignadorDependeDeAbstracciones` construye el asignador solo con **mocks** de `EstrategiaSeleccion`, `ProveedorCondicionesHidricas` y `ObservadorMision`. Si el asignador dependiera de clases concretas esta prueba no se podría escribir.
+| Verificación | Cómo se comprobó | Resultado |
+|---|---|---|
+| Ninguna clase del dominio depende de infraestructura | Regla 1 del script y `dominio_noDependeDeNadaExterno` | 0 imports fuera de `java.*`/`dominio.*` |
+| Todos los servicios reciben dependencias por constructor | Regla 4 del script y `aplicacion_camposFinales`: todos los campos de `aplicacion` son `private final` y se asignan en el constructor con `Objects.requireNonNull` | 0 campos mutables, 0 setters |
+| No hay `new ClaseInfraestructura()` en el dominio | Regla 3 del script y `capasInternas_noInstancianInfraestructura` | 0 ocurrencias |
 
 ## Decisiones discutidas
 
-- **`asignarPorPrioridad` usa un `for`**: cada asignación cambia el estado del drone a `EN_MISION` y afecta la siguiente. Hacerlo con `stream().map(...)` sería un stream con efectos secundarios, que es justamente lo que el revisor prohíbe. Las consultas puras sí están en Streams.
-- **Estado del drone mutable**: un drone físico cambia de estado durante el día; el cambio está encapsulado en `cambiarEstado` y validado (no acepta `null`).
-- Ninguna clase supera 150 líneas y ningún método supera 20 líneas.
+- **`EslabonValidacion.siguiente` no es `final`**: el patrón Chain enlaza los eslabones después de crearlos (`enlazar`). Está en el dominio, no en un servicio de aplicación, y solo se modifica al armar la cadena en `CadenaValidacion`.
+- **`DroneAcuatico` es mutable** (batería, zona y estado): representa un equipo físico que se mueve y se descarga. `MisionRuta`, `Tramo`, `PlanRuta`, `ResultadoTramo` y los registros de custodia sí son inmutables.
+- **`SelloCustodia` usa `java.security.MessageDigest`**: es parte del JDK, no una dependencia externa, así que el dominio sigue siendo “solo Java”.
+- **`EjecutorRuta.ejecutar` usa un `for`**: recorrer la ruta cambia estados de drones y alimenta la custodia en orden estricto; hacerlo con un stream sería un stream con efectos secundarios.
 
-## Pruebas (27)
+## Métricas de tamaño (nivel Empoleon)
 
-`PrincipiosSolidTest` (OCP, LSP x4, DIP) y `DroneAcuaticoTest` (reglas de cada tipo, incluido el sumergible profundo).
-
-```bash
-mvn test
-```
+72 clases en `src/main/java`; la más grande es `MisionRuta` con 141 líneas (límite 150) y ningún método supera 15 líneas.

@@ -1,0 +1,51 @@
+git log --oneline --no-merges --grep="(empoleon-" v2.0.0..release/v3.0
+
+7ffd06d docs(empoleon-13): documentar el quality gate Enterprise y los issues resueltos
+32ab12d refactor(empoleon-13): dividir EjecutorRuta.ejecutar en recorrer y terminar
+0d7aced refactor(empoleon-13): simplificar estaSellado sin literales booleanos
+c08bed3 fix(empoleon-13): restaurar la interrupción del hilo en ClienteHttpAPIHidrica
+fa6efae test(empoleon-13): cubrir el cliente HTTP, la persistencia y los valores límite del dominio
+c098b02 feat(empoleon-13): integrar la v3 completa con el quality gate de JaCoCo 85/75
+b09f61e docs(empoleon-11): documentar los 5 prompts y la verificación con Nielsen
+e24bfaf feat(empoleon-11): generar las 5 pantallas del flujo Enterprise con un prompt por pantalla
+0b45257 docs(empoleon-09): documentar sprint goals, capacidad, DoD Enterprise y retrospectiva
+700d8fd feat(empoleon-09): planificar el roadmap de 3 sprints para importar en AP1
+8e857b1 docs(empoleon-08): documentar el design system y las leyes UX por pantalla
+d61e1ef feat(empoleon-08): agregar el flujo de 6 pantallas y el mapa de flujos
+2c081ca feat(empoleon-08): definir tokens de diseño y verificar contraste WCAG AA
+c6dce87 docs(empoleon-10): justificar includes, extends y condiciones del diagrama
+2ed0863 feat(empoleon-10): agregar diagrama de casos de uso con los 5 extend de fallo
+16f23da docs(empoleon-07): completar la plantilla DOSW del RF AP-15 con waypoints anidados
+1ddf645 docs(empoleon-06): definir RF AP-13 a AP-17, RNF de producción y sus tensiones
+1421096 docs(empoleon-12): documentar las 3 capas de pruebas y el ciclo Red-Green-Refactor
+ef7711f test(empoleon-12): pruebas del dominio y la infraestructura para cubrir ramas
+efeaa94 feat(empoleon-12): implementar ejecución, reasignación e infraestructura para los flujos alternos
+9bf8f94 test(empoleon-12): red de los 5 flujos alternos y del flujo integrado
+3ea7149 refactor(empoleon-12): planificar con reduce y elegir el drone con streams
+7c5a885 feat(empoleon-12): green de PlanificadorRuta con la lógica mínima
+fd36b6b test(empoleon-12): red de PlanificadorRuta por tramo antes del código
+c53ca45 docs(empoleon-05): documentar contenedores, protocolos y datos de cada flecha
+3e91479 feat(empoleon-12): agregar el dominio y los puertos sobre los que se construye el planificador
+490b0bf docs(empoleon-01): justificar teeing, reduce, Collector propio y uso de stream paralelo
+1889e62 test(empoleon-01): probar consultas, planificación y Collector en secuencial y paralelo
+8f5d353 feat(empoleon-01): agregar eficiencia por zona, mejor historial y Collector de batería
+af9d234 feat(empoleon-01): planificar la ruta con reduce y un drone distinto por tramo
+9c7c548 feat(empoleon-01): agregar el modelo de rutas multi-etapa y la flota de 60 drones
+4b9d6d2 feat(empoleon-05): agregar diagrama de contenedores C4 nivel 2
+5345af7 docs(empoleon-04): auditar los 5 principios SOLID en la arquitectura Enterprise
+b723786 docs(empoleon-04): generar el mapa de dependencias entre capas desde los imports
+b30aaed docs(empoleon-14): documentar la auditoría final de la arquitectura por capas
+dac479b build(empoleon-14): agregar auditoría de capas con grep y su reporte
+53205eb test(empoleon-14): agregar prueba automática de dependencias entre capas
+8d56716 refactor(empoleon-14): reorganizar el proyecto en dominio, aplicacion e infraestructura
+b9cc309 docs(empoleon-03): justificar Chain, Decorator y Adapter frente al problema Enterprise
+a69c89c test(empoleon-03): probar con Mockito la cadena, los decoradores y el adaptador
+a896b0b feat(empoleon-03): integrar cadena, decoradores y adaptador en el flujo multi-etapa
+378fae6 feat(empoleon-03): aislar la API hídrica detrás de un adaptador
+6df29f8 feat(empoleon-03): agregar telemetría y sello de custodia con decoradores
+8e897cc feat(empoleon-03): validar cada tramo con una cadena de responsabilidad
+94b29b5 feat(empoleon-03): agregar el modelo Enterprise con Drone como contrato común
+d56c63c docs(empoleon-02): documentar Conventional Commits, protección de ramas y flujo de la v3
+571ac4a build(empoleon-02): agregar script que genera el CHANGELOG desde los commits
+9ef63fc ci(empoleon-02): agregar ruleset que protege main y develop de push directo
+31d3ed9 ci(empoleon-02): agregar hook commit-msg que valida Conventional Commits

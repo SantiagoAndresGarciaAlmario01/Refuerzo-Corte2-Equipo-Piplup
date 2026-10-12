@@ -1,0 +1,12 @@
+package edu.eci.dosw.aquaport.dominio.evento;
+
+public enum TipoEventoRuta {
+    WAYPOINT_ALCANZADO,
+    TRAMO_REASIGNADO,
+    DESVIO_POR_CONDICIONES,
+    ZONA_DESTINO_INACTIVA,
+    BATERIA_CRITICA_EN_RUTA,
+    CUSTODIA_INTERRUMPIDA,
+    MISION_ENTREGADA,
+    MISION_FALLIDA
+}
