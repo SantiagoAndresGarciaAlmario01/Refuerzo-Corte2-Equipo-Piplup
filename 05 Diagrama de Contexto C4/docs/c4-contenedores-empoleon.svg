@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="1240" viewBox="0 0 1900 1240" font-family="Inter, Arial, sans-serif">
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#5A6B7F"/></marker><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#0A1F3C" flood-opacity=".22"/></filter></defs>
+<rect width="1900" height="1240" fill="#fff"/>
+<text x="40" y="52" font-size="30" font-weight="700" fill="#0A1F3C">[Diagrama de Contenedores C4 – Nivel 2] AquaPort Enterprise (Empoleon)</text>
+<text x="40" y="82" font-size="16" fill="#5A6B7F">60 drones · 4 zonas hídricas interconectadas · rutas multi-etapa con waypoints · cada flecha indica dato y protocolo</text>
+<rect x="300" y="355" width="1190" height="805" rx="16" fill="#F5F9FD" stroke="#1168BD" stroke-width="2" stroke-dasharray="10 8"/>
+<text x="322" y="1145" font-size="15" fill="#1168BD" font-weight="700">AquaPort Enterprise [Sistema de software]</text>
+<g filter="url(#sh)"><circle cx="470" cy="162" r="36" fill="#08427B"/><rect x="335" y="196" width="270" height="118" rx="34" fill="#08427B"/></g>
+<text x="470" y="232" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">Solicitante</text>
+<text x="470" y="251" font-size="12" fill="#CFE0F2" text-anchor="middle">[Persona]</text>
+<text x="470" y="274" font-size="12.5" fill="#fff" text-anchor="middle">Pide misiones multi-etapa</text>
+<text x="470" y="291" font-size="12.5" fill="#fff" text-anchor="middle">con muestras y sensores.</text>
+<g filter="url(#sh)"><circle cx="910" cy="162" r="36" fill="#08427B"/><rect x="775" y="196" width="270" height="118" rx="34" fill="#08427B"/></g>
+<text x="910" y="232" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">Operador Hídrico</text>
+<text x="910" y="251" font-size="12" fill="#CFE0F2" text-anchor="middle">[Persona]</text>
+<text x="910" y="274" font-size="12.5" fill="#fff" text-anchor="middle">Supervisa rutas, tramos</text>
+<text x="910" y="291" font-size="12.5" fill="#fff" text-anchor="middle">y reasignaciones.</text>
+<g filter="url(#sh)"><circle cx="1300" cy="162" r="36" fill="#08427B"/><rect x="1165" y="196" width="270" height="118" rx="34" fill="#08427B"/></g>
+<text x="1300" y="232" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">Administrador ECI</text>
+<text x="1300" y="251" font-size="12" fill="#CFE0F2" text-anchor="middle">[Persona]</text>
+<text x="1300" y="274" font-size="12.5" fill="#fff" text-anchor="middle">Gestiona la flota de 60</text>
+<text x="1300" y="291" font-size="12.5" fill="#fff" text-anchor="middle">drones y las 4 zonas.</text>
+<g filter="url(#sh)"><circle cx="1715" cy="162" r="36" fill="#08427B"/><rect x="1580" y="196" width="270" height="118" rx="34" fill="#08427B"/></g>
+<text x="1715" y="232" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">Técnico de Mantenimiento</text>
+<text x="1715" y="251" font-size="12" fill="#CFE0F2" text-anchor="middle">[Persona]</text>
+<text x="1715" y="274" font-size="12.5" fill="#fff" text-anchor="middle">Atiende drones en FALLO</text>
+<text x="1715" y="291" font-size="12.5" fill="#fff" text-anchor="middle">o con batería crítica.</text>
+<g filter="url(#sh)"><rect x="740" y="400" width="340" height="140" rx="12" fill="#438DD5"/></g>
+<text x="910.0" y="432" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">Consola de operación</text>
+<text x="910.0" y="452" font-size="12" fill="#fff" opacity=".85" text-anchor="middle">[Contenedor: SPA HTML/JS]</text>
+<text x="910.0" y="476" font-size="12.5" fill="#fff" text-anchor="middle">Mapa de zonas, configuración de rutas,</text>
+<text x="910.0" y="493" font-size="12.5" fill="#fff" text-anchor="middle">monitoreo por tramo y reportes.</text>
+<g filter="url(#sh)"><rect x="740" y="640" width="340" height="180" rx="12" fill="#1168BD"/></g>
+<text x="910.0" y="672" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">Aplicación principal</text>
+<text x="910.0" y="692" font-size="12" fill="#fff" opacity=".85" text-anchor="middle">[Contenedor: Java 17 · dominio + aplicación]</text>
+<text x="910.0" y="716" font-size="12.5" fill="#fff" text-anchor="middle">Planifica la ruta (Chain de validación),</text>
+<text x="910.0" y="733" font-size="12.5" fill="#fff" text-anchor="middle">asigna un drone por tramo, reasigna</text>
+<text x="910.0" y="750" font-size="12.5" fill="#fff" text-anchor="middle">ante fallos y lleva la cadena de custodia.</text>
+<g filter="url(#sh)"><rect x="320" y="650" width="260" height="160" rx="12" fill="#438DD5"/></g>
+<text x="450.0" y="682" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">Módulo de telemetría</text>
+<text x="450.0" y="702" font-size="12" fill="#fff" opacity=".85" text-anchor="middle">[Contenedor: Java 17]</text>
+<text x="450.0" y="726" font-size="12.5" fill="#fff" text-anchor="middle">Recibe lecturas de batería</text>
+<text x="450.0" y="743" font-size="12.5" fill="#fff" text-anchor="middle">y posición (Decorator</text>
+<text x="450.0" y="760" font-size="12.5" fill="#fff" text-anchor="middle">DroneConMonitoreo).</text>
+<g filter="url(#sh)"><rect x="1150" y="960" width="310" height="150" rx="12" fill="#438DD5"/></g>
+<text x="1305.0" y="992" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">Adaptador API hídrica</text>
+<text x="1305.0" y="1012" font-size="12" fill="#fff" opacity=".85" text-anchor="middle">[Contenedor: Java 17 + Jackson]</text>
+<text x="1305.0" y="1036" font-size="12.5" fill="#fff" text-anchor="middle">Traduce waterLevel, turbidity y</text>
+<text x="1305.0" y="1053" font-size="12.5" fill="#fff" text-anchor="middle">waveHeight a NivelAgua, Turbidez</text>
+<text x="1305.0" y="1070" font-size="12.5" fill="#fff" text-anchor="middle">y NivelAgitacion (Adapter).</text>
+<g filter="url(#sh)"><path d="M740 968 v134 a170.0 18 0 0 0 340 0 v-134 a170.0 18 0 0 0 -340 0z" fill="#438DD5"/><ellipse cx="910.0" cy="968" rx="170.0" ry="18" fill="#5BA2E3"/></g>
+<text x="910.0" y="1012" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">Base de datos de misiones</text>
+<text x="910.0" y="1032" font-size="12" fill="#fff" opacity=".85" text-anchor="middle">[Contenedor: PostgreSQL]</text>
+<text x="910.0" y="1054" font-size="12.5" fill="#fff" text-anchor="middle">Misiones, tramos, planes y registros</text>
+<text x="910.0" y="1071" font-size="12.5" fill="#fff" text-anchor="middle">de custodia sellados (SHA-256).</text>
+<g filter="url(#sh)"><rect x="1560" y="380" width="310" height="130" rx="12" fill="#8A99AD"/></g>
+<text x="1715.0" y="412" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">Sistema de Alertas</text>
+<text x="1715.0" y="432" font-size="12" fill="#fff" opacity=".85" text-anchor="middle">[Sistema externo]</text>
+<text x="1715.0" y="456" font-size="12.5" fill="#fff" text-anchor="middle">Distribuye alertas push/SMS</text>
+<text x="1715.0" y="473" font-size="12.5" fill="#fff" text-anchor="middle">a técnicos y supervisores.</text>
+<g filter="url(#sh)"><rect x="1560" y="600" width="310" height="130" rx="12" fill="#8A99AD"/></g>
+<text x="1715.0" y="632" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">Centro de Control ECI</text>
+<text x="1715.0" y="652" font-size="12" fill="#fff" opacity=".85" text-anchor="middle">[Sistema externo]</text>
+<text x="1715.0" y="676" font-size="12.5" fill="#fff" text-anchor="middle">Registra misiones y autoriza</text>
+<text x="1715.0" y="693" font-size="12.5" fill="#fff" text-anchor="middle">rutas acuáticas entre zonas.</text>
+<g filter="url(#sh)"><rect x="1560" y="820" width="310" height="130" rx="12" fill="#8A99AD"/></g>
+<text x="1715.0" y="852" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">Sistema del Laboratorio (LIMS)</text>
+<text x="1715.0" y="872" font-size="12" fill="#fff" opacity=".85" text-anchor="middle">[Sistema externo]</text>
+<text x="1715.0" y="896" font-size="12.5" fill="#fff" text-anchor="middle">Recibe la muestra y valida su</text>
+<text x="1715.0" y="913" font-size="12.5" fill="#fff" text-anchor="middle">cadena de custodia.</text>
+<g filter="url(#sh)"><rect x="1560" y="1040" width="310" height="130" rx="12" fill="#8A99AD"/></g>
+<text x="1715.0" y="1072" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">API Condiciones Hídricas</text>
+<text x="1715.0" y="1092" font-size="12" fill="#fff" opacity=".85" text-anchor="middle">[Sistema externo]</text>
+<text x="1715.0" y="1116" font-size="12.5" fill="#fff" text-anchor="middle">Nivel del agua, turbidez y</text>
+<text x="1715.0" y="1133" font-size="12.5" fill="#fff" text-anchor="middle">oleaje por canal (JSON en inglés).</text>
+<g filter="url(#sh)"><rect x="20" y="960" width="250" height="140" rx="12" fill="#6B7A8F"/></g>
+<text x="145.0" y="992" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">Flota de 60 drones</text>
+<text x="145.0" y="1012" font-size="12" fill="#fff" opacity=".85" text-anchor="middle">[Dispositivos de campo]</text>
+<text x="145.0" y="1036" font-size="12.5" fill="#fff" text-anchor="middle">Buceadores, superficiales y</text>
+<text x="145.0" y="1053" font-size="12.5" fill="#fff" text-anchor="middle">semisumergidos en 4 zonas.</text>
+<path d="M470 314 C 500 380, 640 430, 736 450" fill="none" stroke="#5A6B7F" stroke-width="2" marker-end="url(#a)"/>
+<rect x="455.85" y="371" width="208.3" height="58" rx="5" fill="#fff" opacity=".95"/>
+<text x="560" y="385" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="middle">Solicitud: origen, waypoints,</text>
+<text x="560" y="402" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="middle">destino y carga</text>
+<text x="560" y="419" font-size="12.3" font-weight="700" fill="#1168BD" text-anchor="middle">[HTTPS]</text>
+<path d="M910 314 L 910 396" fill="none" stroke="#5A6B7F" stroke-width="2" marker-end="url(#a)"/>
+<rect x="912" y="336" width="148.0" height="41" rx="5" fill="#fff" opacity=".95"/>
+<text x="918" y="350" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="start">Supervisa y confirma</text>
+<text x="918" y="367" font-size="12.3" font-weight="700" fill="#1168BD" text-anchor="start">[HTTPS]</text>
+<path d="M1300 314 C 1280 380, 1160 430, 1084 455" fill="none" stroke="#5A6B7F" stroke-width="2" marker-end="url(#a)"/>
+<rect x="1129.2" y="371" width="201.6" height="41" rx="5" fill="#fff" opacity=".95"/>
+<text x="1230" y="385" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="middle">Activa/inactiva zonas, flota</text>
+<text x="1230" y="402" font-size="12.3" font-weight="700" fill="#1168BD" text-anchor="middle">[HTTPS]</text>
+<path d="M910 544 L 910 636" fill="none" stroke="#5A6B7F" stroke-width="2" marker-end="url(#a)"/>
+<rect x="912" y="571" width="228.4" height="41" rx="5" fill="#fff" opacity=".95"/>
+<text x="918" y="585" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="start">Misiones, planes y estado (JSON)</text>
+<text x="918" y="602" font-size="12.3" font-weight="700" fill="#1168BD" text-anchor="start">[REST/HTTPS]</text>
+<path d="M910 824 L 910 946" fill="none" stroke="#5A6B7F" stroke-width="2" marker-end="url(#a)"/>
+<rect x="912" y="866" width="194.9" height="41" rx="5" fill="#fff" opacity=".95"/>
+<text x="918" y="880" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="start">Misiones, tramos y custodia</text>
+<text x="918" y="897" font-size="12.3" font-weight="700" fill="#1168BD" text-anchor="start">[JDBC/SQL]</text>
+<path d="M736 760 L 584 760" fill="none" stroke="#5A6B7F" stroke-width="2" marker-end="url(#a)"/>
+<rect x="596.05" y="676" width="127.9" height="58" rx="5" fill="#fff" opacity=".95"/>
+<text x="660" y="690" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="middle">LecturaTelemetria</text>
+<text x="660" y="707" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="middle">por tramo</text>
+<text x="660" y="724" font-size="12.3" font-weight="700" fill="#1168BD" text-anchor="middle">[AMQP]</text>
+<path d="M450 646 C 450 560, 600 490, 736 485" fill="none" stroke="#5A6B7F" stroke-width="2" marker-end="url(#a)"/>
+<rect x="449.35" y="531" width="141.3" height="41" rx="5" fill="#fff" opacity=".95"/>
+<text x="520" y="545" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="middle">Posición y batería</text>
+<text x="520" y="562" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="middle">en vivo [WebSocket]</text>
+<path d="M270 1000 C 330 960, 420 900, 450 814" fill="none" stroke="#5A6B7F" stroke-width="2" marker-end="url(#a)"/>
+<rect x="294" y="916" width="127.9" height="41" rx="5" fill="#fff" opacity=".95"/>
+<text x="300" y="930" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="start">Lecturas de campo</text>
+<text x="300" y="947" font-size="12.3" font-weight="700" fill="#1168BD" text-anchor="start">[MQTT]</text>
+<path d="M1084 790 C 1130 850, 1180 900, 1220 956" fill="none" stroke="#5A6B7F" stroke-width="2" marker-end="url(#a)"/>
+<rect x="1144" y="866" width="134.60000000000002" height="41" rx="5" fill="#fff" opacity=".95"/>
+<text x="1150" y="880" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="start">Consulta por canal</text>
+<text x="1150" y="897" font-size="12.3" font-weight="700" fill="#1168BD" text-anchor="start">[llamada interna]</text>
+<path d="M1464 1035 L 1556 1085" fill="none" stroke="#5A6B7F" stroke-width="2" marker-end="url(#a)"/>
+<rect x="1444.4" y="996" width="121.2" height="41" rx="5" fill="#fff" opacity=".95"/>
+<text x="1505" y="1010" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="middle">GET /condiciones</text>
+<text x="1505" y="1027" font-size="12.3" font-weight="700" fill="#1168BD" text-anchor="middle">[HTTPS/JSON]</text>
+<path d="M1556 1130 L 1464 1085" fill="none" stroke="#5A6B7F" stroke-width="2" marker-end="url(#a)" stroke-dasharray="7 5"/>
+<rect x="1322.6" y="1118" width="161.4" height="41" rx="5" fill="#fff" opacity=".95"/>
+<text x="1478" y="1132" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="end">waterLevel, turbidity,</text>
+<text x="1478" y="1149" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="end">waveHeight</text>
+<path d="M1084 660 C 1300 640, 1420 640, 1556 650" fill="none" stroke="#5A6B7F" stroke-width="2" marker-end="url(#a)"/>
+<rect x="1185.7" y="601" width="268.6" height="41" rx="5" fill="#fff" opacity=".95"/>
+<text x="1320" y="615" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="middle">Registro de misión y solicitud de ruta</text>
+<text x="1320" y="632" font-size="12.3" font-weight="700" fill="#1168BD" text-anchor="middle">[HTTPS/REST]</text>
+<path d="M1556 700 C 1400 720, 1300 720, 1084 705" fill="none" stroke="#5A6B7F" stroke-width="2" marker-end="url(#a)"/>
+<rect x="1246.0" y="731" width="148.0" height="41" rx="5" fill="#fff" opacity=".95"/>
+<text x="1320" y="745" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="middle">Autorización de ruta</text>
+<text x="1320" y="762" font-size="12.3" font-weight="700" fill="#1168BD" text-anchor="middle">[Webhook HTTPS]</text>
+<path d="M1084 645 C 1250 560, 1400 470, 1556 450" fill="none" stroke="#5A6B7F" stroke-width="2" marker-end="url(#a)"/>
+<rect x="1215.95" y="491" width="168.1" height="58" rx="5" fill="#fff" opacity=".95"/>
+<text x="1300" y="505" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="middle">FALLO, BATERIA_CRITICA,</text>
+<text x="1300" y="522" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="middle">CUSTODIA_INTERRUMPIDA</text>
+<text x="1300" y="539" font-size="12.3" font-weight="700" fill="#1168BD" text-anchor="middle">[AMQP]</text>
+<path d="M1084 800 C 1250 850, 1400 880, 1556 885" fill="none" stroke="#5A6B7F" stroke-width="2" marker-end="url(#a)"/>
+<rect x="1235.9" y="826" width="188.20000000000002" height="41" rx="5" fill="#fff" opacity=".95"/>
+<text x="1330" y="840" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="middle">Cadena de custodia sellada</text>
+<text x="1330" y="857" font-size="12.3" font-weight="700" fill="#1168BD" text-anchor="middle">[HTTPS/JSON]</text>
+<path d="M1715 376 L 1715 316" fill="none" stroke="#5A6B7F" stroke-width="2" marker-end="url(#a)"/>
+<rect x="1719" y="336" width="127.9" height="24" rx="5" fill="#fff" opacity=".95"/>
+<text x="1725" y="350" font-size="12.3" font-weight="600" fill="#0A1F3C" text-anchor="start">Alerta push / SMS</text>
+<g transform="translate(40,1215)" font-size="13" fill="#0A1F3C"><circle cx="10" cy="-5" r="10" fill="#08427B"/><text x="27" y="0">Persona</text><rect x="105" y="-15" width="20" height="20" rx="4" fill="#1168BD"/><text x="132" y="0">Contenedor principal</text><rect x="300" y="-15" width="20" height="20" rx="4" fill="#438DD5"/><text x="327" y="0">Contenedor</text><rect x="430" y="-15" width="20" height="20" rx="4" fill="#8A99AD"/><text x="457" y="0">Sistema externo</text><rect x="590" y="-15" width="20" height="20" rx="4" fill="#6B7A8F"/><text x="617" y="0">Dispositivos de campo</text><text x="800" y="0" fill="#1168BD" font-weight="700">[PROTOCOLO]</text><text x="905" y="0">debajo del dato que fluye · punteada = respuesta</text></g>
+</svg>
