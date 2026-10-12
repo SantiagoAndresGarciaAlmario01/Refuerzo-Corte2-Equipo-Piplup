@@ -79,4 +79,5 @@ En el sprint de Piplup el equipo cerró 10 puntos (HU de 3, 5 y 2) con un alcanc
 3. En cada historia, **Vincular a la épica** y crear las subtareas de HU-05 y HU-08 a mano.
 4. Arrastrar las 7 historias al sprint e **Iniciar sprint**.
 
-**Pendiente:** captura del sprint activo en `capturas/jira-sprint-prinplup.png`.
+<img width="1535" height="331" alt="image" src="https://github.com/user-attachments/assets/55851429-fb96-4063-80f5-f26d9837f4d0" />
+
