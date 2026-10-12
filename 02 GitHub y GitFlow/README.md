@@ -51,7 +51,7 @@ Repositorio: https://github.com/SantiagoAndresGarciaAlmario01/Refuerzo-Corte2-Eq
 
 En GitHub: **Pull requests > New pull request**, base `develop`, compare `feature/streams-consultor-flota`, título `feat: ConsultorFlota con 5 consultas Stream (reto 01)`, luego **Create pull request** y **Merge pull request** (sin borrar la rama hasta que el profesor lo revise).
 
-**Pendiente:** pegar aquí el enlace del PR una vez creado.
+PR: https://github.com/SantiagoAndresGarciaAlmario01/Refuerzo-Corte2-Equipo-Piplup/pull/1
 
 ## Los 3 errores evitados
 
