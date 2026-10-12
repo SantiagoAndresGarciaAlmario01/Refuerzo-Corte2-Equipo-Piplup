@@ -20,6 +20,6 @@ public record ResultadoTramo(Tramo tramo, String droneId, int bateriaRestante, S
     }
 
     public boolean estaSellado() {
-        return sello.isBlank() ? false : true;
+        return !sello.isBlank();
     }
 }
