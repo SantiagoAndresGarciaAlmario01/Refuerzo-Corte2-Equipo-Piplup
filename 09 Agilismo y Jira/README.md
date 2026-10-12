@@ -1,60 +1,82 @@
-# 09 Agilismo y Jira: Organizar el desarrollo del MVP
+# 09 Agilismo y Jira: Sprint de Prinplup
 
-**Nivel:** Piplup · **Jerarquía:** Épica → Feature → Historia de Usuario → Subtarea
+**Nivel:** Prinplup · **Proyecto Jira:** AP1 (el mismo de Piplup) · **Estimación:** puntos de historia en Fibonacci (1, 2, 3, 5, 8, 13)
 
-## Estructura propuesta
+## Objetivo del sprint
+
+> **Completar el asignador automático con Strategy y las alertas de fallo con Observer, de modo que una misión se asigne sola al drone apto y los fallos lleguen al Centro de Control y al técnico.**
+
+Duración: 2 semanas · Capacidad del equipo: 32 puntos · Comprometido: **32 puntos**.
+
+## Jerarquía
 
 ```
-ÉPICA  AP-E1  Digitalizar el monitoreo y reparto hídrico de la ECI mediante
-              una flota de drones acuáticos supervisada
-└── FEATURE  AP-F1  Gestión de la flota de drones acuáticos del campus
-    ├── HU  AP-HU1  Ver flota disponible
-    ├── HU  AP-HU2  Asignar drone a misión
-    │   ├── ST  AP-ST1  Implementar consulta Stream de drones disponibles con batería ≥ 35 % en la zona de partida
-    │   ├── ST  AP-ST2  Implementar Mision.Builder con validación en build() (campos obligatorios y drone disponible)
-    │   └── ST  AP-ST3  Escribir pruebas JUnit (Red→Green) de ValidadorMision para batería 34 %/35 % y drone no disponible
-    └── HU  AP-HU3  Cancelar misión pendiente
+ÉPICA  Digitalizar el monitoreo y reparto hídrico de la ECI (la misma de Piplup)
+└── FEATURE  Asignación automática y alertas de la flota acuática v2
+    ├── HU-04  Crear drones por tipo con una fábrica                       3 pts
+    ├── HU-05  Asignar automáticamente el drone más adecuado               8 pts
+    │   ├── ST  Implementar ValidadorAsignacion (estado, 35 %, capacidad, condiciones)
+    │   ├── ST  Escribir AsignadorAutomaticoTest con Mockito (Red)
+    │   ├── ST  Implementar AsignadorAutomatico con EstrategiaSeleccion inyectada (Green)
+    │   └── ST  Refactorizar y cubrir ramas hasta 100 % en JaCoCo
+    ├── HU-06  Atender primero las misiones CRÍTICAS                       5 pts
+    ├── HU-07  Consultar condiciones hídricas antes de asignar             5 pts
+    ├── HU-08  Notificar al técnico cuando un drone falla                  5 pts
+    │   ├── ST  Crear ObservadorMision, EventoMision y PublicadorEventosMision
+    │   ├── ST  Implementar TecnicoMantenimientoObserver (abre orden en DRONE_EN_FALLO)
+    │   └── ST  Prueba de integración: 2 observadores mock notificados exactamente 1 vez
+    ├── HU-09  Alertar al Centro de Control por misión CRÍTICA sin drone   3 pts
+    └── HU-10  Consultar la flota agrupada por tipo                        3 pts
 ```
 
-## Épica
+## Historias de usuario
 
-**AP-E1: Digitalizar el monitoreo y reparto hídrico de la ECI mediante una flota de drones acuáticos supervisada.**
-Objetivo estratégico que no cabe en un sprint: incluye el MVP (Piplup) y su evolución a flota autónoma (Prinplup) y red multi-embalse (Empoleon).
+| Id | Historia | MoSCoW | Puntos | Por qué esos puntos |
+|---|---|---|---|---|
+| HU-04 | Como administrador ECI, quiero registrar drones de los 3 tipos desde un único punto de creación para que agregar un tipo nuevo no obligue a modificar el resto del sistema. | Must | 3 | Jerarquía + fábrica; poco riesgo. |
+| HU-05 | Como solicitante, quiero que el sistema asigne automáticamente el drone apto de mayor batería según la zona, la carga y las condiciones del agua para que mi muestra salga sin esperar a que el operador revise toda la flota. | Must | 8 | Es el núcleo: validador, estrategia, eventos y caso de FALLO; la más incierta. |
+| HU-06 | Como operador hídrico, quiero que las misiones CRÍTICAS se asignen antes y al drone más cercano para que las muestras urgentes lleguen en el menor tiempo posible. | Should | 5 | Resuelve la tensión AP-07/AP-08; requiere composición de estrategias. |
+| HU-07 | Como operador hídrico, quiero que el sistema consulte agitación, profundidad y temperatura antes de asignar para que nunca se envíe un drone que no puede operar en esas condiciones. | Must | 5 | Integración con sistema externo (abstraída con interfaz). |
+| HU-08 | Como técnico de mantenimiento, quiero recibir una orden cuando un drone entra en FALLO para repararlo sin que la misión quede bloqueada. | Should | 5 | Observer + reasignación. |
+| HU-09 | Como operador del Centro de Control, quiero una alerta crítica cuando una misión CRÍTICA no tiene drone para coordinar una solución manual a tiempo. | Could | 3 | Reutiliza el Observer de HU-08. |
+| HU-10 | Como operador hídrico, quiero ver los 15 drones agrupados por tipo para decidir rápido sin revisar una lista plana. | Should | 3 | Consultas Stream. |
 
-## Feature
+### Criterios de aceptación de HU-05
 
-**AP-F1: Gestión de la flota de drones acuáticos del campus.**
-Aporta valor completo al Operador Hídrico: ver la flota, asignar drones a misiones y corregir asignaciones.
+1. **Dado** que AR-06 (88 %) y AR-09 (55 %) son semisumergidos disponibles, **cuando** llega una misión NORMAL de 900 g con agitación MEDIA, **entonces** se asigna AR-06 y la misión queda `EN_TRANSITO`.
+2. **Dado** que la estrategia elige AR-14 y AR-14 está en `FALLO`, **cuando** se asigna la misión, **entonces** el técnico recibe una orden para AR-14 y la misión se asigna a otro drone apto.
+3. **Dado** que solo existe AR-07 con 34 %, **cuando** llega una misión, **entonces** no se asigna y se publica `MISION_SIN_DRONE`.
 
-## Historias de Usuario
+## Definition of Done
 
-| Id | Historia | Prioridad | Puntos |
-|---|---|---|---|
-| **AP-HU1** | **Como** operador hídrico, **quiero** ver qué drones están disponibles con su nivel de batería y zona **para** asignar la misión al drone más adecuado según la zona de partida. | Must | 3 |
-| **AP-HU2** | **Como** operador hídrico, **quiero** asignar manualmente un drone disponible a una misión de transporte **para** que la muestra o el sensor llegue a su destino sin usar un drone con batería crítica. | Must | 5 |
-| **AP-HU3** | **Como** operador hídrico, **quiero** cancelar una misión que aún está en estado PENDIENTE **para** corregir una asignación errónea y liberar el drone. | Should | 2 |
+Una historia está terminada solo si cumple todo:
 
-### Subtareas de AP-HU2 (asignables a una sola persona)
+- El código compila sin warnings (`-Xlint:all`).
+- Las pruebas unitarias pasan (JUnit 5 + Mockito) con `mvn verify`.
+- JaCoCo reporta ≥ 80 % de cobertura de líneas para la feature (la regla del punto 13 hace fallar el build).
+- El PR a `develop` tiene revisión aprobada por al menos otro miembro del equipo.
+- El diagrama C4 y la plantilla DOSW están actualizados si la historia los afecta.
+- Ningún método supera 20 líneas ni ninguna clase 200; sin `null` como retorno.
+- Para las clases de lógica, el historial muestra Red → Green → Refactor.
+- Los criterios de aceptación de la HU fueron verificados.
 
-| Id | Subtarea | Responsable sugerido |
-|---|---|---|
-| AP-ST1 | Implementar consulta Stream que filtra drones disponibles con batería ≥ 35 % en la zona de partida y los ordena de mayor a menor batería | Integrante 1 |
-| AP-ST2 | Implementar `Mision.Builder` con validación en `build()`: campos obligatorios no nulos/vacíos y drone disponible | Integrante 2 |
-| AP-ST3 | Escribir pruebas JUnit 5 (Red→Green) de `ValidadorMision` para batería 34 % / 35 %, drone no disponible y zona inválida | Integrante 3 |
+## Velocidad y capacidad
 
-### Criterios de aceptación de AP-HU2 (Dado / Cuando / Entonces)
+En el sprint de Piplup el equipo cerró 10 puntos (HU de 3, 5 y 2) con un alcance mucho menor. Para Prinplup se estimó la capacidad en 32 puntos: 3 integrantes, 2 semanas y la base del dominio ya construida. Las HU de 8 puntos (HU-05) se dejaron como la única de ese tamaño; si una historia se estimara en 13 se partiría antes de entrar al sprint.
 
-1. **Dado** que AR-01 está disponible con 92 % de batería, **cuando** el operador lo asigna a una misión de Embalse Norte a Laboratorio Hídrico, **entonces** el sistema crea la misión en estado `PENDIENTE`, muestra su código (p. ej. `M-016`) y AR-01 deja de aparecer como disponible.
-2. **Dado** que AR-03 tiene 18 % de batería, **cuando** el operador intenta asignarlo, **entonces** el sistema no permite la asignación y muestra “El drone AR-03 tiene batería insuficiente (18 %). Mínimo requerido: 35 %.”
+## Relación entre HU y ramas
 
-## Flujo del tablero
+| HU | Rama `feature/` |
+|---|---|
+| HU-04, HU-10 | `feature/factory-drones` |
+| HU-05, HU-06, HU-07 | `feature/asignacion-automatica` |
+| HU-08, HU-09 | `feature/alertas-centro-control` |
 
-`To Do` → `In Progress` → `In Review` (Pull Request a `develop`) → `Done`. Cada subtarea se mueve cuando cambia su estado real; una HU pasa a `Done` solo cuando sus subtareas están en `Done` y sus criterios de aceptación se verificaron.
+## Cargarlo en Jira (AP1)
 
-## Evidencia en Jira
+1. En **Backlog → Crear sprint**, nombrarlo `AP1 Sprint 2 - Prinplup` y poner el objetivo de arriba.
+2. Importar `jira-import-prinplup.csv` (**Configuración del sistema → Importación externa → CSV**), mapeando *Issue Type*, *Summary*, *Description* y *Story Points*. El archivo no lleva columna *Parent* porque la importación de AP1 la rechazó en Piplup.
+3. En cada historia, **Vincular a la épica** y crear las subtareas de HU-05 y HU-08 a mano.
+4. Arrastrar las 7 historias al sprint e **Iniciar sprint**.
 
-Proyecto: AP1 (https://mail-team-lu7li63q.atlassian.net/jira/software/projects/AP1/boards/5)
-
-<img width="1561" height="232" alt="image" src="https://github.com/user-attachments/assets/d81aad60-d448-41d7-8c24-022dc11359e1" />
-<img width="378" height="881" alt="image" src="https://github.com/user-attachments/assets/1a6713f4-73b6-4333-8eaa-1547c766cc6d" />
-
+**Pendiente:** captura del sprint activo en `capturas/jira-sprint-prinplup.png`.

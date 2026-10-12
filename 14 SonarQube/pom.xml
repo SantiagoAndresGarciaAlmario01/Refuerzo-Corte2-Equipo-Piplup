@@ -5,19 +5,20 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>edu.eci.dosw.aquaport</groupId>
-    <artifactId>aquaport-14-sonar</artifactId>
-    <version>1.0.0</version>
+    <artifactId>aquaport-v2-14-sonar</artifactId>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
-    <name>AquaPort Piplup - 14 MVP integrado con SonarQube</name>
+    <name>AquaPort v2 - 14 Análisis con SonarQube</name>
 
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.10.2</junit.version>
-        <sonar.projectKey>aquaport-piplup</sonar.projectKey>
-        <sonar.projectName>AquaPort MVP - Piplup</sonar.projectName>
+        <mockito.version>5.20.0</mockito.version>
+        <sonar.projectKey>aquaport-prinplup</sonar.projectKey>
+        <sonar.projectName>AquaPort v2 - Prinplup</sonar.projectName>
         <sonar.host.url>http://localhost:9000</sonar.host.url>
-        <sonar.coverage.exclusions>**/AquaPortApp.java</sonar.coverage.exclusions>
+        <sonar.coverage.exclusions>**/AquaPortApp.java,**/FlotaEjemplo.java</sonar.coverage.exclusions>
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
@@ -26,6 +27,12 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -54,8 +61,8 @@
                 <version>0.8.11</version>
                 <configuration>
                     <excludes>
-                        <!-- Clase main sin lógica de negocio -->
-                        <exclude>edu/eci/dosw/aquaport/AquaPortApp.class</exclude>
+                        <exclude>edu/eci/dosw/aquaport/*App.class</exclude>
+                        <exclude>edu/eci/dosw/aquaport/FlotaEjemplo.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>

@@ -1,60 +1,102 @@
-# 02 GitHub y GitFlow: Repositorio de AquaPort con estructura GitFlow básica
+# 02 GitHub y GitFlow: Flujo completo para la versión 2
 
-**Nivel:** Piplup · `main` · `develop` · `feature/` · commits atómicos · `.gitignore`
+**Nivel:** Prinplup · `main` · `develop` · `feature/*` · `release/*` · `hotfix/*` · tags semánticos · Pull Requests
 
-## Ramas
+En Piplup se usaron `main`, `develop` y una `feature/`. En Prinplup se aplica el ciclo completo: cada bloque de trabajo sale de `develop` en su propia rama, entra por **Pull Request**, la versión se estabiliza en una rama **`release/`** y al publicarse queda marcada con un **tag**.
 
-```
-main                              → código que "vive en producción"
-└── develop                       → integración continua del trabajo
-    └── feature/streams-consultor-flota   → código del reto 01 (ConsultorFlota)
-        └── Piplup                → rama de entrega del equipo con los 14 puntos
-```
+## Diagrama de ramas
 
 ```mermaid
 gitGraph
    commit id: "chore: estructura inicial"
    branch develop
    checkout develop
-   branch feature/streams-consultor-flota
-   checkout feature/streams-consultor-flota
-   commit id: "feat: record DroneAcuatico"
-   commit id: "feat: ConsultorFlota 5 consultas"
-   commit id: "test: pruebas ConsultorFlota"
-   commit id: "docs: README punto 01"
+   commit id: "PR #1 feature/streams-consultor-flota"
+   commit id: "merge Piplup (14 puntos)"
+   checkout main
+   merge develop id: "release v1" tag: "v1.0.0"
    checkout develop
-   merge feature/streams-consultor-flota id: "PR #1"
+   branch feature/factory-drones
+   checkout feature/factory-drones
+   commit id: "01 · 04 · 05 · 06 · 07"
+   checkout develop
+   branch feature/asignacion-automatica
+   checkout feature/asignacion-automatica
+   commit id: "03 · 12 Red-Green-Refactor · 13"
+   checkout develop
+   branch feature/alertas-centro-control
+   checkout feature/alertas-centro-control
+   commit id: "08 · 09 · 10 · 11 · 14"
+   checkout develop
+   merge feature/factory-drones id: "PR #2"
+   merge feature/asignacion-automatica id: "PR #3"
+   merge feature/alertas-centro-control id: "PR #4"
+   branch release/v2.0
+   checkout release/v2.0
+   commit id: "chore: version 2.0.0"
+   checkout main
+   merge release/v2.0 tag: "v2.0.0"
+   checkout develop
+   merge release/v2.0 id: "back-merge"
 ```
 
-## `.gitignore` (raíz del repositorio)
+## Para qué sirve cada rama
 
-Excluye lo que **no** es código fuente: `target/`, `*.class`, `.idea/`, `*.iml`, `.vscode/`, `.settings/`, `.classpath`, `.project`, `out/`, `*.log`, `.DS_Store`. Así el repositorio no se llena de compilados ni de configuración personal del IDE.
+| Rama | Nace de | Se fusiona en | En AquaPort |
+|---|---|---|---|
+| `main` | - | - | Solo versiones publicadas: `v1.0.0` (Piplup) y `v2.0.0` (Prinplup). Nunca se hace commit directo. |
+| `develop` | `main` | `release/*` | Integración: aquí llegan las features por PR. |
+| `feature/*` | `develop` | `develop` (PR) | Un bloque de funcionalidad. Se borra después de que el profesor revise el PR. |
+| `release/v2.0` | `develop` | `main` y `develop` | Congela la versión: solo ajustes de cierre (versión de los `pom.xml`, documentación). Ninguna funcionalidad nueva. |
+| `hotfix/*` | `main` | `main` y `develop` | Corrección urgente sobre una versión publicada (ver abajo). |
+| `Piplup` / `Prinplup` | - | - | Ramas de entrega del curso: `Prinplup` apunta al mismo commit que `v2.0.0`. |
 
-## Commits atómicos de la rama `feature/streams-consultor-flota`
+## Las 3 features de Prinplup
 
-| # | Mensaje | Qué contiene (una sola cosa) |
+| Rama | Puntos | Historias de Jira | PR |
+|---|---|---|---|
+| `feature/factory-drones` | 01 Streams, 04 SOLID, 05 C4, 06 RF/RNF, 07 Plantilla | HU-04, HU-10 | #2 |
+| `feature/asignacion-automatica` | 03 Patrones, 12 TDD, 13 JaCoCo | HU-05, HU-06, HU-07 | #3 |
+| `feature/alertas-centro-control` | 08 UX/UI, 09 Jira, 10 Casos de uso, 11 Mocks, 14 SonarQube | HU-08, HU-09 | #4 |
+
+Las tres ramas tocan carpetas distintas, así que los PR se pueden fusionar en cualquier orden sin conflictos. Cada PR se abre contra `develop`, con título `feat: ...` y una descripción con los puntos que incluye y cómo probarlos (`mvn verify` en cada carpeta con código).
+
+## Convención de commits
+
+`tipo:Prinplup-Punto NN - descripción en infinitivo`, con los tipos `feat`, `test`, `refactor`, `docs` y `chore`.
+
+```
+test:Prinplup-Punto 12 - Red: pruebas de AsignadorAutomatico con Mockito
+feat:Prinplup-Punto 12 - Green: AsignadorAutomatico minimo
+refactor:Prinplup-Punto 12 - Refactor: extraer elegirEntre, confirmar y sinIncluir
+refactor:Prinplup-Punto 14 - Sonar java:S106 y java:S2629: usar Logger con Supplier
+```
+
+## Versionado semántico
+
+| Tag | Qué contiene | Por qué ese número |
 |---|---|---|
-| 1 | `feat:Piplup-Punto 01 - Agregar record DroneAcuatico y pom del proyecto` | Modelo del dominio + `pom.xml` |
-| 2 | `feat:Piplup-Punto 01 - Implementar ConsultorFlota con 5 consultas Stream` | `ConsultorFlota` + `main` que imprime las consultas |
-| 3 | `test:Piplup-Punto 01 - Agregar pruebas de ConsultorFlota` | `ConsultorFlotaTest` (10 pruebas) |
-| 4 | `docs:Piplup-Punto 01 - Documentar las consultas en el README` | `README.md` del punto 01 |
+| `v1.0.0` | MVP Piplup: 4 drones, asignación manual | Primera versión estable. |
+| `v2.0.0` | Prinplup: 15 drones de 3 tipos, asignación automática, alertas | **MAJOR**: el modelo cambió de forma incompatible (`DroneAcuatico` pasó de `record` a clase abstracta, las zonas de `String` a `enum`). Un cliente de la v1 no compila contra la v2. |
+| `v2.0.1` (si hiciera falta) | Hotfix | **PATCH**: corrige sin cambiar la API. |
 
-Formato: `tipo:Piplup-Punto NN - descripción en presente` (convención del equipo, igual que en Chimchar). Tipos: `feat`, `test`, `refactor`, `docs`, `chore`.
+## Hotfix (procedimiento)
 
-| Commit correcto | Commit incorrecto |
-|---|---|
-| `feat:Piplup-Punto 01 - Implementar ConsultorFlota con 5 consultas Stream` | `cambios`, `arreglé cosas`, `wip`, `asdf` |
+Si después de publicar `v2.0.0` se encontrara, por ejemplo, que un drone con batería exactamente en 35 % no se asigna:
 
-## Pull Request
+```bash
+git checkout -b hotfix/fix-bateria-critica v2.0.0
+# prueba que reproduce el error + corrección
+git checkout main    && git merge --no-ff hotfix/fix-bateria-critica && git tag -a v2.0.1 -m "Hotfix bateria critica"
+git checkout develop && git merge --no-ff hotfix/fix-bateria-critica
+```
 
-Repositorio: https://github.com/SantiagoAndresGarciaAlmario01/Refuerzo-Corte2-Equipo-Piplup
+El hotfix nace de `main` (no de `develop`) porque `develop` puede tener trabajo sin terminar que no debe salir con la corrección.
 
-En GitHub: **Pull requests > New pull request**, base `develop`, compare `feature/streams-consultor-flota`, título `feat: ConsultorFlota con 5 consultas Stream (reto 01)`, luego **Create pull request** y **Merge pull request** (sin borrar la rama hasta que el profesor lo revise).
+## Errores evitados
 
-PR: https://github.com/SantiagoAndresGarciaAlmario01/Refuerzo-Corte2-Equipo-Piplup/pull/1
-
-## Los 3 errores evitados
-
-1. **Nunca se trabajó directo en `main`**: todo nace en `feature/` y entra por PR a `develop`.
-2. **Sin commits gigantes**: cada commit agrega una sola cosa (modelo, lógica, pruebas, documentación).
-3. **Sin `target/`, `.class` ni `.idea/` en el repositorio** gracias al `.gitignore`.
+1. **Ningún commit directo en `main` ni en `develop`**: todo entra por merge de `feature/` (PR) o de `release/`.
+2. **La release no trae funcionalidad nueva**, solo el cierre de la versión.
+3. **Back-merge de la release a `develop`**: si no se hace, el cambio de versión del `pom.xml` se pierde en la siguiente release.
+4. **Ramas `feature/` cortas y con un tema**: un PR de 14 puntos no se puede revisar.
+5. `.gitignore` de Piplup se mantiene: `target/`, `*.class` e IDE fuera del repositorio.

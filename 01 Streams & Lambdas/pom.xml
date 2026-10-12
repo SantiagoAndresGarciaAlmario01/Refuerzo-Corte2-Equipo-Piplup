@@ -5,10 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>edu.eci.dosw.aquaport</groupId>
-    <artifactId>aquaport-01-streams</artifactId>
-    <version>1.0.0</version>
+    <artifactId>aquaport-v2-01-streams</artifactId>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
-    <name>AquaPort Piplup - 01 Streams y Lambdas</name>
+    <name>AquaPort v2 - 01 Streams avanzados</name>
 
     <properties>
         <maven.compiler.release>17</maven.compiler.release>

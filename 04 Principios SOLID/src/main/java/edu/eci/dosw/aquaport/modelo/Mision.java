@@ -1,79 +1,110 @@
 package edu.eci.dosw.aquaport.modelo;
 
+import java.util.Objects;
+import java.util.Optional;
+
 /**
- * Misión de transporte entre dos zonas hídricas del campus.
- * Es inmutable y solo puede construirse a través de {@link Mision.Builder},
- * que garantiza que nunca exista una misión en estado inválido.
+ * Misión de transporte entre dos zonas. Es inmutable: asignar un drone
+ * produce una nueva misión en estado EN_TRANSITO.
  */
 public final class Mision {
 
-    private final String id;
-    private final DroneAcuatico drone;
-    private final String puntoPartida;
-    private final String puntoLlegada;
-    private final TipoCarga tipoCarga;
-    private final EstadoMision estado;
+    public static final int PESO_MAXIMO_GRAMOS = 1500;
 
-    private Mision(Builder builder) {
+    private final String id;
+    private final Zona zonaPartida;
+    private final Zona zonaDestino;
+    private final TipoCarga tipoCarga;
+    private final int pesoCargaGramos;
+    private final Prioridad prioridad;
+    private final EstadoMision estado;
+    private final DroneAcuatico drone;
+
+    private Mision(Builder builder, DroneAcuatico drone, EstadoMision estado) {
         this.id = builder.id;
-        this.drone = builder.drone;
-        this.puntoPartida = builder.puntoPartida;
-        this.puntoLlegada = builder.puntoLlegada;
+        this.zonaPartida = builder.zonaPartida;
+        this.zonaDestino = builder.zonaDestino;
         this.tipoCarga = builder.tipoCarga;
-        this.estado = builder.estado;
+        this.pesoCargaGramos = builder.pesoCargaGramos;
+        this.prioridad = builder.prioridad;
+        this.drone = drone;
+        this.estado = estado;
+    }
+
+    /** @return una copia de la misión con el drone asignado y en estado EN_TRANSITO */
+    public Mision asignarA(DroneAcuatico droneAsignado) {
+        Objects.requireNonNull(droneAsignado, "El drone a asignar es obligatorio");
+        return new Mision(aBuilder(), droneAsignado, EstadoMision.EN_TRANSITO);
+    }
+
+    public boolean esCritica() {
+        return prioridad == Prioridad.CRITICA;
+    }
+
+    public Optional<DroneAcuatico> getDrone() {
+        return Optional.ofNullable(drone);
     }
 
     public String getId() {
         return id;
     }
 
-    public DroneAcuatico getDrone() {
-        return drone;
+    public Zona getZonaPartida() {
+        return zonaPartida;
     }
 
-    public String getPuntoPartida() {
-        return puntoPartida;
-    }
-
-    public String getPuntoLlegada() {
-        return puntoLlegada;
+    public Zona getZonaDestino() {
+        return zonaDestino;
     }
 
     public TipoCarga getTipoCarga() {
         return tipoCarga;
     }
 
+    public int getPesoCargaGramos() {
+        return pesoCargaGramos;
+    }
+
+    public Prioridad getPrioridad() {
+        return prioridad;
+    }
+
     public EstadoMision getEstado() {
         return estado;
     }
 
-    /** Builder fluido de {@link Mision}. Valida todas las reglas en {@link #build()}. */
+    private Builder aBuilder() {
+        return new Builder().id(id).zonaPartida(zonaPartida).zonaDestino(zonaDestino)
+                .tipoCarga(tipoCarga).pesoCargaGramos(pesoCargaGramos).prioridad(prioridad);
+    }
+
+    @Override
+    public String toString() {
+        return id + " [" + prioridad + "] " + zonaPartida.getNombre() + " -> " + zonaDestino.getNombre();
+    }
+
+    /** Builder con validación en {@link #build()}. */
     public static final class Builder {
 
         private String id;
-        private DroneAcuatico drone;
-        private String puntoPartida;
-        private String puntoLlegada;
+        private Zona zonaPartida;
+        private Zona zonaDestino;
         private TipoCarga tipoCarga;
-        private EstadoMision estado = EstadoMision.PENDIENTE;
+        private int pesoCargaGramos;
+        private Prioridad prioridad = Prioridad.NORMAL;
 
         public Builder id(String id) {
             this.id = id;
             return this;
         }
 
-        public Builder drone(DroneAcuatico drone) {
-            this.drone = drone;
+        public Builder zonaPartida(Zona zonaPartida) {
+            this.zonaPartida = zonaPartida;
             return this;
         }
 
-        public Builder puntoPartida(String puntoPartida) {
-            this.puntoPartida = puntoPartida;
-            return this;
-        }
-
-        public Builder puntoLlegada(String puntoLlegada) {
-            this.puntoLlegada = puntoLlegada;
+        public Builder zonaDestino(Zona zonaDestino) {
+            this.zonaDestino = zonaDestino;
             return this;
         }
 
@@ -82,45 +113,36 @@ public final class Mision {
             return this;
         }
 
-        public Builder estado(EstadoMision estado) {
-            this.estado = estado;
+        public Builder pesoCargaGramos(int pesoCargaGramos) {
+            this.pesoCargaGramos = pesoCargaGramos;
             return this;
         }
 
-        /**
-         * Construye la misión solo si cumple todas las reglas del MVP.
-         *
-         * @throws IllegalStateException si falta un campo obligatorio o el drone no está disponible
-         */
+        public Builder prioridad(Prioridad prioridad) {
+            this.prioridad = prioridad;
+            return this;
+        }
+
         public Mision build() {
-            validarTextoObligatorio(id, "id");
-            validarTextoObligatorio(puntoPartida, "puntoPartida");
-            validarTextoObligatorio(puntoLlegada, "puntoLlegada");
-            validarObligatorio(drone, "drone");
-            validarObligatorio(tipoCarga, "tipoCarga");
-            validarObligatorio(estado, "estado");
-            validarDroneDisponible();
-            return new Mision(this);
-        }
-
-        private void validarTextoObligatorio(String valor, String campo) {
-            if (valor == null || valor.isBlank()) {
-                throw new IllegalStateException(
-                        "No se puede construir la misión: el campo '" + campo + "' es obligatorio y no puede estar vacío");
+            if (id == null || id.isBlank()) {
+                throw new IllegalStateException("El id de la misión es obligatorio");
             }
+            requerir(zonaPartida, "zonaPartida");
+            requerir(zonaDestino, "zonaDestino");
+            requerir(tipoCarga, "tipoCarga");
+            requerir(prioridad, "prioridad");
+            if (zonaPartida == zonaDestino) {
+                throw new IllegalStateException("La zona de partida y la de destino deben ser diferentes");
+            }
+            if (pesoCargaGramos < 1 || pesoCargaGramos > PESO_MAXIMO_GRAMOS) {
+                throw new IllegalStateException("El peso de la carga debe estar entre 1 y 1500 gramos");
+            }
+            return new Mision(this, null, EstadoMision.PENDIENTE);
         }
 
-        private void validarObligatorio(Object valor, String campo) {
+        private void requerir(Object valor, String campo) {
             if (valor == null) {
-                throw new IllegalStateException(
-                        "No se puede construir la misión: el campo '" + campo + "' es obligatorio");
-            }
-        }
-
-        private void validarDroneDisponible() {
-            if (!drone.disponible()) {
-                throw new IllegalStateException(
-                        "No se puede construir la misión " + id + ": el drone " + drone.id() + " no está disponible");
+                throw new IllegalStateException("El campo '" + campo + "' de la misión es obligatorio");
             }
         }
     }
