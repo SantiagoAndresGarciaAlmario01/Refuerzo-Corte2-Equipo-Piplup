@@ -1,67 +1,82 @@
-# 14 SonarQube: Análisis estático del MVP
+# 14 SonarQube: Análisis de AquaPort v2 y Quality Gate
 
-**Nivel:** Piplup · **Meta:** 0 bugs · 0 vulnerabilidades · code smells resueltos · deuda técnica 0
+**Nivel:** Prinplup · **Meta del Quality Gate:** 0 bugs · 0 vulnerabilidades · deuda técnica < 30 min · duplicación < 5 % · cobertura ≥ 80 %
 
 ## Qué se analiza
 
-Este punto integra en **un solo proyecto Maven** todo el MVP construido en los puntos anteriores, que es lo que se le pasa a SonarQube:
+Un solo proyecto Maven con todo lo construido en los puntos 01, 03, 04, 12 y 13:
 
 ```
 src/main/java/edu/eci/dosw/aquaport
-├── AquaPortApp.java   # raíz de composición (main)
-├── consulta/ConsultorFlota.java   # punto 01 (Streams)
-├── modelo/  DroneAcuatico · Mision (+Builder) · TipoCarga · EstadoMision   # punto 03
-├── repositorio/ RepositorioMisiones · RepositorioMisionesEnMemoria   # punto 04
-├── servicio/ RegistradorMisiones · ValidadorMision · GestorSolicitudesMision   # puntos 04 y 12
-└── notificacion/ NotificadorOperador · NotificadorOperadorLog
-src/test/java/...   # 58 pruebas
+├── AquaPortApp.java               # raíz de composición (main)
+├── FlotaEjemplo.java              # los 15 drones de ejemplo
+├── modelo/       DroneAcuatico (+3 tipos) · Mision (+Builder) · enums · CondicionesHidricas
+├── fabrica/      FabricaDrones · CreadorDrone                       (Factory Method)
+├── estrategia/   EstrategiaSeleccion + 3 estrategias                 (Strategy)
+├── observacion/  PublicadorEventosMision · EventoMision · 2 observadores (Observer)
+├── servicio/     AsignadorAutomatico · ValidadorAsignacion · ProveedorCondicionesHidricas
+└── consulta/     ConsultorFlota                                       (Streams)
+src/test/java/...  # 87 pruebas (JUnit 5 + Mockito)
 ```
 
 ## Cómo correr el análisis
 
 ```bash
-# 1. Levantar SonarQube Community (requiere Docker)
-docker compose up -d                       # http://localhost:9000  → admin/admin, cambiar contraseña
-# 2. En SonarQube: My Account → Security → Generate Token (tipo "Global Analysis Token")
-# 3. Analizar (incluye pruebas + cobertura JaCoCo)
+docker compose up -d                                   # http://localhost:9000
+# My Account → Security → Generate Token (Global Analysis Token)
 mvn clean verify sonar:sonar -Dsonar.token=TU_TOKEN
 ```
 
-La configuración ya está en el `pom.xml`: `sonar.projectKey=aquaport-piplup`, `sonar.host.url`, ruta del XML de JaCoCo y exclusión de cobertura para `AquaPortApp` (el `main` solo crea objetos e inyecta dependencias; no tiene lógica que probar).
+Configuración en el `pom.xml`: `sonar.projectKey=aquaport-prinplup` (proyecto distinto al de Piplup en el mismo servidor), ruta del XML de JaCoCo y `sonar.coverage.exclusions` solo para `AquaPortApp` y `FlotaEjemplo`.
 
-## Prioridad de issues
+## Quality Gate configurado
 
-| Tipo | Descripción | Prioridad |
+En **Quality Gates → Create**, nombre `AquaPort Prinplup`, condiciones sobre **Overall Code**, y asignarlo al proyecto en **Project Settings → Quality Gate**:
+
+| Métrica | Operador | Valor |
 |---|---|---|
-| Bug | Comportamiento claramente incorrecto | Resolver siempre, primero |
-| Vulnerability | Explotable por un atacante | Resolver siempre |
-| Code Smell | Difícil de mantener o entender | Resolver, pero al final |
+| Bugs | is greater than | 0 |
+| Vulnerabilities | is greater than | 0 |
+| Technical Debt | is greater than | 30 min |
+| Duplicated Lines (%) | is greater than | 5 |
+| Coverage | is less than | 80 |
 
-**Nunca se usó `@SuppressWarnings`**: suprimir un issue lo esconde, no lo resuelve.
+## Issues resueltos (uno por commit)
 
-## Code smells resueltos (documentados uno por commit)
+Se integró primero `AquaPortApp` tal como se escribió para probar el flujo (commit `feat:Prinplup-Punto 14 - Integrar AquaPort v2 para analisis`) y después se corrigió cada grupo de issues en su propio commit. El mensaje de cada commit explica **causa raíz, corrección y por qué**.
 
-El proyecto se integró primero tal cual venía de los puntos 01–04 (commit `feat:Piplup-Punto 14 - Integrar MVP para analisis`) y luego se corrigió cada smell en su propio commit:
+| # | Regla | Causa raíz | Corrección | Por qué |
+|---|---|---|---|---|
+| 1 | **java:S106** Standard outputs should not be used directly to log anything | `AquaPortApp` imprimía con `System.out.println` el resultado de las consultas y el registro del Centro de Control. | `java.util.logging.Logger` (`LOGGER`) en lugar de `System.out`. | La salida estándar no tiene niveles, no se puede apagar ni redirigir a un archivo, y en un servidor se pierde. |
+| 2 | **java:S2629** Logging arguments should not require evaluation | Al pasar a `Logger`, el mensaje se armaba concatenando antes de saber si el nivel INFO estaba activo. | Sobrecarga con `Supplier`: `LOGGER.info(() -> "Disponibles por tipo: " + ...)`. | Con el nivel apagado no se recorre la flota ni se arma el texto. |
+| 3 | **java:S1612** Lambdas should be replaced with method references | `map(m -> m.getId())` y `forEach(linea -> LOGGER.info(linea))`. | `map(Mision::getId)` y `forEach(LOGGER::info)`. | La referencia dice directamente qué se aplica; es el estilo del resto del proyecto (criterio del revisor DOSW). |
+| 4 | **Duplicación** (bloques duplicados de Sonar) | Las 3 misiones de ejemplo repetían la misma cadena de 7 llamadas del Builder; solo cambiaban id, zona, peso y prioridad. | Método privado `misionHaciaLaboratorio(id, partida, peso, prioridad)`. | Una regla repetida 3 veces se corrige en un lugar y se olvida en los otros dos; además `main` pasa de 21 a 17 líneas y queda dentro del límite de 20 del revisor. |
+| 5 | **java:S1118** Utility classes should not have public constructors | `AquaPortApp` solo tiene métodos estáticos pero se podía instanciar. | Clase `final` con constructor privado. | Deja claro que es un punto de entrada, no un objeto del dominio. |
 
-| # | Regla Sonar | Qué era el smell | Por qué era un problema | Cómo se corrigió | Commit |
-|---|---|---|---|---|---|
-| 1 | **java:S106**: *Standard outputs should not be used directly to log anything* | `System.out.println` en `AquaPortApp` y `NotificadorOperadorConsola(System.out)` | La salida estándar no tiene niveles (info/advertencia), no se puede redirigir ni apagar y mezcla mensajes del sistema con cualquier otra cosa que imprima la JVM. | Nuevo `NotificadorOperadorLog` con `java.util.logging.Logger` (INFO para registro, WARNING para rechazos) y `LOGGER` en `AquaPortApp`. Gracias a DIP bastó con cambiar la clase inyectada: el `GestorSolicitudesMision` no se tocó. Se agregó `NotificadorOperadorLogTest`. | `refactor:Piplup-Punto 14 - Sonar java:S106 ...` |
-| 2 | **java:S2629**: *Logging arguments should not require evaluation* | Concatenar el mensaje antes de llamar al logger | Se arma el `String` aunque el nivel de log esté deshabilitado (trabajo inútil). | Se usa la sobrecarga con `Supplier`: `LOGGER.info(() -> "..." + dato)`. | mismo commit del #1 |
-| 3 | **java:S1192**: *String literals should not be duplicated* | `"Aqua-Ranger 100"` repetido 4 veces en `AquaPortApp` | Si cambia el modelo hay que acordarse de editar 4 lugares; basta olvidar uno para tener datos inconsistentes. | Constantes `MODELO_FLOTA` y `DESTINO_LABORATORIO`. | `refactor:Piplup-Punto 14 - Sonar java:S1192 ...` |
-| 4 | Regla del revisor DOSW: *lambda de más de 2 líneas* | Lambda de 3 líneas construyendo la `Mision` dentro de `map(...)` | Difícil de leer y de probar; esconde una responsabilidad sin nombre. | Extraída al método privado `crearMisionHaciaLaboratorio(DroneAcuatico)`; además `AquaPortApp` pasa a ser `final` con constructor privado (no se instancia). | mismo commit del #3 |
+Commits:
 
-Además, al integrar se eliminó una duplicación: la regla “batería ≥ 35 %” existía en `ConsultorFlota` y en `ValidadorMision`. Ahora vive una sola vez en `DroneAcuatico.tieneBateriaParaOperar()` y ambos la reutilizan.
+```
+refactor:Prinplup-Punto 14 - Sonar java:S106 y java:S2629: usar Logger con Supplier
+refactor:Prinplup-Punto 14 - Sonar java:S1612, duplicacion y java:S1118 en AquaPortApp
+```
 
-## Estado esperado del Quality Gate
+Nunca se usó `@SuppressWarnings`: suprimir un issue lo esconde, no lo resuelve.
+
+## Lo que ya venía limpio por diseño
+
+- Ningún método retorna `null` (`Optional` en estrategias, consultas y `Mision.getDrone()`).
+- Sin `switch` sobre tipos de drone (Factory con registro) y sin `instanceof` (polimorfismo en `puedeOperarEn`).
+- Constantes con nombre para los umbrales (`BATERIA_MINIMA_OPERACION = 35`, `PESO_MAXIMO_GRAMOS = 1500`, capacidades por tipo).
+- Campos `private final` e inyección por constructor con `Objects.requireNonNull`.
+
+## Estado esperado
 
 | Métrica | Valor esperado |
 |---|---|
-| Bugs | 0 |
-| Vulnerabilities | 0 |
+| Bugs / Vulnerabilities | 0 / 0 |
 | Code Smells | 0 |
-| Deuda técnica | 0 min |
-| Cobertura (JaCoCo) | 100 % líneas y ramas en las clases con lógica |
-| Duplicaciones | 0 % |
+| Deuda técnica | 0 min (límite 30 min) |
+| Duplicación | 0 % (límite 5 %) |
+| Cobertura | 100 % en las clases con lógica |
 
-<img width="1669" height="771" alt="image" src="https://github.com/user-attachments/assets/6870c608-05c4-4524-b6a4-03a434e831f5" />
-
+**Pendiente:** correr el análisis y guardar la captura del dashboard con el Quality Gate en verde en `evidencias/sonarqube-dashboard-prinplup.png`. Si el servidor reporta otro issue (las reglas activas dependen de la versión), se corrige con un commit nuevo con el mismo formato.
