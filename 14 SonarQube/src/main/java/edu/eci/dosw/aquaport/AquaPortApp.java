@@ -18,12 +18,15 @@ import edu.eci.dosw.aquaport.servicio.AsignadorAutomatico;
 import edu.eci.dosw.aquaport.servicio.ValidadorAsignacion;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 public class AquaPortApp {
 
+    private static final Logger LOGGER = Logger.getLogger(AquaPortApp.class.getName());
+
     public static void main(String[] args) {
         List<DroneAcuatico> flota = FlotaEjemplo.crear();
-        System.out.println("Disponibles por tipo: " + new ConsultorFlota().agruparDisponiblesPorTipo(flota).keySet());
+        LOGGER.info(() -> "Disponibles por tipo: " + new ConsultorFlota().agruparDisponiblesPorTipo(flota).keySet());
         CentroControlObserver centroControl = new CentroControlObserver();
         AsignadorAutomatico asignador = new AsignadorAutomatico(
                 new PrioridadCriticaStrategy(new ZonaCercanaStrategy(), new MayorBateriaStrategy()),
@@ -39,7 +42,7 @@ public class AquaPortApp {
                 new Mision.Builder().id("M-903").zonaPartida(Zona.RIBERA_ESTE).zonaDestino(Zona.LAB_HIDRICO)
                         .tipoCarga(TipoCarga.MUESTRA_AGUA).pesoCargaGramos(150).prioridad(Prioridad.ALTA).build()),
                 flota);
-        System.out.println("Misiones asignadas: " + asignadas.stream().map(m -> m.getId()).toList());
-        centroControl.getRegistro().forEach(linea -> System.out.println(linea));
+        LOGGER.info(() -> "Misiones asignadas: " + asignadas.stream().map(m -> m.getId()).toList());
+        centroControl.getRegistro().forEach(linea -> LOGGER.info(linea));
     }
 }
