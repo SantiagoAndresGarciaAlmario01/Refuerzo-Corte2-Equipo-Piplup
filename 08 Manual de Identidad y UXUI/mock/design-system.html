@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaPort Enterprise · Sistema de diseño</title>
+<link rel="stylesheet" href="aquaport-v3.css">
+<style>
+section.blk{margin-top:var(--esp-6)}
+section.blk>h2{font-family:var(--display);font-size:26px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px}
+section.blk>p{color:var(--niebla);margin-bottom:var(--esp-4);max-width:900px}
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:var(--esp-3)}
+.sw{border-radius:var(--r-md);overflow:hidden;border:1px solid var(--linea);background:rgba(6,20,40,.6)}
+.sw div{height:64px}
+.sw p{padding:10px 12px;font-size:12px}
+.sw p b{display:block;font-size:13px}
+.sw p span{font-family:var(--mono);color:var(--niebla);font-size:11px}
+.tipo-row{display:grid;grid-template-columns:150px 1fr 160px;align-items:baseline;gap:var(--esp-4);padding:10px 0;border-bottom:1px solid var(--linea)}
+.tipo-row code{font-family:var(--mono);font-size:11.5px;color:var(--niebla)}
+.esp-row{display:flex;align-items:center;gap:var(--esp-4);padding:6px 0;font-family:var(--mono);font-size:12px;color:var(--niebla)}
+.esp-row i{display:block;height:14px;border-radius:4px;background:linear-gradient(90deg,var(--cian),var(--ribera))}
+.radios{display:flex;gap:var(--esp-4);flex-wrap:wrap}
+.radios div{width:120px;height:80px;background:rgba(25,195,230,.12);border:1px solid rgba(25,195,230,.5);display:grid;place-items:center;font-family:var(--mono);font-size:11.5px}
+.comp{display:grid;grid-template-columns:repeat(6,1fr);gap:var(--esp-3)}
+.dc{border-radius:var(--r-md);padding:14px;background:linear-gradient(180deg,rgba(15,42,77,.95),rgba(10,31,60,.95));border:1px solid var(--linea)}
+.dc.fallo{border-color:rgba(255,107,114,.75);box-shadow:0 0 0 3px rgba(255,107,114,.12)}
+.dc .top{display:flex;align-items:center;gap:10px}
+.dc .bdg{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--bg);color:var(--c)}
+.dc .pill{margin-top:10px}
+.dc b.bat{font-family:var(--display);font-size:28px;display:block;margin:10px 0 6px}
+.lbl{font-family:var(--mono);font-size:10.5px;color:var(--niebla);letter-spacing:.1em;margin-top:8px;text-transform:uppercase}
+.botones{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--esp-3)}
+.botones .btn{width:100%;padding:15px 10px}
+.spin{width:16px;height:16px;border-radius:50%;border:2.5px solid rgba(3,32,51,.3);border-top-color:#032033;display:inline-block}
+table.wcag{width:100%;border-collapse:collapse;font-size:13px}
+table.wcag th{text-align:left;color:var(--niebla);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:10px;border-bottom:1px solid var(--linea)}
+table.wcag td{padding:10px;border-bottom:1px solid var(--linea)}
+.ok{color:var(--ribera);font-weight:700}.no{color:var(--st-fallo);font-weight:700}
+.muestra{padding:6px 12px;border-radius:8px;font-weight:700;font-size:13px;display:inline-block}
+</style>
+</head>
+<body>
+<script src="aquaport-v3.js"></script>
+<div id="app"></div>
+<script>
+const css = getComputedStyle(document.documentElement);
+const v = n => css.getPropertyValue(n).trim();
+function lum(hex) {
+  const c = [1,3,5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255)
+    .map(x => x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4));
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+}
+const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+const sw = (nombre, varName) => `<div class="sw"><div style="background:var(${varName})"></div><p><b>${nombre}</b><span>${varName} · ${v(varName)}</span></p></div>`;
+
+const tokensColor = [['Abismo (fondo)','--abismo'],['Profundo (paneles)','--profundo'],['Superficie (tarjetas)','--superficie'],['Cian hídrico (acción)','--cian'],['Verde ribera (acento)','--ribera'],['Espuma (texto)','--espuma'],['Niebla (texto 2)','--niebla']];
+const tokensEstado = [['DISPONIBLE','--st-disponible'],['EN MISIÓN','--st-mision'],['RECARGANDO','--st-recargando'],['MANTENIMIENTO','--st-mantenimiento'],['FALLO','--st-fallo'],['SUMERGIDO','--st-sumergido']];
+const tokensZona = [['Embalse','--zona-embalse'],['Red de Canales','--zona-canales'],['Laguna','--zona-laguna'],['Lab. Central','--zona-lab']];
+const antes = {'--st-mision':'#3B82F6','--st-fallo':'#F2545B','--st-sumergido':'#6D7CFF'};
+
+const filasWcag = [...tokensEstado, ['Cian hídrico','--cian'], ['Niebla','--niebla'], ['Espuma','--espuma']].map(([n, t]) => {
+  const c = v(t), r1 = ratio(c, v('--superficie')), r2 = ratio(c, v('--abismo')), a = antes[t];
+  return `<tr><td><span class="muestra" style="color:${c};background:var(--superficie)">${n}</span></td><td class="mono">${c}</td>
+    <td class="mono">${r1.toFixed(2)} : 1</td><td class="mono">${r2.toFixed(2)} : 1</td><td class="${r1 >= 4.5 ? 'ok' : 'no'}">${r1 >= 4.5 ? 'CUMPLE AA' : 'NO CUMPLE'}</td>
+    <td class="mono" style="color:var(--niebla)">${a ? a + ' → ' + ratio(a, v('--superficie')).toFixed(2) + ' : 1 (no cumplía)' : '-'}</td></tr>`;
+}).join('') + [['Texto del botón primario','#032033','--cian'],['Texto del botón EMERGENCIA','#FFFFFF','#C92E37']].map(([n, t, f]) => {
+  const fondo = f.startsWith('--') ? v(f) : f, r = ratio(t, fondo);
+  return `<tr><td><span class="muestra" style="color:${t};background:${fondo}">${n}</span></td><td class="mono">${t} / ${fondo}</td><td class="mono" colspan="2">${r.toFixed(2)} : 1</td>
+    <td class="${r >= 4.5 ? 'ok' : 'no'}">${r >= 4.5 ? 'CUMPLE AA' : 'NO CUMPLE'}</td><td class="mono" style="color:var(--niebla)">${n.includes('EMERGENCIA') ? '#F2545B → 3.39 : 1 (no cumplía)' : '-'}</td></tr>`;
+}).join('');
+
+function tarjeta(estado, d) {
+  const e = ESTADOS[estado], bat = d[2], col = bat >= 60 ? 'var(--bat-alta)' : bat >= 35 ? 'var(--bat-media)' : 'var(--bat-baja)';
+  return `<div><div class="dc ${estado === 'FALLO' ? 'fallo' : ''}" style="--c:${e.c};--bg:${e.bg}"><div class="top"><span class="bdg">${tipoIc(d[1],20)}</span><div><div class="mono" style="font-weight:600">${d[0]}</div><small style="color:var(--niebla);font-size:11px">${TIPOS[d[1]].nombre}</small></div></div>
+    <span class="pill" style="background:${e.bg};color:${e.c}"><span class="dot ${estado==='FALLO'||estado==='EN_MISION'?'pulse':''}"></span>${e.txt}</span>
+    <b class="bat" style="color:${col}">${bat}%</b><div class="bar"><i style="width:${bat}%;background:${col}"></i><span class="umbral"></span></div>
+    <div style="margin-top:10px">${zchip(d[3])}</div></div><div class="lbl">${e.txt}</div></div>`;
+}
+
+document.getElementById('app').innerHTML = navHTML('') + `<main>
+  <div class="pantalla-tag">SISTEMA DE DISEÑO · AQUAPORT ENTERPRISE · EMPOLEON</div>
+  <section class="hero"><div class="aura" style="width:420px;height:220px;left:-60px;top:-80px;background:rgba(25,195,230,.35)"></div>
+  <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+  <div class="hero-row"><div><div class="eyebrow">TOKENS · COMPONENTES · ACCESIBILIDAD</div><h1>Design system</h1><p>Un solo archivo de tokens (aquaport-v3.css) alimenta las 6 pantallas del flujo multi-etapa.</p></div>
+  <div class="kpis"><div class="kpi"><b>17</b><span>tokens de color</span></div><div class="kpi"><b>7</b><span>pasos de espaciado</span></div><div class="kpi"><b>5</b><span>radios</span></div><div class="kpi"><b>11/11</b><span>contrastes AA</span></div></div></div></section>
+
+  <section class="blk"><h2>1 · Color</h2><p>Base, acción, estados del drone y color por zona. Los estados EN MISIÓN, FALLO y SUMERGIDO se aclararon respecto a la v2 porque no alcanzaban 4.5 : 1 sobre las tarjetas.</p>
+    <div class="swatches">${tokensColor.map(([n,t]) => sw(n,t)).join('')}</div>
+    <div class="swatches" style="margin-top:12px">${tokensEstado.map(([n,t]) => sw(n,t)).join('')}${tokensZona.map(([n,t]) => sw(n,t)).join('')}</div></section>
+
+  <section class="blk"><h2>2 · Tipografía</h2><p>Barlow Condensed para títulos y cifras, Inter para interfaz y JetBrains Mono para identificadores (AR-49, ME-2041, sellos).</p>
+    <div class="box">${[['--t-3xl','Barlow Condensed 800','display','ME-2041 EN TRÁNSITO'],['--t-2xl','Barlow Condensed 700','display','93 %'],['--t-xl','Barlow Condensed 700','display','REASIGNACIÓN DEL TRAMO 3'],['--t-lg','Inter 700','ui','Laboratorio Hídrico Central'],['--t-md','Inter 400','ui','El tramo 3 se reasignó a AR-49.'],['--t-sm','JetBrains Mono 500','mono','AR-49 · a09e7154…8707'],['--t-xs','Inter 600 · mayúsculas','ui','PANTALLA 5 DE 6']]
+      .map(([t,f,fam,ej]) => `<div class="tipo-row"><code>${t} · ${v(t)}</code><span style="font-family:var(--${fam});font-size:var(${t});font-weight:${f.includes('800')?800:f.includes('700')?700:500}">${ej}</span><code>${f}</code></div>`).join('')}</div></section>
+
+  <section class="blk"><h2>3 · Espaciado y radio</h2><p>Escala de 4 px: todos los márgenes y rellenos del flujo salen de estos 7 valores.</p>
+    <div class="grid2" style="grid-template-columns:1fr 1fr"><div class="box">${['--esp-1','--esp-2','--esp-3','--esp-4','--esp-5','--esp-6','--esp-7'].map(t => `<div class="esp-row"><span style="width:120px">${t} · ${v(t)}</span><i style="width:calc(${v(t)} * 6)"></i></div>`).join('')}</div>
+    <div class="box"><div class="radios">${['--r-sm','--r-md','--r-lg','--r-xl'].map(t => `<div style="border-radius:var(${t})">${t}<br>${v(t)}</div>`).join('')}</div></div></div></section>
+
+  <section class="blk"><h2>4 · Componentes con estados</h2><p>Tarjeta de drone (6 estados), botón de acción (5 estados) y tramo de ruta (4 estados). El estado nunca se comunica solo con color: siempre hay texto y punto.</p>
+    <div class="comp">${[['DISPONIBLE',['AR-49','SEMISUMERGIDO',93,'LAGUNA_RESERVA']],['EN_MISION',['AR-34','SUPERFICIAL',91,'RED_CANALES']],['RECARGANDO',['AR-03','BUCEADOR',31,'EMBALSE_INVESTIGACION']],['MANTENIMIENTO',['AR-18','BUCEADOR',66,'LAB_CENTRAL']],['FALLO',['AR-51','SEMISUMERGIDO',97,'LAGUNA_RESERVA']],['SUMERGIDO',['AR-07','BUCEADOR',89,'EMBALSE_INVESTIGACION']]].map(([e,d]) => tarjeta(e,d)).join('')}</div>
+    <div class="botones" style="margin-top:var(--esp-5)">
+      <div><button class="btn btn-primary">${ic('i-check',18)} Confirmar plan</button><div class="lbl">default</div></div>
+      <div><button class="btn btn-primary" style="transform:scale(1.035);box-shadow:0 14px 30px rgba(25,195,230,.5)">${ic('i-check',18)} Confirmar plan</button><div class="lbl">hover · escala 1.035</div></div>
+      <div><button class="btn btn-primary"><span class="spin"></span> Validando tramos…</button><div class="lbl">procesando</div></div>
+      <div><button class="btn btn-primary" style="background:linear-gradient(135deg,#4FE0B4,var(--ribera))">${ic('i-check',18)} Plan despachado</button><div class="lbl">éxito</div></div>
+      <div><button class="btn btn-primary" disabled>${ic('i-x',16)} Sin drone para tramo 2</button><div class="lbl">deshabilitado con motivo</div></div></div>
+    <div class="grid2" style="grid-template-columns:1fr 1fr;margin-top:var(--esp-5)"><div>
+      ${['','activo','hecho','fallo'].map((c,i) => `<div class="tramo ${c}"><span class="num">${c==='hecho'?ic('i-check',20):i+1}</span><div>${zchip('RED_CANALES')} → ${zchip('LAGUNA_RESERVA')}<small>tramo ${['pendiente','activo','sellado','con drone en FALLO'][i]}</small></div><span class="mono">AR-34</span></div>`).join('')}</div>
+      <div class="box"><h3>${ic('i-bolt',20)} Indicador de batería</h3>${[[82,'≥ 60 % · alta'],[47,'35-59 % · asignable'],[19,'&lt; 20 % · crítica en ruta']].map(([b,t]) => {
+        const col = b >= 60 ? 'var(--bat-alta)' : b >= 35 ? 'var(--bat-media)' : 'var(--bat-baja)';
+        return `<div style="margin-top:14px"><b style="font-family:var(--display);font-size:26px;color:${col}">${b}%</b> <small style="color:var(--niebla)">${t}</small>${b < 35 ? ` <span style="color:var(--bat-baja);font-size:12px">${ic('i-alert',13)} reasignar</span>` : ''}<div class="bar" style="margin-top:6px"><i style="width:${b}%;background:${col}"></i><span class="umbral"></span></div></div>`; }).join('')}</div></div></section>
+
+  <section class="blk"><h2>5 · Contraste WCAG AA</h2><p>Calculado en vivo con la fórmula de luminancia relativa de WCAG 2.1 sobre los tokens actuales. Umbral AA para texto normal: 4.5 : 1.</p>
+    <div class="box"><table class="wcag"><thead><tr><th>Muestra</th><th>Color</th><th>Sobre superficie</th><th>Sobre abismo</th><th>AA</th><th>Valor en la v2</th></tr></thead><tbody>${filasWcag}</tbody></table></div></section>
+</main><footer><span>AquaPort Enterprise v3.0 · DOSW 2026-2</span><span>Tokens en aquaport-v3.css</span><span>Equipo Empoleon</span></footer>`;
+</script>
+</body>
+</html>

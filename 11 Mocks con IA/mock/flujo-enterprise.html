@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaPort Enterprise · Flujo multi-etapa</title>
+<link rel="stylesheet" href="aquaport-v3.css">
+<style>
+.mapa-svg{width:100%;height:auto;display:block;border-radius:var(--r-lg);background:radial-gradient(600px 300px at 30% 30%,rgba(25,195,230,.07),transparent),rgba(6,20,40,.5);border:1px solid var(--linea)}
+.zona-card{display:grid;grid-template-columns:46px 1fr auto;gap:var(--esp-3);align-items:center;padding:var(--esp-3) var(--esp-4);border-radius:var(--r-md);background:rgba(6,20,40,.55);border:1px solid var(--linea);margin-top:var(--esp-3)}
+.zona-card .badge{width:46px;height:46px;background:color-mix(in srgb,var(--z) 18%,transparent);color:var(--z);box-shadow:0 8px 18px color-mix(in srgb,var(--z) 25%,transparent)}
+.zona-card b{font-size:14px}.zona-card small{display:block;color:var(--niebla);font-size:11.5px}
+.zona-card .ef{font-family:var(--display);font-size:26px;font-weight:700;text-align:right;line-height:1}
+.zona-card .ef small{font-family:var(--ui);font-weight:500}
+.ruta-item{display:flex;align-items:center;gap:var(--esp-3);padding:var(--esp-3);border-radius:var(--r-md);background:rgba(6,20,40,.5);border:1px solid var(--linea);margin-top:var(--esp-2);font-size:13px}
+.ruta-item .mono{font-weight:600}
+.ruta-item small{color:var(--niebla);display:block;font-size:11.5px}
+.ruta-item .progreso{width:90px;margin-left:auto}
+.picker{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--esp-2);margin-top:var(--esp-2)}
+.picker button{padding:14px 10px;border-radius:var(--r-md);background:rgba(6,20,40,.6);border:1px solid var(--linea);color:var(--espuma);font-weight:600;font-size:12.5px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.picker button i{width:12px;height:12px;border-radius:50%;background:var(--z);box-shadow:0 0 0 4px color-mix(in srgb,var(--z) 20%,transparent)}
+.picker button.on{border-color:var(--cian);background:rgba(25,195,230,.12);box-shadow:inset 0 0 0 1px var(--cian)}
+.campo{margin-top:var(--esp-4)}
+.campo label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--niebla);font-weight:600}
+.wp{display:flex;align-items:center;gap:var(--esp-3);padding:12px 14px;border-radius:var(--r-md);background:rgba(6,20,40,.6);border:1px dashed rgba(25,195,230,.45);margin-top:var(--esp-2)}
+.wp .mono{color:var(--cian);font-weight:600}
+.add{margin-top:var(--esp-2);width:100%;padding:11px;border-radius:var(--r-md);border:1px dashed var(--linea);background:transparent;color:var(--niebla);font-weight:600}
+.prioridades{display:flex;gap:var(--esp-2);margin-top:var(--esp-2)}
+.prioridades span{flex:1;text-align:center;padding:10px;border-radius:var(--r-md);font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;background:rgba(6,20,40,.6);border:1px solid var(--linea);color:var(--niebla)}
+.prioridades span.on{background:rgba(242,84,91,.16);border-color:rgba(242,84,91,.7);color:#FF8A90}
+.canal{display:grid;grid-template-columns:1fr auto;gap:6px 12px;padding:14px;border-radius:var(--r-md);background:rgba(6,20,40,.55);border:1px solid var(--linea);margin-top:var(--esp-3)}
+.canal.mal{border-color:rgba(242,84,91,.6);background:rgba(242,84,91,.07)}
+.canal .met{grid-column:1/-1;display:flex;gap:var(--esp-4);font-family:var(--mono);font-size:11.5px;color:var(--niebla)}
+.canal .met b{color:var(--espuma)}
+.acciones{display:grid;grid-template-columns:2fr 1fr;gap:var(--esp-3);margin-top:var(--esp-5)}
+.rechazos{display:grid;grid-template-columns:62px 1fr;gap:6px 10px;font-size:12px;margin-top:10px;color:var(--niebla)}
+.rechazos .mono{color:var(--espuma)}
+.spark{display:block;width:100%;height:46px}
+.tele{display:grid;grid-template-columns:auto 1fr auto;gap:var(--esp-3);align-items:center;padding:12px 14px;border-radius:var(--r-md);background:rgba(6,20,40,.55);border:1px solid var(--linea);margin-top:var(--esp-2)}
+.tele .badge{width:40px;height:40px}
+.log{font-family:var(--mono);font-size:11.5px;color:var(--niebla);display:grid;grid-template-columns:62px 1fr;gap:7px 10px;margin-top:10px}
+.log b{color:var(--espuma);font-weight:500}
+.swap{display:grid;grid-template-columns:1fr 70px 1fr;align-items:center;gap:var(--esp-3);margin-top:var(--esp-4)}
+.swap .d{padding:var(--esp-4);border-radius:var(--r-lg);background:rgba(6,20,40,.6);border:1px solid var(--linea);text-align:center}
+.swap .d.fallo{border-color:rgba(242,84,91,.7);box-shadow:0 0 0 3px rgba(242,84,91,.12)}
+.swap .d .badge{margin:0 auto 10px}
+.swap .d b{font-family:var(--display);font-size:30px;display:block}
+.swap .flecha{width:70px;height:70px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--cian),var(--ribera));color:#032033;box-shadow:0 10px 26px rgba(25,195,230,.35)}
+.custodia{width:100%;border-collapse:collapse;margin-top:var(--esp-3);font-size:13px}
+.custodia th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--niebla);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--linea)}
+.custodia td{padding:14px 12px;border-bottom:1px solid var(--linea);vertical-align:top}
+.custodia tr.reasignado td{background:rgba(245,184,65,.06)}
+.custodia .sello{max-width:300px}
+@media (max-width:1100px){.grid2,.grid3,.acciones,.swap{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<script src="aquaport-v3.js"></script>
+<div id="app"></div>
+<script>
+const pantalla = new URLSearchParams(location.search).get('pantalla') || 'mapa';
+const NAV = {mapa:'Mapa',ruta:'Rutas',tramos:'Rutas',monitoreo:'Monitoreo',alerta:'Alertas',reporte:'Custodia'};
+const POS = {EMBALSE_INVESTIGACION:[200,120],RED_CANALES:[470,290],LAGUNA_RESERVA:[290,470],LAB_CENTRAL:[760,230]};
+const CANALES = [['EMBALSE_INVESTIGACION','RED_CANALES','2,0 km'],['EMBALSE_INVESTIGACION','LAB_CENTRAL','2,5 km'],
+  ['RED_CANALES','LAGUNA_RESERVA','1,5 km'],['RED_CANALES','LAB_CENTRAL','1,0 km'],['LAGUNA_RESERVA','LAB_CENTRAL','1,2 km']];
+const RUTA = [['EMBALSE_INVESTIGACION','RED_CANALES'],['RED_CANALES','LAGUNA_RESERVA'],['LAGUNA_RESERVA','LAB_CENTRAL']];
+const SELLOS = ['a09e715445a13b73b469a482e3f58a7a16091977e9b173ff9d919da6cb658707',
+  'a7f8512350b8b14830d389cb063109beca541d5556a485ab8013123c7959e206',
+  '6d722cb078355d00c9e720ff7374a49e0d40049541ebbdae2673c72f1d51fa1a'];
+
+function hero(tag, titulo, sub, kpis) {
+  return `<div class="pantalla-tag">${tag}</div>
+  <section class="hero"><div class="aura" style="width:420px;height:220px;left:-60px;top:-80px;background:rgba(25,195,230,.35)"></div>
+  <div class="aura" style="width:360px;height:200px;right:120px;bottom:-120px;background:rgba(109,124,255,.25)"></div>
+  <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+  <div class="hero-row"><div><div class="eyebrow">${sub}</div><h1>${titulo}</h1></div>
+  <div class="kpis">${kpis.map(([v,l,c]) => `<div class="kpi ${c||''}"><b>${v}</b><span>${l}</span></div>`).join('')}</div></div></section>`;
+}
+
+function mapaSVG(opciones = {}) {
+  const {ruta = false, adverso = false, falla = false} = opciones;
+  let s = `<svg class="mapa-svg" viewBox="40 20 860 560">`;
+  CANALES.forEach(([a,b,km]) => {
+    const [x1,y1] = POS[a], [x2,y2] = POS[b];
+    const malo = adverso && a === 'RED_CANALES' && b === 'LAB_CENTRAL';
+    s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${malo ? '#FF6B72' : 'rgba(139,163,184,.35)'}" stroke-width="${malo ? 3 : 10}" stroke-linecap="round" ${malo ? 'stroke-dasharray="8 8"' : ''}/>`;
+    s += `<text x="${(x1+x2)/2}" y="${(y1+y2)/2 - 10}" fill="${malo ? '#FF8A90' : '#8BA3B8'}" font-size="12" font-family="JetBrains Mono" text-anchor="middle">${malo ? 'turbidez 64 NTU' : km}</text>`;
+  });
+  if (ruta) RUTA.forEach(([a,b], i) => {
+    const [x1,y1] = POS[a], [x2,y2] = POS[b];
+    s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="url(#gr)" stroke-width="5" stroke-linecap="round"/>`;
+  });
+  s += `<defs><linearGradient id="gr"><stop offset="0" stop-color="#19C3E6"/><stop offset="1" stop-color="#2ED3A0"/></linearGradient>
+    <radialGradient id="agua"><stop offset="0" stop-color="#19C3E6" stop-opacity=".35"/><stop offset="1" stop-color="#19C3E6" stop-opacity="0"/></radialGradient></defs>`;
+  Object.entries(POS).forEach(([z,[x,y]]) => {
+    const Z = ZONAS[z], drones = FLOTA.filter(d => d.zona === z);
+    s += `<circle cx="${x}" cy="${y}" r="100" fill="url(#agua)"/><circle cx="${x}" cy="${y}" r="72" fill="rgba(6,20,40,.85)" stroke="${Z.hex}" stroke-width="2"/>`;
+    drones.forEach((d, i) => {
+      const ang = i / drones.length * Math.PI * 2, rr = 54 + (i % 2) * 10;
+      const col = d.estado === 'FALLO' ? '#FF6B72' : d.estado === 'DISPONIBLE' ? Z.hex : '#8BA3B8';
+      const destacado = falla && d.id === 'AR-51';
+      s += `<circle cx="${x + Math.cos(ang) * rr}" cy="${y + Math.sin(ang) * rr}" r="${destacado ? 7 : 4}" fill="${destacado ? '#FF6B72' : col}" ${destacado ? 'stroke="#fff" stroke-width="2"' : ''}/>`;
+    });
+    s += `<text x="${x}" y="${y - 4}" fill="#E8F4F8" font-size="14" font-weight="700" text-anchor="middle" font-family="Barlow Condensed" letter-spacing=".5">${Z.corto.toUpperCase()}</text>`;
+    s += `<text x="${x}" y="${y + 16}" fill="#8BA3B8" font-size="12" text-anchor="middle" font-family="JetBrains Mono">${drones.length} drones</text>`;
+  });
+  return s + '</svg>';
+}
+
+function zonaCard(z, ef) {
+  const Z = ZONAS[z], drones = FLOTA.filter(d => d.zona === z);
+  const prom = Math.round(drones.reduce((a, d) => a + d.bat, 0) / drones.length);
+  const op = drones.filter(d => d.estado === 'DISPONIBLE' && d.bat >= 35).length;
+  return `<div class="zona-card" style="--z:${Z.c}"><span class="badge">${ic('i-wave',22)}</span>
+    <div><b>${Z.nombre}</b><small>${op} operables de ${drones.length} · batería promedio ${prom} %</small></div>
+    <div class="ef" style="color:${Z.c}">${ef}%<small style="display:block;font-size:10.5px;color:var(--niebla)">eficiencia</small></div></div>`;
+}
+
+function tramoHTML(n, a, b, d, bat, clase, extra = '') {
+  return `<div class="tramo ${clase}"><span class="num">${clase === 'hecho' ? ic('i-check',20) : n}</span>
+    <div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${zchip(a)} ${ic('i-route',14)} ${zchip(b)}</div>${extra}</div>
+    <div style="text-align:right"><div class="mono" style="font-weight:600">${d}</div><small>${bat}</small></div></div>`;
+}
+
+const P = {};
+P.mapa = () => hero('PANTALLA 1 DE 6 · MAPA DE ZONAS', 'Red hídrica en vivo', '60 DRONES · 4 ZONAS · RUTAS MULTI-ETAPA',
+    [['52<small style="font-size:16px">/60</small>','operables'],['3','rutas activas'],['1','canal adverso','alerta'],['94%','eficiencia red']]) +
+  `<div class="grid2"><div class="box"><div class="sec-h"><h2>${ic('i-map',20)} Mapa de las 4 zonas</h2>
+    <div class="tabs"><button class="on">Drones</button><button>Canales</button><button>Rutas</button></div></div>${mapaSVG({adverso:true})}
+    <div class="leyenda">${Object.keys(ZONAS).map(zchip).join('')}<span><span class="dot" style="color:#8BA3B8"></span>ocupado o en carga</span><span><span class="dot" style="color:#FF6B72"></span>FALLO</span></div></div>
+  <div><div class="box"><h3>${ic('i-chart',20)} Zonas</h3>
+    ${zonaCard('EMBALSE_INVESTIGACION',92)}${zonaCard('RED_CANALES',88)}${zonaCard('LAGUNA_RESERVA',91)}${zonaCard('LAB_CENTRAL',97)}</div>
+  <div class="box" style="margin-top:var(--esp-4)"><h3>${ic('i-route',20)} Rutas activas</h3>
+    <div class="ruta-item"><span class="mono">ME-2038</span><div><small>Canales → Lab. Central</small></div><div class="progreso"><i style="width:80%"></i></div></div>
+    <div class="ruta-item"><span class="mono">ME-2039</span><div><small>Laguna → Canales → Embalse</small></div><div class="progreso"><i style="width:35%"></i></div></div>
+    <div class="ruta-item"><span class="mono">ME-2040</span><div><small>Embalse → Lab. Central</small></div><div class="progreso"><i style="width:55%"></i></div></div>
+    <button class="btn btn-primary" style="width:100%;margin-top:var(--esp-4)">${ic('i-route',18)} Nueva ruta multi-etapa</button></div></div></div>`;
+
+P.ruta = () => hero('PANTALLA 2 DE 6 · SELECCIÓN DE RUTA', 'Nueva misión ME-2041', 'SOLICITUD DEL LAB. DE CALIDAD DEL AGUA',
+    [['250 g','carga'],['CRÍTICA','prioridad','alerta'],['1','waypoint'],['2','tramos']]) +
+  `<div class="grid2"><div class="box"><h3>${ic('i-route',20)} Configurar ruta con waypoints</h3>
+    <div class="campo"><label>Origen</label><div class="picker">${Object.keys(ZONAS).map(z => `<button class="${z==='EMBALSE_INVESTIGACION'?'on':''}" style="--z:${ZONAS[z].c}"><i></i>${ZONAS[z].corto}</button>`).join('')}</div></div>
+    <div class="campo"><label>Waypoints (máximo 3)</label>
+      <div class="wp"><span class="mono">WP-1</span>${zchip('RED_CANALES')}<small style="color:var(--niebla)">traspaso de la muestra entre drones</small><span style="margin-left:auto;color:var(--niebla)">${ic('i-x',16)}</span></div>
+      <button class="add">+ Agregar waypoint</button></div>
+    <div class="campo"><label>Destino</label><div class="picker">${Object.keys(ZONAS).map(z => `<button class="${z==='LAB_CENTRAL'?'on':''}" style="--z:${ZONAS[z].c}"><i></i>${ZONAS[z].corto}</button>`).join('')}</div></div>
+    <div class="grid3" style="grid-template-columns:1fr 1fr;margin-top:var(--esp-4)">
+      <div class="campo" style="margin:0"><label>Tipo de carga</label><div class="wp" style="border-style:solid;border-color:var(--linea)">${ic('i-flask',18)} Muestra de agua</div></div>
+      <div class="campo" style="margin:0"><label>Peso</label><div class="wp" style="border-style:solid;border-color:var(--linea)"><span class="mono" style="color:var(--espuma)">250 g</span><small style="color:var(--niebla)">máx. 1500 g</small></div></div></div>
+    <div class="campo"><label>Prioridad</label><div class="prioridades"><span class="on">CRÍTICA</span><span>ALTA</span><span>NORMAL</span><span>BAJA</span></div></div>
+    <div class="acciones"><button class="btn btn-primary">${ic('i-spark',18)} Planificar ruta</button><button class="btn btn-ghost">Guardar borrador</button></div></div>
+  <div><div class="box"><h3>${ic('i-map',20)} Vista previa</h3>${mapaSVG({ruta:false, adverso:true})}</div>
+    <div class="box" style="margin-top:var(--esp-4)"><h3>${ic('i-wave',20)} Canales de la ruta</h3>
+      <div class="canal"><div>${zchip('EMBALSE_INVESTIGACION')} → ${zchip('RED_CANALES')}</div><span class="pill" style="background:rgba(46,211,160,.14);color:var(--ribera)">NAVEGABLE</span>
+        <div class="met"><span>nivel <b>1,4 m</b></span><span>turbidez <b>3,1 NTU</b></span><span>oleaje <b>0,12 m</b></span></div></div>
+      <div class="canal mal"><div>${zchip('RED_CANALES')} → ${zchip('LAB_CENTRAL')}</div><span class="pill" style="background:rgba(242,84,91,.16);color:var(--st-fallo)">ADVERSO</span>
+        <div class="met"><span>nivel <b>1,1 m</b></span><span>turbidez <b style="color:#FF8A90">64 NTU</b></span><span>oleaje <b>0,40 m</b></span></div></div>
+      <p style="font-size:12.5px;color:var(--niebla);margin-top:var(--esp-3)">${ic('i-alert',14)} Turbidez ALTA (≥ 50 NTU): el planificador desviará el tramo por la <b style="color:var(--espuma)">Laguna de Reserva</b> (+1,7 km).</p></div></div></div>`;
+
+P.tramos = () => hero('PANTALLA 3 DE 6 · ASIGNACIÓN POR TRAMOS', 'Plan de ME-2041', 'RUTA DESVIADA · 2 TRAMOS PASAN A 3',
+    [['3','tramos'],['3/3','con drone'],['4,7 km','recorrido'],['0','rechazos del plan']]) +
+  `<div class="grid2"><div class="box"><h3>${ic('i-shield',20)} Un drone por tramo · validado en cadena</h3>
+    ${tramoHTML(1,'EMBALSE_INVESTIGACION','RED_CANALES','AR-15','Buceador · 95 %','', `<div class="check"><span>Batería ✓</span><span>Capacidad 300 g ✓</span><span>Zona activa ✓</span><span>Condiciones ✓</span></div><div class="rechazos"><span class="mono">AR-07</span><span>SUMERGIDO: no disponible</span><span class="mono">AR-03</span><span>RECARGANDO: no disponible</span></div>`)}
+    ${tramoHTML(2,'RED_CANALES','LAGUNA_RESERVA','AR-34','Superficial · 98 %','activo', `<div class="check"><span>Batería ✓</span><span>Capacidad 500 g ✓</span><span>Zona activa ✓</span><span>Condiciones ✓</span></div><div class="rechazos"><span class="mono">AR-29</span><span>FALLO: no disponible</span><span class="mono">AR-26</span><span>EN MISIÓN: no disponible</span></div>`)}
+    ${tramoHTML(3,'LAGUNA_RESERVA','LAB_CENTRAL','AR-51','Semisumergido · 97 %','', `<div class="check"><span>Batería ✓</span><span>Capacidad 1500 g ✓</span><span>Zona activa ✓</span><span>Condiciones ✓</span></div><div class="rechazos"><span class="mono">AR-53</span><span>ValidadorBateria: 31 % &lt; 35 %</span><span class="mono">AR-49</span><span>93 %, misma zona: queda como reemplazo</span></div>`)}
+    <div class="acciones"><button class="btn btn-primary">${ic('i-check',18)} Confirmar plan y despachar</button><button class="btn btn-ghost">Editar ruta</button></div></div>
+  <div><div class="box"><h3>${ic('i-map',20)} Ruta planificada</h3>${mapaSVG({ruta:true, adverso:true})}</div>
+    <div class="box" style="margin-top:var(--esp-4)"><h3>${ic('i-lock',20)} Reglas del plan</h3>
+    <div class="kv"><span>Criterio</span><b>Más cercano al inicio del tramo</b></div><div class="kv"><span>Desempate</span><b>Mayor batería</b></div>
+    <div class="kv"><span>Cadena</span><b>Batería → Carga → Zona → Agua</b></div><div class="kv" style="border:0"><span>Mismo drone en 2 tramos</span><b>No permitido</b></div></div></div></div>`;
+
+function spark(puntos, color) {
+  const w = 200, h = 46, max = 100;
+  const d = puntos.map((p, i) => `${i ? 'L' : 'M'}${(i / (puntos.length - 1)) * w} ${h - (p / max) * h}`).join(' ');
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><path d="${d}" fill="none" stroke="${color}" stroke-width="2.5"/></svg>`;
+}
+
+P.monitoreo = () => hero('PANTALLA 4 DE 6 · MONITOREO EN TIEMPO REAL', 'ME-2041 en tránsito', 'TRAMO 2 DE 3 · RED DE CANALES → LAGUNA',
+    [['62%','tramo 2'],['14:21','llegada est.'],['1/3','custodia sellada'],['0','alertas']]) +
+  `<div class="grid2"><div class="box"><h3>${ic('i-route',20)} Progreso por tramo</h3>
+    ${tramoHTML(1,'EMBALSE_INVESTIGACION','RED_CANALES','AR-15','83 % al llegar','hecho','<small>14:08 · entregado en WP-1 · sello a09e71…8707</small>')}
+    ${tramoHTML(2,'RED_CANALES','LAGUNA_RESERVA','AR-34','91 % · 62 % del tramo','activo','<div class="progreso" style="margin-top:8px"><i style="width:62%"></i></div>')}
+    ${tramoHTML(3,'LAGUNA_RESERVA','LAB_CENTRAL','AR-51','esperando en Laguna','','<small>Revisión antes de salir: estado y batería ≥ 20 %</small>')}
+    <div style="margin-top:var(--esp-5)">${mapaSVG({ruta:true})}</div></div>
+  <div><div class="box"><h3>${ic('i-bolt',20)} Telemetría</h3>
+    ${[['AR-15','BUCEADOR',[95,92,89,86,83,83],'83 %'],['AR-34','SUPERFICIAL',[98,97,95,93,91],'91 %'],['AR-51','SEMISUMERGIDO',[97,97,97,97,97],'97 %']].map(([id,t,serie,b]) =>
+      `<div class="tele"><span class="badge" style="background:rgba(25,195,230,.14);color:var(--cian)">${tipoIc(t,20)}</span><div><span class="mono" style="font-weight:600">${id}</span>${spark(serie,'#2ED3A0')}</div><b style="font-family:var(--display);font-size:24px;color:var(--ribera)">${b}</b></div>`).join('')}</div>
+    <div class="box" style="margin-top:var(--esp-4)"><h3>${ic('i-clock',20)} Eventos</h3><div class="log">
+      <span>14:06</span><b>DESVIO_POR_CONDICIONES: 2 tramos pasan a 3</b><span>14:06</span><b>Plan confirmado por el operador</b>
+      <span>14:08</span><b>WAYPOINT_ALCANZADO: AR-15 en Red de Canales</b><span>14:08</span><b>Custodia tramo 1 sellada</b>
+      <span>14:12</span><b>AR-34 salió hacia Laguna de Reserva</b></div></div></div></div>`;
+
+P.alerta = () => hero('PANTALLA 5 DE 6 · ALERTA DE FALLO Y REASIGNACIÓN', 'ME-2041 sigue en ruta', 'REASIGNACIÓN AUTOMÁTICA EN WP LAGUNA',
+    [['1','reasignación','alerta'],['3 s','tiempo de reasignación'],['2/3','custodia sellada'],['OT-118','orden técnica']]) +
+  `<div class="banner"><span class="badge" style="background:rgba(242,84,91,.2);color:var(--st-fallo)">${ic('i-alert',24)}</span>
+    <div><h3>AR-51 entró en FALLO esperando en Laguna de Reserva</h3><p>El tramo 3 (Laguna → Lab. Central) se reasignó a AR-49: misma zona, 93 % de batería y aprobado por la cadena de validación. Se abrió la orden OT-118 para el técnico.</p></div>
+    <div class="acts"><button class="btn btn-ghost">Ver orden OT-118</button><button class="btn btn-danger">Detener ruta</button></div></div>
+  <div class="grid2"><div class="box"><h3>${ic('i-swap',20)} Reasignación del tramo 3</h3>
+    <div class="swap"><div class="d fallo"><span class="badge" style="background:rgba(242,84,91,.18);color:var(--st-fallo)">${tipoIc('SEMISUMERGIDO',24)}</span><span class="mono">AR-51</span><b style="color:var(--st-fallo)">FALLO</b><small style="color:var(--niebla)">97 % · Laguna de Reserva</small></div>
+      <div class="flecha">${ic('i-swap',28)}</div>
+      <div class="d grad-card"><span class="badge" style="background:rgba(46,211,160,.18);color:var(--ribera)">${tipoIc('SEMISUMERGIDO',24)}</span><span class="mono">AR-49</span><b style="color:var(--ribera)">93 %</b><small style="color:var(--niebla)">Laguna de Reserva · 0 km del tramo</small></div></div>
+    <div class="check" style="justify-content:center;margin-top:var(--esp-4)"><span>Batería ✓</span><span>Capacidad 1500 g ✓</span><span>Zona Lab. Central activa ✓</span><span>Canal Laguna → Lab ✓</span></div>
+    ${tramoHTML(1,'EMBALSE_INVESTIGACION','RED_CANALES','AR-15','sellado','hecho')}
+    ${tramoHTML(2,'RED_CANALES','LAGUNA_RESERVA','AR-34','sellado','hecho')}
+    ${tramoHTML(3,'LAGUNA_RESERVA','LAB_CENTRAL','AR-49','reemplaza a AR-51','activo')}</div>
+  <div><div class="box"><h3>${ic('i-map',20)} Dónde ocurrió</h3>${mapaSVG({ruta:true, falla:true})}</div>
+    <div class="box" style="margin-top:var(--esp-4)"><h3>${ic('i-clock',20)} Línea de tiempo</h3><div class="log">
+      <span>14:16</span><b>WAYPOINT_ALCANZADO: AR-34 en Laguna</b><span>14:16</span><b style="color:#FF8A90">AR-51 reporta FALLO</b>
+      <span>14:16</span><b style="color:var(--zona-lab)">TRAMO_REASIGNADO: AR-51 → AR-49</b><span>14:16</span><b>Técnico notificado (OT-118)</b>
+      <span>14:17</span><b>AR-49 recibe la muestra</b></div></div></div></div>`;
+
+P.reporte = () => hero('PANTALLA 6 DE 6 · REPORTE DE ENTREGA', 'Entrega ME-2041', 'CADENA DE CUSTODIA COMPLETA · ENVIADA AL LIMS',
+    [['3/3','tramos sellados'],['4,7 km','recorrido'],['31 min','duración'],['1','reasignación']]) +
+  `<div class="ok-banner"><span class="badge" style="background:var(--ribera);color:#032033">${ic('i-shield',24)}</span><div><h3>Muestra entregada en el Laboratorio Hídrico Central a las 14:37</h3>
+    <p style="color:var(--niebla);font-size:13px">Los 3 registros están en orden y sellados con SHA-256. El LIMS aceptó la cadena de custodia.</p></div>
+    <div style="margin-left:auto;display:flex;gap:10px"><button class="btn btn-ghost">Descargar PDF</button><button class="btn btn-primary">Ver en LIMS</button></div></div>
+  <div class="box"><h3>${ic('i-lock',20)} Cadena de custodia</h3>
+    <table class="custodia"><thead><tr><th>Tramo</th><th>Recorrido</th><th>Drone</th><th>Hora</th><th>Batería al llegar</th><th>Sello SHA-256</th></tr></thead><tbody>
+    ${[[1,'EMBALSE_INVESTIGACION','RED_CANALES','AR-15','BUCEADOR','14:08','83 %',SELLOS[0],''],[2,'RED_CANALES','LAGUNA_RESERVA','AR-34','SUPERFICIAL','14:16','86 %',SELLOS[1],''],[3,'LAGUNA_RESERVA','LAB_CENTRAL','AR-49','SEMISUMERGIDO','14:37','81 %',SELLOS[2],'reasignado']]
+      .map(([n,a,b,d,t,h,bat,sello,cl]) => `<tr class="${cl}"><td><b style="font-family:var(--display);font-size:22px">${n}</b></td><td>${zchip(a)} → ${zchip(b)}</td>
+      <td><span style="display:flex;gap:8px;align-items:center">${tipoIc(t,18)}<span class="mono">${d}</span></span>${cl ? '<small style="color:var(--zona-lab)">reemplazó a AR-51</small>' : ''}</td><td class="mono">${h}</td><td class="mono">${bat}</td><td class="sello">${sello}</td></tr>`).join('')}
+    </tbody></table></div>
+  <div class="grid3" style="margin-top:var(--esp-4)">
+    <div class="box"><h3>${ic('i-chart',20)} Eficiencia por zona hoy</h3>${zonaCard('LAB_CENTRAL',97)}${zonaCard('RED_CANALES',88)}</div>
+    <div class="box"><h3>${ic('i-route',20)} Tiempos por tramo</h3><div class="kv"><span>Tramo 1</span><b>2 min</b></div><div class="kv"><span>Tramo 2</span><b>8 min</b></div><div class="kv"><span>Reasignación</span><b>3 s</b></div><div class="kv" style="border:0"><span>Tramo 3</span><b>21 min</b></div></div>
+    <div class="box"><h3>${ic('i-flask',20)} Carga</h3><div class="kv"><span>Tipo</span><b>Muestra de agua</b></div><div class="kv"><span>Peso</span><b>250 g</b></div><div class="kv"><span>Prioridad</span><b style="color:#FF8A90">CRÍTICA</b></div><div class="kv" style="border:0"><span>Solicitante</span><b>Lab. de Calidad del Agua</b></div></div></div>`;
+
+document.getElementById('app').innerHTML = navHTML(NAV[pantalla]) + `<main>${(P[pantalla] || P.mapa)()}</main>
+  <footer><span>AquaPort Enterprise v3.0 · DOSW 2026-2</span><span>Planificación: drone más cercano por tramo · cadena Batería → Carga → Zona → Agua</span><span>Equipo Empoleon</span></footer>`;
+</script>
+</body>
+</html>
