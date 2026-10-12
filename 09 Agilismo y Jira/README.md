@@ -83,11 +83,8 @@ Formato: qué funcionó, qué no funcionó y qué se cambia. Escrita a partir de
 | El Quality Gate de SonarQube se configuró antes de analizar, así los umbrales estaban claros desde el principio. | Levantar SonarQube con Docker dio error la primera vez y el análisis quedó para el último día. | El análisis de SonarQube se mueve a una historia propia del Sprint 3 (HU-25), con holgura de capacidad. |
 | Los mocks usaron los mismos datos que el código (FlotaEjemplo), sin inconsistencias entre UI y pruebas. | Se comprometieron 32 puntos con la capacidad justa: no quedó margen para imprevistos. | La capacidad de cada sprint se fija en 28 puntos y el Sprint 3 queda en 23. |
 
-## Cargarlo en Jira (AP1)
+<img width="1526" height="367" alt="image" src="https://github.com/user-attachments/assets/4ce8f306-890e-43ab-8ce0-92f8c9f44717" />
+<img width="1533" height="333" alt="image" src="https://github.com/user-attachments/assets/5b489d8e-a82b-4ef3-bb10-67c21c53375d" />
+<img width="1527" height="341" alt="image" src="https://github.com/user-attachments/assets/209eed6f-ff5e-40e6-857e-06660526103e" />
 
-1. **Backlog → Crear sprint** tres veces: `AP1 Sprint 3 - Empoleon arquitectura`, `AP1 Sprint 4 - Empoleon rutas`, `AP1 Sprint 5 - Empoleon calidad`, cada uno con su objetivo.
-2. Importar `jira-import-empoleon.csv` (*Issue Type*, *Summary*, *Description*, *Story Points*).
-3. Vincular las 19 historias a la épica y arrastrarlas a su sprint según las tablas de arriba.
-4. En **Timeline / Roadmap** se ven la épica y los 3 sprints.
 
-**Pendiente:** captura del roadmap en `capturas/jira-roadmap-empoleon.png`.
