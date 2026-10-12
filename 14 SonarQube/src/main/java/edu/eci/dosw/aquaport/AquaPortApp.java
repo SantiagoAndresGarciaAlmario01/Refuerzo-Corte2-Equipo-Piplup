@@ -20,9 +20,13 @@ import edu.eci.dosw.aquaport.servicio.ValidadorAsignacion;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class AquaPortApp {
+/** Punto de entrada de AquaPort v2: arma las dependencias y asigna tres misiones de ejemplo. */
+public final class AquaPortApp {
 
     private static final Logger LOGGER = Logger.getLogger(AquaPortApp.class.getName());
+
+    private AquaPortApp() {
+    }
 
     public static void main(String[] args) {
         List<DroneAcuatico> flota = FlotaEjemplo.crear();
@@ -35,14 +39,15 @@ public class AquaPortApp {
         asignador.registrarObservador(centroControl);
         asignador.registrarObservador(new TecnicoMantenimientoObserver());
         List<Mision> asignadas = asignador.asignarPorPrioridad(List.of(
-                new Mision.Builder().id("M-901").zonaPartida(Zona.LAGUNA_SUR).zonaDestino(Zona.LAB_HIDRICO)
-                        .tipoCarga(TipoCarga.MUESTRA_AGUA).pesoCargaGramos(250).prioridad(Prioridad.CRITICA).build(),
-                new Mision.Builder().id("M-902").zonaPartida(Zona.CANAL_CENTRAL).zonaDestino(Zona.LAB_HIDRICO)
-                        .tipoCarga(TipoCarga.MUESTRA_AGUA).pesoCargaGramos(900).prioridad(Prioridad.NORMAL).build(),
-                new Mision.Builder().id("M-903").zonaPartida(Zona.RIBERA_ESTE).zonaDestino(Zona.LAB_HIDRICO)
-                        .tipoCarga(TipoCarga.MUESTRA_AGUA).pesoCargaGramos(150).prioridad(Prioridad.ALTA).build()),
-                flota);
-        LOGGER.info(() -> "Misiones asignadas: " + asignadas.stream().map(m -> m.getId()).toList());
-        centroControl.getRegistro().forEach(linea -> LOGGER.info(linea));
+                misionHaciaLaboratorio("M-901", Zona.LAGUNA_SUR, 250, Prioridad.CRITICA),
+                misionHaciaLaboratorio("M-902", Zona.CANAL_CENTRAL, 900, Prioridad.NORMAL),
+                misionHaciaLaboratorio("M-903", Zona.RIBERA_ESTE, 150, Prioridad.ALTA)), flota);
+        LOGGER.info(() -> "Misiones asignadas: " + asignadas.stream().map(Mision::getId).toList());
+        centroControl.getRegistro().forEach(LOGGER::info);
+    }
+
+    private static Mision misionHaciaLaboratorio(String id, Zona partida, int pesoGramos, Prioridad prioridad) {
+        return new Mision.Builder().id(id).zonaPartida(partida).zonaDestino(Zona.LAB_HIDRICO)
+                .tipoCarga(TipoCarga.MUESTRA_AGUA).pesoCargaGramos(pesoGramos).prioridad(prioridad).build();
     }
 }
