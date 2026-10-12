@@ -6,7 +6,7 @@
 
     <groupId>edu.eci.dosw.aquaport</groupId>
     <artifactId>aquaport-v3-14-capas</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0</version>
     <packaging>jar</packaging>
     <name>AquaPort Enterprise - 14 Arquitectura por capas</name>
 
