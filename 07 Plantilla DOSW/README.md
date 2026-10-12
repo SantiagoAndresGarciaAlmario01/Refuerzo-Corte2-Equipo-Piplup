@@ -1,75 +1,94 @@
-# 07 Plantilla DOSW: RF AP-07 “Asignar automáticamente el drone más adecuado”
+# 07 Plantilla DOSW: RF AP-15 “Ejecutar misión multi-etapa con waypoints”
 
-**Nivel:** Prinplup · Mismo formato que AP-01 de Piplup, ahora con datos de entrada compuestos (sub-índices), salidas del sistema y flujos alternos de la asignación automática.
+**Nivel:** Empoleon · Datos anidados (waypoints, carga y resultado por tramo), flujo básico de 10 pasos, flujos de reasignación y reglas de coordinación.
 
 | Campo | Contenido |
 |---|---|
-| **Código** | AP-07 |
-| **Nombre** | Asignar automáticamente el drone más adecuado a una misión |
-| **Actor principal** | Sistema AquaPort (el caso lo inicia el Solicitante al registrar la solicitud) |
-| **Actores secundarios** | API Condiciones Hídricas, Centro de Control ECI, Técnico de Mantenimiento |
-| **Descripción** | A partir de la solicitud del Solicitante, el sistema consulta las condiciones del agua en la zona destino, filtra los drones aptos de la flota y elige uno con la estrategia activa (mayor batería; el más cercano si la misión es CRÍTICA). La misión queda `EN_TRANSITO` y el drone `EN_MISION`. |
+| **Código** | AP-15 |
+| **Nombre** | Ejecutar misión multi-etapa con waypoints |
+| **Actor principal** | Solicitante (crea la solicitud) · Sistema AquaPort (ejecuta) |
+| **Actores secundarios** | Operador Hídrico, API Condiciones Hídricas, Centro de Control ECI, Sistema de Alertas, LIMS, Técnico de Mantenimiento |
+| **Descripción** | Lleva una carga desde una zona de origen hasta un destino pasando por waypoints. Cada tramo lo recorre un drone distinto, elegido como el más cercano que aprueba la cadena de validación. En cada waypoint la muestra cambia de drone y el traspaso queda en la cadena de custodia sellada. |
 | **Prioridad** | Must Have |
-| **Precondiciones** | 1. Existe una solicitud de transporte con zonas, carga y prioridad.<br>2. La flota está registrada (15 drones de 3 tipos).<br>3. La API Condiciones Hídricas responde para la zona destino. |
-| **Postcondiciones (éxito)** | 1. La misión tiene `estado = EN_TRANSITO` y un `droneAsignado`.<br>2. El drone asignado tiene `estado = EN_MISION` y no puede tomar otra misión.<br>3. El Centro de Control recibe el evento `MISION_ASIGNADA`. |
-| **Postcondiciones (fracaso)** | La misión sigue `PENDIENTE` sin drone y se emite el evento `MISION_SIN_DRONE` (alerta crítica si la misión es CRÍTICA). |
+| **Precondiciones** | 1. La solicitud tiene origen, destino y carga válidos.<br>2. La red de 60 drones está registrada en `FlotaEnterprise`.<br>3. Las zonas de la ruta existen en el `MapaHidrico`. |
+| **Postcondiciones (éxito)** | 1. La misión queda `ENTREGADA`.<br>2. Hay un `RegistroCustodia` sellado por cada tramo, en orden.<br>3. La custodia se envía al LIMS y cada drone vuelve a `DISPONIBLE` en la zona donde terminó. |
+| **Postcondiciones (fracaso)** | La misión queda `EN_ESPERA` (destino inactivo) o `FALLIDA` (sin drone apto o custodia interrumpida), con el evento correspondiente publicado. |
 
 ## Datos de entrada
 
-| Dato | Tipo | Obligatorio | Restricción |
+| Nombre | Tipo de campo | Reglas | Oblig. |
 |---|---|---|---|
-| `id` | `String` | Sí | Formato `M-NNNN`, no vacío |
-| `zonaPartida` | `Enum Zona(EMBALSE_NORTE, CANAL_CENTRAL, LAGUNA_SUR, RIBERA_ESTE, LAB_HIDRICO)` | Sí | - |
-| `zonaDestino` | `Enum Zona(...)` | Sí | Distinta de `zonaPartida` |
-| `carga` | Objeto compuesto | Sí | Ver sub-índices |
-| `carga.peso` | `int` (gramos) | Sí | 1 a 1500 |
-| `carga.tipo` | `Enum TipoCarga(MUESTRA_AGUA, SENSOR, PAQUETE_LIGERO, EQUIPO_MEDICION)` | Sí | - |
-| `carga.prioridad` | `Enum Prioridad(CRITICA, ALTA, NORMAL, BAJA)` | No | Por defecto `NORMAL` |
+| `id` | String | Formato `ME-NNNN` | Sí |
+| `origen` | Enum Zona(EMBALSE_INVESTIGACION, RED_CANALES, LAGUNA_RESERVA, LAB_CENTRAL) | - | Sí |
+| `waypoints` | Lista | 0 a 3 elementos, en orden de paso | No |
+| `waypoints[i].id` | String | Formato `WP-N`, no vacío | Sí (por waypoint) |
+| `waypoints[i].zona` | Enum Zona | Distinta de la parada anterior | Sí (por waypoint) |
+| `destino` | Enum Zona | Distinta de la última parada | Sí |
+| `carga` | - | - | Sí |
+| `carga.peso` | Integer | Entre 1 y 1500 gramos | Sí |
+| `carga.tipo` | Enum(MUESTRA_AGUA, SENSOR, PAQUETE_LIGERO, EQUIPO_MEDICION) | - | Sí |
+| `carga.prioridad` | Enum(CRITICA, ALTA, NORMAL, BAJA) | - | Sí |
 
 ## Datos de salida
 
-| Dato | Tipo | Descripción |
+| Nombre | Tipo de campo | Reglas |
 |---|---|---|
-| `mision.estado` | `Enum EstadoMision` | `EN_TRANSITO` si se asignó; `PENDIENTE` si no hubo drone |
-| `droneAsignado.id` | `String` | Ej. `AR-11` |
-| `droneAsignado.tipo` | `String` | `SUPERFICIAL`, `SEMISUMERGIDO` o `BUCEADOR` |
-| `droneAsignado.bateria` | `int` | Porcentaje al momento de asignar |
-| `razon` | `String` | Por qué se eligió (ej. “ya está en Laguna Sur, 81 %, puede operar a 10 m”) |
-| `condiciones` | `CondicionesHidricas(agitacion: NivelAgitacion, profundidadRequeridaMetros: int, temperaturaCelsius: double)` | Condiciones con las que se tomó la decisión |
+| `estado` | Enum(ENTREGADA, EN_ESPERA, FALLIDA) | Estado final de la misión |
+| `tramos` | Lista | Calculada por el sistema (puede tener más elementos que paradas − 1 si hubo desvío) |
+| `tramos[i].orden` | Integer | Empieza en 1, consecutivo |
+| `tramos[i].origen` / `tramos[i].destino` | Enum Zona | Unidas por un canal navegable |
+| `tramos[i].droneAsignado.id` | String | Formato `AR-XX` |
+| `tramos[i].droneAsignado.tipo` | String | SUPERFICIAL / SEMISUMERGIDO / BUCEADOR |
+| `custodia` | Lista | Un registro por tramo recorrido |
+| `custodia[i].droneId` | String | Drone que llevó la muestra en ese tramo |
+| `custodia[i].sello` | String | SHA-256 en hexadecimal (64 caracteres) |
+| `eventos` | Lista de EventoRuta(tipo, misionId, detalle) | Publicados a los observadores durante la ejecución |
 
 ## Flujo básico
 
-1. El Solicitante registra la solicitud con `zonaPartida`, `zonaDestino` y `carga` (peso, tipo, prioridad).
-2. El sistema valida los datos de entrada (zonas distintas, peso entre 1 y 1500 g).
-3. El sistema consulta a la API Condiciones Hídricas la `zonaDestino`.
-4. El sistema filtra los drones aptos: `DISPONIBLE`, batería ≥ 35 %, capacidad ≥ `carga.peso` y tipo compatible con las condiciones.
-5. El sistema elige un drone con la estrategia activa: el más cercano a `zonaPartida` si la misión es CRÍTICA, el de mayor batería en otro caso.
-6. El sistema cambia el drone a `EN_MISION`, la misión a `EN_TRANSITO` y publica el evento `MISION_ASIGNADA`.
-7. El sistema muestra al Operador y al Solicitante el código de misión, el drone asignado y la razón.
+1. El Solicitante registra la misión con origen, waypoints, destino y carga.
+2. El sistema valida los datos (máximo 3 waypoints, paradas consecutivas distintas, peso entre 1 y 1500 g).
+3. El sistema verifica que la zona de destino esté activa.
+4. El sistema divide la ruta en tramos: origen → waypoint 1 → … → destino.
+5. Por cada tramo consulta a la API las condiciones del canal (nivel, turbidez, oleaje).
+6. Por cada tramo elige el drone disponible más cercano a la zona de inicio que aprueba la cadena de validación (batería ≥ 35 %, capacidad, zona destino activa, puede operar en esas condiciones). Desempate: mayor batería. Un drone no repite tramo.
+7. El sistema confirma el plan y registra la misión ante el Centro de Control.
+8. Para cada tramo, el drone asignado lo recorre; el sistema descuenta batería, mueve el drone y registra la lectura de telemetría.
+9. Al llegar al waypoint el sistema registra el traspaso en la cadena de custodia con el sello del tramo y publica `WAYPOINT_ALCANZADO`.
+10. Al completar el último tramo la misión queda `ENTREGADA`, se publica `MISION_ENTREGADA` y la custodia se envía al LIMS.
 
 ## Flujos alternos
 
-| Id | Condición (paso) | Comportamiento del sistema |
+| Id | Condición (paso) | Comportamiento |
 |---|---|---|
-| **FA-01 No hay drones disponibles** | Paso 4: la lista de aptos queda vacía | La misión queda `PENDIENTE`, se publica `MISION_SIN_DRONE`. Si es CRÍTICA el Centro de Control recibe “ALERTA CRÍTICA: misión M-1043 sin drone disponible” y el operador ve el banner de emergencia. |
-| **FA-02 Condiciones hídricas adversas** | Paso 4: agitación ALTA o profundidad mayor a la soportada | Se descartan los tipos que no pueden operar (con agitación ALTA solo queda el semisumergido; a 10 m solo el buceador). Si ninguno puede, continúa en FA-01. |
-| **FA-03 La carga supera la capacidad del tipo** | Paso 4: `carga.peso > capacidad` | Se descartan los drones con menor capacidad (superficial 500 g, buceador 300 g, semisumergido 1500 g). Si la carga solo cabe en un tipo que no puede operar en las condiciones, continúa en FA-01. |
-| **FA-04 El drone elegido está en FALLO** | Paso 5: la estrategia elige un drone que entró en `FALLO` | Se publica `DRONE_EN_FALLO` (el técnico recibe la orden de mantenimiento), el drone se excluye y se repite el paso 5 con los demás aptos. |
-| **FA-05 API de condiciones no responde** | Paso 3 | Se reintenta; si no hay respuesta se usan las condiciones más restrictivas (agitación ALTA) para no arriesgar la carga. |
+| **FA-01 Fallo de drone en waypoint intermedio** | Paso 8: el drone del siguiente tramo está en `FALLO` | Se busca el drone apto más cercano que no esté en el plan; si existe, se publica `TRAMO_REASIGNADO`, se abre una orden de mantenimiento y se continúa en el paso 8. Si no existe, la misión queda `FALLIDA`. |
+| **FA-02 Condición hídrica adversa en un tramo** | Paso 5: el canal del tramo no es navegable (< 0,5 m) o la turbidez es ≥ 50 NTU | El tramo se reemplaza por dos tramos a través de la zona intermedia más corta, se renumeran los tramos y se publica `DESVIO_POR_CONDICIONES`. Si no hay zona intermedia, el tramo se mantiene y la cadena lo rechaza en el paso 6. |
+| **FA-03 Zona de destino temporalmente inactiva** | Paso 3 | No se planifica; la misión queda `EN_ESPERA` y se publica `ZONA_DESTINO_INACTIVA`. Se reintenta cuando el Administrador reactive la zona. |
+| **FA-04 Batería crítica en mitad de ruta** | Paso 8: el drone del siguiente tramo bajó de 20 % | Se publica `BATERIA_CRITICA_EN_RUTA` y se reasigna igual que FA-01. |
+| **FA-05 Cadena de custodia interrumpida** | Paso 9: el resultado del tramo llega sin sello o con un orden que no corresponde | Se publica `CUSTODIA_INTERRUMPIDA`, la misión queda `FALLIDA` y se alerta al Centro de Control. |
+| **FA-06 Sin drone apto para un tramo** | Paso 6 | La misión queda `FALLIDA` con `MISION_FALLIDA` indicando cuántos tramos quedaron sin drone. |
 
 ## Reglas de negocio
 
 | Código | Regla |
 |---|---|
-| **RN-01** | Ningún drone con batería menor al **35 %** puede ser asignado (se mantiene desde Piplup). |
-| **RN-02** | Un **Buceador** no se asigna a cargas de más de **300 g**. |
-| **RN-03** | Un **Superficial** solo opera en superficie con agitación BAJA. |
-| **RN-04** | Un drone tiene como máximo una misión activa (`EN_TRANSITO`). |
-| **RN-05** | En un lote, las misiones CRÍTICAS eligen drone antes que las demás. |
+| **RN-01** | Ningún drone con batería menor al **35 %** puede ser asignado a un tramo (se mantiene desde Piplup). |
+| **RN-02** | Un **Buceador** no se asigna a cargas de más de **300 g**; un Superficial a más de 500 g. |
+| **RN-03** | Un drone recorre **un solo tramo** por misión. |
+| **RN-04 · Cadena de custodia** | Cada tramo genera exactamente un registro con drone, origen, destino y sello SHA-256 del resultado. Los registros se aceptan solo en orden consecutivo. Un registro sin sello o fuera de orden invalida la misión: la muestra no se entrega al LIMS. |
+| **RN-05 · Momento de la reasignación** | La reasignación solo ocurre en un waypoint, antes de que empiece el tramo; nunca en mitad de un tramo, para que la custodia no tenga dos drones en el mismo registro. |
+| **RN-06 · Umbrales de reasignación automática** | Se reasigna si el drone está en `FALLO` o si su batería es **< 20 %**. Entre 20 % y 34 % el drone puede terminar el tramo que ya tiene asignado, pero no recibe tramos nuevos (RN-01). |
+| **RN-07 · Criterio del reemplazo** | El reemplazo es el drone disponible más cercano a la zona de inicio del tramo, aprobado por la misma cadena de validación y que no esté en el plan de la misión. |
+| **RN-08 · Coordinación de zonas** | Solo se usan canales del mapa hídrico. Embalse y Laguna no tienen canal directo: se pasa por la Red de Canales. |
 
-## Por qué así
+## Trazabilidad con el código y las pruebas
 
-- **Sub-índices en la carga**: peso, tipo y prioridad viajan juntos y cada uno tiene su restricción; escribir “carga: objeto” no permitiría validar nada.
-- **`zonaDestino` es enum**: en Piplup era `String` y obligaba a validar texto; ahora una zona inválida no se puede ni construir.
-- **Las salidas incluyen `razon`**: con asignación automática el operador necesita saber por qué el sistema eligió ese drone para confiar en la decisión (Nielsen #1, visibilidad del estado).
-- FA-01 y FA-04 tienen prueba en `AsignadorAutomaticoTest`; FA-02 y FA-03 en `ValidadorAsignacionTest`. FA-05 queda especificado para cuando se implemente el cliente real de la API (hoy `ProveedorCondicionesHidricas` es una interfaz).
+| Elemento | Clase | Prueba |
+|---|---|---|
+| Flujo básico | `ServicioMisionMultiEtapa`, `PlanificadorRuta`, `EjecutorRuta` | `ejecutar_rutaNormal_entregadaConCustodiaCompleta` |
+| FA-01 | `ReasignadorTramo` | `ejecutar_falloEnWaypoint_reasignaYEntrega`, `ejecutar_falloEnWaypointSinReemplazo_fallida` |
+| FA-02 | `DesviadorRuta` | `ejecutar_condicionAdversaEnTramo_desviaRuta` |
+| FA-03 | `ServicioMisionMultiEtapa` | `ejecutar_zonaDestinoInactiva_enEspera` |
+| FA-04 | `ReasignadorTramo` | `ejecutar_bateriaCriticaEnRuta_reasigna` |
+| FA-05 | `CadenaCustodia` | `ejecutar_custodiaInterrumpida_fallida` |
+| FA-06 | `PlanRuta.estaCompleto` | `ejecutar_planIncompleto_fallida` |
